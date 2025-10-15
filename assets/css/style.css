@@ -62,6 +62,23 @@ body {
 .nav-links a:hover {
     color: var(--primary-medium);
 }
+/* Navbar untuk logged-in user */
+.user-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-nav a {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.user-nav a:hover {
+    color: var(--primary-medium);
+}
 
 .nav-links a::after {
     content: '';
