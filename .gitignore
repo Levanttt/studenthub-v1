@@ -1,0 +1,32 @@
+# Database credentials
+/includes/config.php
+
+# XAMPP files
+/.htaccess
+/error_log
+/xampp/
+
+# Environment files
+.env
+.env.local
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
