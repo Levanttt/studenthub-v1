@@ -1,16 +1,12 @@
     </main>
     
-    <footer class="bg-blue-900 text-white py-8 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <p class="mb-4">&copy; 2024 StudentHub - ElevatED Indonesia</p>
-                <div class="flex justify-center space-x-6 flex-wrap">
-                    <a href="#" class="text-blue-200 hover:text-white transition-colors duration-300 text-sm">
-                        Kebijakan Privasi
-                    </a>
-                    <a href="#" class="text-blue-200 hover:text-white transition-colors duration-300 text-sm">
-                        Syarat Layanan
-                    </a>
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-gray-600">
+                <p class="mb-2">© 2024 StudentHub - ElevatED Indonesia</p>
+                <div class="flex justify-center space-x-6 text-sm">
+                    <a href="#" class="hover:text-cyan-600 transition-colors">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-cyan-600 transition-colors">Syarat Layanan</a>
                 </div>
             </div>
         </div>

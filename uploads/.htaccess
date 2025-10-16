@@ -1,0 +1,12 @@
+# Prevent PHP execution
+<Files *.php>
+    Deny from all
+</Files>
+
+# Prevent viewing directory listing
+Options -Indexes
+
+# Allow image files only
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|JPG|JPEG|PNG|GIF|WEBP)$">
+    Allow from all
+</FilesMatch>

@@ -1,5 +1,6 @@
 <?php
 include '../../includes/config.php';
+include '../../includes/functions.php';
 
 if (!isLoggedIn() || getUserRole() != 'student') {
     header("Location: ../../login.php");
@@ -28,8 +29,17 @@ $total_views = 0;
 // Get total likes (placeholder - implement later)
 $total_likes = 0;
 
-// Get recent projects
-$recent_projects_stmt = $conn->prepare("SELECT * FROM projects WHERE student_id = ? ORDER BY created_at DESC LIMIT 3");
+// Get recent projects with skills data
+$recent_projects_stmt = $conn->prepare("
+    SELECT p.*, GROUP_CONCAT(DISTINCT s.name) as skill_names, GROUP_CONCAT(DISTINCT s.skill_type) as skill_types
+    FROM projects p 
+    LEFT JOIN project_skills ps ON p.id = ps.project_id 
+    LEFT JOIN skills s ON ps.skill_id = s.id 
+    WHERE p.student_id = ? 
+    GROUP BY p.id 
+    ORDER BY p.created_at DESC 
+    LIMIT 3
+");
 $recent_projects_stmt->bind_param("i", $user_id);
 $recent_projects_stmt->execute();
 $recent_projects_result = $recent_projects_stmt->get_result();
@@ -166,23 +176,97 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                 </a>
             </div>
         <?php else: ?>
-            <!-- Projects Grid -->
+            <!-- Projects Grid dengan Style projects.php -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <?php while($project = $recent_projects_result->fetch_assoc()): ?>
-                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-300 group">
-                    <div class="flex items-start justify-between mb-4">
-                        <h3 class="font-bold text-blue-900 text-lg group-hover:text-cyan-600 transition-colors"><?php echo htmlspecialchars($project['title']); ?></h3>
-                        <span class="iconify text-gray-400 group-hover:text-cyan-500 transition-colors" data-icon="mdi:arrow-top-right" data-width="20"></span>
+                <?php while($project = $recent_projects_result->fetch_assoc()): 
+                    // Parse skills data
+                    $skill_names = !empty($project['skill_names']) ? explode(',', $project['skill_names']) : [];
+                    $skill_types = !empty($project['skill_types']) ? explode(',', $project['skill_types']) : [];
+                    
+                    // Combine skills with their types
+                    $skills_with_types = [];
+                    foreach ($skill_names as $index => $skill_name) {
+                        $skill_type = $skill_types[$index] ?? 'technical';
+                        $skills_with_types[] = [
+                            'name' => $skill_name,
+                            'type' => $skill_type
+                        ];
+                    }
+                ?>
+                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group project-card">
+                    <!-- Thumbnail -->
+                    <div class="h-48 bg-gradient-to-br from-cyan-500 to-blue-600 relative overflow-hidden">
+                        <?php if (!empty($project['image_path'])): ?>
+                            <img src="<?php echo htmlspecialchars($project['image_path']); ?>" 
+                                 alt="<?php echo htmlspecialchars($project['title']); ?>" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <?php else: ?>
+                            <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                <span class="iconify text-gray-400" data-icon="mdi:image-off" data-width="48"></span>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <!-- Category Badge di pojok kiri atas -->
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-white/90 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                                <?php echo formatText($project['category'] ?? 'Project'); ?>
+                            </span>
+                        </div>
                     </div>
                     
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2"><?php echo htmlspecialchars($project['description']); ?></p>
-                    
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-500"><?php echo date('d M Y', strtotime($project['created_at'])); ?></span>
-                        <a href="project-detail.php?id=<?php echo $project['id']; ?>" class="text-cyan-600 hover:text-cyan-700 font-medium flex items-center gap-1">
-                            Lihat Detail
-                            <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
-                        </a>
+                    <!-- Content -->
+                    <div class="p-5">
+                        <!-- Judul dan Tahun dalam satu baris -->
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-blue-900 text-lg group-hover:text-cyan-600 transition-colors line-clamp-1 flex-1 mr-2">
+                                <?php echo htmlspecialchars($project['title']); ?>
+                            </h3>
+                            <span class="text-gray-500 text-sm font-medium bg-gray-100 px-2 py-1 rounded whitespace-nowrap">
+                                <?php echo htmlspecialchars($project['project_year']); ?>
+                            </span>
+                        </div>
+                        
+                        <!-- Skills/Tags dengan warna konsisten seperti di projects.php -->
+                        <?php if (!empty($skills_with_types)): ?>
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            <?php 
+                            $displaySkills = array_slice($skills_with_types, 0, 3);
+                            $remaining = count($skills_with_types) - 3;
+                            
+                            foreach($displaySkills as $skill): 
+                                $color_class = [
+                                    'technical' => 'bg-blue-100 text-blue-800',
+                                    'soft' => 'bg-green-100 text-green-800',
+                                    'tool' => 'bg-purple-100 text-purple-800'
+                                ][$skill['type']] ?? 'bg-gray-100 text-gray-800';
+                            ?>
+                                <span class="<?php echo $color_class; ?> px-3 py-1 rounded-lg text-xs font-medium">
+                                    <?php echo htmlspecialchars($skill['name']); ?>
+                                </span>
+                            <?php endforeach; ?>
+                            
+                            <?php if ($remaining > 0): ?>
+                                <span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-xs font-medium">
+                                    +<?php echo $remaining; ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+                        
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                            <?php echo htmlspecialchars($project['description']); ?>
+                        </p>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-500 text-sm">
+                                <?php echo date('M Y', strtotime($project['created_at'])); ?>
+                            </span>
+                            <a href="project-detail.php?id=<?php echo $project['id']; ?>" 
+                               class="text-cyan-600 hover:text-cyan-700 font-semibold text-sm flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
+                                View Details
+                                <span class="iconify" data-icon="mdi:arrow-right" data-width="16"></span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <?php endwhile; ?>
@@ -199,5 +283,29 @@ $recent_projects_result = $recent_projects_stmt->get_result();
         <?php endif; ?>
     </div>
 </div>
+
+<style>
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.project-card {
+    transition: all 0.3s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+}
+</style>
 
 <?php include '../../includes/footer.php'; ?>
