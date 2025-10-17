@@ -15,6 +15,21 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// Define available specializations
+$availableSpecializations = [
+    'Frontend Development',
+    'Backend Development', 
+    'Full Stack Development',
+    'Mobile Development',
+    'UI/UX Design',
+    'Data Analysis',
+    'Machine Learning',
+    'Cybersecurity',
+    'DevOps',
+    'Cloud Computing',
+    'Game Development'
+];
+
 // Handle file upload untuk profile picture
 function handleProfilePictureUpload($file, $user_id) {
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -50,13 +65,86 @@ function handleProfilePictureUpload($file, $user_id) {
     }
 }
 
+// Handle file upload untuk CV
+function handleCVUpload($file, $user_id) {
+    $allowed_types = ['application/pdf'];
+    $max_size = 2 * 1024 * 1024; // 2MB
+    
+    // Check file size
+    if ($file['size'] > $max_size) {
+        return ['success' => false, 'error' => 'Ukuran file CV maksimal 2MB'];
+    }
+    
+    // Check MIME type
+    $file_info = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
+    if (!in_array($file_info, $allowed_types)) {
+        return ['success' => false, 'error' => 'Hanya file PDF yang diizinkan untuk CV'];
+    }
+    
+    // Create upload directory
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/cvs/' . $user_id . '/';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+    
+    // Generate unique filename
+    $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = 'cv_' . time() . '_' . uniqid() . '.' . $file_ext;
+    $file_path = $upload_dir . $filename;
+    
+    // Move uploaded file
+    if (move_uploaded_file($file['tmp_name'], $file_path)) {
+        return ['success' => true, 'file_path' => '/studenthub/uploads/cvs/' . $user_id . '/' . $filename];
+    } else {
+        return ['success' => false, 'error' => 'Gagal mengupload file CV'];
+    }
+}
+
 // Ambil data user terlebih dahulu
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$stmt->close();
+if ($stmt) {
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    $stmt->close();
+} else {
+    $error = "Error preparing user query: " . $conn->error;
+}
+
+// Ambil skills dari project user
+$userSkills = [
+    'technical' => [],
+    'soft' => [],
+    'tool' => []
+];
+
+// Cek apakah tabel skills dan project_skills ada
+$skills_stmt = $conn->prepare("
+    SELECT DISTINCT s.name, s.skill_type 
+    FROM project_skills ps 
+    JOIN skills s ON ps.skill_id = s.id 
+    JOIN projects p ON ps.project_id = p.id 
+    WHERE p.user_id = ? 
+    ORDER BY s.skill_type, s.name
+");
+
+if ($skills_stmt) {
+    $skills_stmt->bind_param("i", $user_id);
+    $skills_stmt->execute();
+    $skills_result = $skills_stmt->get_result();
+
+    while ($skill = $skills_result->fetch_assoc()) {
+        $skill_type = $skill['skill_type'];
+        if (isset($userSkills[$skill_type])) {
+            $userSkills[$skill_type][] = $skill['name'];
+        }
+    }
+    $skills_stmt->close();
+} else {
+    // Jika query gagal, mungkin tabel tidak ada - kita akan handle ini di UI
+    error_log("Skills query failed: " . $conn->error);
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validasi CSRF token
@@ -73,18 +161,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
             
+            // Hapus CV jika ada
+            if (!empty($user['cv_file_path'])) {
+                $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
+                if (file_exists($old_cv_path)) {
+                    unlink($old_cv_path);
+                }
+            }
+            
             // Hapus akun
             $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
-            $stmt->bind_param("i", $user_id);
-            
-            if ($stmt->execute()) {
-                session_destroy();
-                header("Location: ../../login.php?message=account_deleted");
-                exit();
+            if ($stmt) {
+                $stmt->bind_param("i", $user_id);
+                
+                if ($stmt->execute()) {
+                    session_destroy();
+                    header("Location: ../../login.php?message=account_deleted");
+                    exit();
+                } else {
+                    $error = "Gagal menghapus akun: " . $conn->error;
+                }
+                $stmt->close();
             } else {
-                $error = "Gagal menghapus akun: " . $conn->error;
+                $error = "Error preparing delete query: " . $conn->error;
             }
-            $stmt->close();
         } else {
             // Handle update profile
             $name = sanitize($_POST['name']);
@@ -92,6 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $major = sanitize($_POST['major'] ?? '');
             $bio = sanitize($_POST['bio'] ?? '');
             $linkedin = sanitize($_POST['linkedin'] ?? '');
+            $specializations = sanitize($_POST['specializations'] ?? '');
 
             // Validasi tambahan
             if (empty($name)) {
@@ -115,6 +216,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // Validasi panjang bio
                 if (strlen($bio) > 500) {
                     $error = "Bio terlalu panjang (maksimal 500 karakter)";
+                }
+
+                // Validasi spesialisasi
+                if (!empty($specializations)) {
+                    $specs = explode(',', $specializations);
+                    if (count($specs) > 3) {
+                        $error = "Maksimal 3 spesialisasi yang dapat dipilih";
+                    }
+                    
+                    // Validasi pilihan spesialisasi
+                    foreach ($specs as $spec) {
+                        $spec = trim($spec);
+                        if (!empty($spec) && !in_array($spec, $availableSpecializations)) {
+                            $error = "Spesialisasi tidak valid: " . htmlspecialchars($spec);
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -149,12 +267,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $profile_picture_path = '';
                 }
 
+                // Handle CV upload
+                $cv_file_path = $user['cv_file_path'] ?? '';
+                
+                if (isset($_FILES['cv_file']) && $_FILES['cv_file']['error'] === UPLOAD_ERR_OK) {
+                    $upload_result = handleCVUpload($_FILES['cv_file'], $user_id);
+                    if ($upload_result['success']) {
+                        // Delete old CV if exists
+                        if (!empty($user['cv_file_path'])) {
+                            $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
+                            if (file_exists($old_cv_path)) {
+                                unlink($old_cv_path);
+                            }
+                        }
+                        $cv_file_path = $upload_result['file_path'];
+                    } else {
+                        $error = $upload_result['error'];
+                    }
+                }
+
+                // Handle remove CV
+                if (isset($_POST['remove_cv'])) {
+                    if (!empty($user['cv_file_path'])) {
+                        $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
+                        if (file_exists($old_cv_path)) {
+                            unlink($old_cv_path);
+                        }
+                    }
+                    $cv_file_path = '';
+                }
+
                 if (empty($error)) {
-                    // Cek struktur tabel users dan sesuaikan query
-                    $stmt = $conn->prepare("UPDATE users SET name = ?, university = ?, major = ?, bio = ?, linkedin = ?, profile_picture = ? WHERE id = ?");
+                    // Update query dengan tambahan specializations dan cv_file_path
+                    // Cek dulu struktur tabel dengan DESCRIBE query
+                    $stmt = $conn->prepare("UPDATE users SET name = ?, university = ?, major = ?, bio = ?, linkedin = ?, profile_picture = ?, specializations = ?, cv_file_path = ? WHERE id = ?");
                     
                     if ($stmt) {
-                        $stmt->bind_param("ssssssi", $name, $university, $major, $bio, $linkedin, $profile_picture_path, $user_id);
+                        $stmt->bind_param("ssssssssi", $name, $university, $major, $bio, $linkedin, $profile_picture_path, $specializations, $cv_file_path, $user_id);
                         
                         if ($stmt->execute()) {
                             $_SESSION['name'] = $name;
@@ -165,18 +314,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             
                             // Refresh user data
                             $refresh_stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-                            $refresh_stmt->bind_param("i", $user_id);
-                            $refresh_stmt->execute();
-                            $refresh_result = $refresh_stmt->get_result();
-                            $user = $refresh_result->fetch_assoc();
-                            $refresh_stmt->close();
+                            if ($refresh_stmt) {
+                                $refresh_stmt->bind_param("i", $user_id);
+                                $refresh_stmt->execute();
+                                $refresh_result = $refresh_stmt->get_result();
+                                $user = $refresh_result->fetch_assoc();
+                                $refresh_stmt->close();
+                            }
                         } else {
                             error_log("Database error: " . $conn->error);
                             $error = "Terjadi kesalahan saat memperbarui profil: " . $conn->error;
                         }
                         $stmt->close();
                     } else {
-                        $error = "Gagal mempersiapkan query: " . $conn->error;
+                        $error = "Gagal mempersiapkan query update: " . $conn->error;
                     }
                 }
             }
@@ -185,6 +336,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
+<!-- REST OF THE HTML CODE REMAINS THE SAME AS BEFORE -->
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -217,6 +369,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
             <span class="iconify" data-icon="mdi:check-circle" data-width="20"></span>
             <?php echo htmlspecialchars($success); ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- Database Structure Warning -->
+    <?php 
+    // Cek apakah kolom yang diperlukan ada
+    $check_columns = $conn->query("SHOW COLUMNS FROM users LIKE 'specializations'");
+    $has_specializations = $check_columns->num_rows > 0;
+    
+    $check_columns = $conn->query("SHOW COLUMNS FROM users LIKE 'cv_file_path'");
+    $has_cv_file_path = $check_columns->num_rows > 0;
+    
+    if (!$has_specializations || !$has_cv_file_path): 
+    ?>
+        <div class="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg flex items-center gap-2">
+            <span class="iconify" data-icon="mdi:alert" data-width="20"></span>
+            <div>
+                <p class="font-semibold">Perhatian: Struktur database perlu update</p>
+                <p class="text-sm">Beberapa fitur mungkin tidak berfungsi dengan baik. Pastikan kolom berikut ada di tabel users:</p>
+                <ul class="text-sm list-disc list-inside mt-1">
+                    <?php if (!$has_specializations): ?><li><code>specializations</code> (TEXT)</li><?php endif; ?>
+                    <?php if (!$has_cv_file_path): ?><li><code>cv_file_path</code> (VARCHAR(255))</li><?php endif; ?>
+                </ul>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -294,6 +470,78 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
+                    <!-- CV Upload Section -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Curriculum Vitae (CV)</h3>
+                        
+                        <div class="flex flex-col lg:flex-row items-start gap-8">
+                            <!-- Current CV Info -->
+                            <div class="flex-shrink-0">
+                                <div class="w-36 h-36 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex flex-col items-center justify-center border-4 border-blue-100 shadow-lg p-4">
+                                    <span class="iconify text-white mb-2" data-icon="mdi:file-document" data-width="48"></span>
+                                    <span class="text-white text-sm font-semibold text-center">CV Document</span>
+                                    <?php if (!empty($user['cv_file_path'])): ?>
+                                        <span class="text-white text-xs mt-1 text-center">Uploaded</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
+                            <!-- Upload Controls -->
+                            <div class="flex-1 space-y-4">
+                                <!-- Upload Button with Drag & Drop -->
+                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-300 bg-gray-50/50" id="cv-drop-zone">
+                                    <div class="flex flex-col items-center justify-center mb-3">
+                                        <div class="text-gray-400 mb-2">
+                                            <span class="iconify" data-icon="mdi:file-upload" data-width="48"></span>
+                                        </div>
+                                        <p class="text-lg font-medium text-gray-700 mb-1">Upload CV</p>
+                                        <p class="text-sm text-gray-500">Drag & drop file PDF atau klik untuk memilih</p>
+                                    </div>
+                                    
+                                    <label class="cursor-pointer inline-block">
+                                        <span class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 inline-flex items-center gap-2">
+                                            <span class="iconify" data-icon="mdi:file-pdf-box" data-width="20"></span>
+                                            Pilih File PDF
+                                        </span>
+                                        <input type="file" name="cv_file" accept=".pdf,application/pdf" 
+                                            class="hidden" id="cv-file-input">
+                                    </label>
+                                    
+                                    <p class="text-xs text-gray-500 mt-3">Max. 2MB (PDF only)</p>
+                                    
+                                    <!-- File name display -->
+                                    <div id="cv-file-name" class="text-sm text-blue-600 mt-2">
+                                        <?php if (!empty($user['cv_file_path'])): ?>
+                                            <?php 
+                                                $cv_filename = basename($user['cv_file_path']);
+                                                echo htmlspecialchars($cv_filename);
+                                            ?>
+                                        <?php else: ?>
+                                            <span class="text-gray-500">Belum ada CV yang diupload</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex gap-4">
+                                    <?php if (!empty($user['cv_file_path'])): ?>
+                                    <a href="<?php echo htmlspecialchars($user['cv_file_path']); ?>" 
+                                    target="_blank"
+                                    class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 text-sm">
+                                        <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
+                                        Lihat CV
+                                    </a>
+                                    <button type="button" 
+                                            onclick="removeCV()"
+                                            class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center gap-2 text-sm">
+                                        <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
+                                        Hapus CV
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Personal Information -->
                     <div class="space-y-6">
                         <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Informasi Dasar</h3>
@@ -352,6 +600,133 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                                 <p class="text-gray-500 text-xs mt-1">Format: linkedin.com/in/username</p>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Specializations Section -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Spesialisasi / Bidang Fokus</h3>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih hingga 3 bidang spesialisasi</label>
+                            <div class="relative">
+                                <select id="specialization-select" class="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors appearance-none bg-white">
+                                    <option value="">Pilih spesialisasi...</option>
+                                    <?php foreach ($availableSpecializations as $spec): ?>
+                                        <option value="<?php echo htmlspecialchars($spec); ?>"><?php echo htmlspecialchars($spec); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                                </div>
+                            </div>
+                            <p class="text-gray-500 text-xs mt-1">Pilih dari daftar yang tersedia</p>
+                            
+                            <!-- Selected Specializations Display -->
+                            <div id="specializations-container" class="flex flex-wrap gap-2 mt-3 min-h-12">
+                                <?php
+                                if (!empty($user['specializations'])) {
+                                    $specs = explode(',', $user['specializations']);
+                                    foreach ($specs as $spec) {
+                                        $spec = trim($spec);
+                                        if (!empty($spec)) {
+                                            echo '<span class="specialization-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">';
+                                            echo htmlspecialchars($spec);
+                                            echo '<button type="button" onclick="removeSpecialization(this)" class="text-blue-600 hover:text-blue-800">';
+                                            echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
+                                            echo '</button>';
+                                            echo '</span>';
+                                        }
+                                    }
+                                }
+                                ?>
+                            </div>
+                            
+                            <!-- Hidden input untuk menyimpan data -->
+                            <input type="hidden" name="specializations" id="specializations-hidden" 
+                                   value="<?php echo htmlspecialchars($user['specializations'] ?? ''); ?>">
+                            
+                            <div class="flex justify-between items-center mt-1">
+                                <p class="text-gray-500 text-xs">Maksimal 3 spesialisasi</p>
+                                <p class="text-gray-500 text-xs" id="specCounter">0/3</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills from Projects Section -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Skills dari Project</h3>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-4">Skills berikut otomatis diambil dari project yang telah Anda buat:</p>
+                            
+                            <?php 
+                            $hasSkills = false;
+                            foreach ($userSkills as $category => $skills): 
+                                if (!empty($skills)): 
+                                    $hasSkills = true;
+                            ?>
+                                <div class="mb-6 last:mb-0">
+                                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                        <?php 
+                                        $icon = '';
+                                        $color = '';
+                                        switch($category) {
+                                            case 'technical':
+                                                $icon = 'mdi:code-braces';
+                                                $color = 'text-green-600';
+                                                $categoryName = 'Technical Skills';
+                                                break;
+                                            case 'soft':
+                                                $icon = 'mdi:account-group';
+                                                $color = 'text-purple-600';
+                                                $categoryName = 'Soft Skills';
+                                                break;
+                                            case 'tool':
+                                                $icon = 'mdi:tools';
+                                                $color = 'text-orange-600';
+                                                $categoryName = 'Tools';
+                                                break;
+                                            default:
+                                                $icon = 'mdi:tag';
+                                                $color = 'text-gray-600';
+                                                $categoryName = ucfirst($category);
+                                        }
+                                        ?>
+                                        <span class="iconify <?php echo $color; ?>" data-icon="<?php echo $icon; ?>" data-width="20"></span>
+                                        <?php echo $categoryName; ?>
+                                        <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"><?php echo count($skills); ?></span>
+                                    </h4>
+                                    <div class="flex flex-wrap gap-2">
+                                        <?php foreach ($skills as $skill): ?>
+                                            <span class="skill-tag 
+                                                <?php 
+                                                switch($category) {
+                                                    case 'technical': echo 'bg-green-100 text-green-800 border-green-200'; break;
+                                                    case 'soft': echo 'bg-purple-100 text-purple-800 border-purple-200'; break;
+                                                    case 'tool': echo 'bg-orange-100 text-orange-800 border-orange-200'; break;
+                                                    default: echo 'bg-gray-100 text-gray-800 border-gray-200';
+                                                }
+                                                ?> 
+                                                px-3 py-2 rounded-lg text-sm border">
+                                                <?php echo htmlspecialchars($skill); ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php 
+                                endif;
+                            endforeach; 
+                            
+                            if (!$hasSkills): 
+                            ?>
+                                <div class="text-center py-8 bg-gray-50 rounded-xl">
+                                    <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:folder-open" data-width="48"></span>
+                                    <p class="text-gray-500">Belum ada skills dari project</p>
+                                    <p class="text-gray-400 text-sm mt-1">Skills akan otomatis muncul ketika Anda menambahkan project</p>
+                                    <a href="projects.php" class="inline-block mt-4 bg-cyan-500 text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition-colors">
+                                        Tambah Project Pertama
+                                    </a>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -429,6 +804,73 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <p class="font-semibold text-gray-900 text-sm"><?php echo htmlspecialchars($user['email']); ?></p>
                         </div>
                     </div>
+
+                    <!-- CV Status -->
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span class="iconify text-purple-600" data-icon="mdi:file-document" data-width="18"></span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">CV</p>
+                            <p class="font-semibold <?php echo !empty($user['cv_file_path']) ? 'text-green-600' : 'text-gray-500'; ?>">
+                                <?php echo !empty($user['cv_file_path']) ? 'Tersedia' : 'Belum diupload'; ?>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Specializations Summary - Compact Version -->
+                <!-- Specializations Summary - Horizontal Wrap -->
+                    <?php if (!empty($user['specializations'])): ?>
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="iconify text-indigo-600" data-icon="mdi:tag-multiple" data-width="18"></span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm text-gray-600 mb-2">Spesialisasi</p>
+                            <div class="flex flex-wrap gap-1">
+                                <?php
+                                $specs = explode(',', $user['specializations']);
+                                foreach ($specs as $spec):
+                                    $spec = trim($spec);
+                                    if (!empty($spec)):
+                                ?>
+                                    <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                        <?php echo htmlspecialchars($spec); ?>
+                                    </span>
+                                <?php
+                                    endif;
+                                endforeach;
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Skills Summary -->
+                    <?php
+                    $totalSkills = count($userSkills['technical']) + count($userSkills['soft']) + count($userSkills['tool']);
+                    if ($totalSkills > 0): 
+                    ?>
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                            <span class="iconify text-orange-600" data-icon="mdi:tools" data-width="18"></span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Skills dari Project</p>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                                    <?php echo count($userSkills['technical']); ?> Technical
+                                </span>
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
+                                    <?php echo count($userSkills['soft']); ?> Soft
+                                </span>
+                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">
+                                    <?php echo count($userSkills['tool']); ?> Tools
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -468,42 +910,163 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </div>
 
+<!-- SCRIPT SECTION REMAINS THE SAME AS BEFORE -->
 <script>
-// Real-time bio character counter
-document.addEventListener('DOMContentLoaded', function() {
-    const bioTextarea = document.querySelector('textarea[name="bio"]');
-    const bioCounter = document.getElementById('bioCounter');
-    
-    if (bioTextarea && bioCounter) {
-        bioTextarea.addEventListener('input', function() {
-            bioCounter.textContent = this.value.length + '/500';
-        });
-    }
-    
-    // Loading state untuk form submission
-    const form = document.getElementById('profileForm');
-    const submitBtn = document.getElementById('submitBtn');
-    
-    if (form && submitBtn) {
-        form.addEventListener('submit', function() {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="iconify" data-icon="mdi:loading" data-width="20"></span> Menyimpan...';
-        });
-    }
+// Specializations Management
+let specializationCount = <?php echo !empty($user['specializations']) ? count(explode(',', $user['specializations'])) : 0; ?>;
 
-    // Profile picture upload preview - FIXED
-    const profilePictureInput = document.getElementById('profile-picture-input');
-    const profilePictureName = document.getElementById('profile-picture-name');
+function addSpecialization() {
+    const select = document.getElementById('specialization-select');
+    const specText = select.value;
     
-    if (profilePictureInput && profilePictureName) {
-        profilePictureInput.addEventListener('change', function(e) {
+    if (!specText) return;
+    
+    if (specializationCount >= 3) {
+        showError('Maksimal 3 spesialisasi yang dapat dipilih');
+        return;
+    }
+    
+    // Check if already exists
+    const existingSpecs = Array.from(document.querySelectorAll('.specialization-tag'))
+        .map(tag => tag.textContent.replace('×', '').trim());
+    
+    if (existingSpecs.includes(specText)) {
+        showError('Spesialisasi sudah dipilih');
+        return;
+    }
+    
+    // Create tag
+    const container = document.getElementById('specializations-container');
+    const tag = document.createElement('span');
+    tag.className = 'specialization-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1';
+    tag.innerHTML = `
+        ${specText}
+        <button type="button" onclick="removeSpecialization(this)" class="text-blue-600 hover:text-blue-800">
+            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+        </button>
+    `;
+    
+    container.appendChild(tag);
+    updateSpecializationsHidden();
+    
+    // Reset select
+    select.value = '';
+    specializationCount++;
+    updateSpecCounter();
+}
+
+function removeSpecialization(button) {
+    const tag = button.parentElement;
+    tag.remove();
+    specializationCount--;
+    updateSpecializationsHidden();
+    updateSpecCounter();
+}
+
+function updateSpecializationsHidden() {
+    const tags = Array.from(document.querySelectorAll('.specialization-tag'))
+        .map(tag => tag.textContent.replace('×', '').trim())
+        .filter(text => text !== '');
+    
+    document.getElementById('specializations-hidden').value = tags.join(',');
+}
+
+function updateSpecCounter() {
+    document.getElementById('specCounter').textContent = `${specializationCount}/3`;
+}
+
+// CV Drag & Drop functionality
+function initializeCVDragDrop() {
+    const cvFileInput = document.getElementById('cv-file-input');
+    const cvFileName = document.getElementById('cv-file-name');
+    const cvDropZone = document.getElementById('cv-drop-zone');
+    
+    if (cvDropZone) {
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            cvDropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            cvDropZone.addEventListener(eventName, highlightCV, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            cvDropZone.addEventListener(eventName, unhighlightCV, false);
+        });
+        
+        // Handle dropped files
+        cvDropZone.addEventListener('drop', handleCVDrop, false);
+        
+        // Click to select file
+        cvDropZone.addEventListener('click', function() {
+            cvFileInput.click();
+        });
+    }
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    function highlightCV() {
+        cvDropZone.classList.add('border-blue-400', 'bg-blue-50');
+    }
+    
+    function unhighlightCV() {
+        cvDropZone.classList.remove('border-blue-400', 'bg-blue-50');
+    }
+    
+    function handleCVDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0) {
+            handleCVFileSelection(files[0]);
+        }
+    }
+    
+    function handleCVFileSelection(file) {
+        // Validate file type
+        if (file.type !== 'application/pdf') {
+            showError('Hanya file PDF yang diizinkan untuk CV');
+            return;
+        }
+        
+        // Validate file size (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            showError('Ukuran file CV maksimal 2MB');
+            return;
+        }
+        
+        // Update file name display
+        if (cvFileName) {
+            cvFileName.textContent = file.name;
+            cvFileName.classList.remove('text-gray-500');
+            cvFileName.classList.add('text-blue-600');
+        }
+        
+        // Set file to input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        cvFileInput.files = dataTransfer.files;
+    }
+    
+    // CV file input change event
+    if (cvFileInput && cvFileName) {
+        cvFileInput.addEventListener('change', function(e) {
             if (this.files.length > 0) {
-                handleFileSelection(this.files[0]);
+                handleCVFileSelection(this.files[0]);
             }
         });
     }
+}
 
-    // Drag and drop functionality - FIXED
+// Profile Picture Drag & Drop functionality
+function initializeProfilePictureDragDrop() {
+    const profilePictureInput = document.getElementById('profile-picture-input');
+    const profilePictureName = document.getElementById('profile-picture-name');
     const dropZone = document.querySelector('.border-dashed');
     
     if (dropZone) {
@@ -581,7 +1144,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Preview image
         const reader = new FileReader();
         reader.onload = function(e) {
-            // Target the profile picture container in the form, not in header
             const profileContainer = document.querySelector('.flex-shrink-0 .relative.group');
             if (profileContainer) {
                 let profilePic = profileContainer.querySelector('img');
@@ -605,19 +1167,151 @@ document.addEventListener('DOMContentLoaded', function() {
         reader.readAsDataURL(file);
     }
     
-    function showError(message) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'Upload Gagal',
-                text: message,
-                icon: 'error',
-                confirmButtonColor: '#3085d6',
-                background: '#ffffff'
-            });
-        } else {
-            alert('Error: ' + message);
+    if (profilePictureInput && profilePictureName) {
+        profilePictureInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                handleFileSelection(this.files[0]);
+            }
+        });
+    }
+}
+
+// Utility Functions
+function showError(message) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Error',
+            text: message,
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            background: '#ffffff'
+        });
+    } else {
+        alert('Error: ' + message);
+    }
+}
+
+// Remove CV function
+function removeCV() {
+    if (confirm('Hapus CV? File akan dihapus permanent.')) {
+        // Create a hidden input to indicate removal
+        const removeInput = document.createElement('input');
+        removeInput.type = 'hidden';
+        removeInput.name = 'remove_cv';
+        removeInput.value = '1';
+        document.getElementById('profileForm').appendChild(removeInput);
+        
+        // Submit form
+        document.getElementById('profileForm').submit();
+    }
+}
+
+// Remove profile picture
+function removeProfilePicture() {
+    if (confirm('Hapus foto profil?')) {
+        // Create a hidden input to indicate removal
+        const removeInput = document.createElement('input');
+        removeInput.type = 'hidden';
+        removeInput.name = 'remove_profile_picture';
+        removeInput.value = '1';
+        document.getElementById('profileForm').appendChild(removeInput);
+        
+        // Submit form
+        document.getElementById('profileForm').submit();
+    }
+}
+
+// Konfirmasi Logout
+function confirmLogout() {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Yakin ingin logout?',
+            text: "Anda akan keluar dari sesi saat ini",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Logout!',
+            cancelButtonText: 'Batal',
+            background: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/studenthub/logout.php';
+            }
+        });
+    } else {
+        if (confirm('Yakin ingin logout?')) {
+            window.location.href = '/studenthub/logout.php';
         }
     }
+}
+
+// Konfirmasi Hapus Akun
+function confirmDelete() {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Hapus Akun Permanent?',
+            html: `<div class="text-left">
+                    <p class="text-red-600 font-semibold">PERINGATAN: Tindakan ini tidak dapat dibatalkan!</p>
+                   </div>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus Permanent!',
+            cancelButtonText: 'Batal',
+            background: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('deleteAccountForm').submit();
+            }
+        });
+    } else {
+        if (confirm('PERINGATAN: Hapus akun permanent?\n\nYakin ingin menghapus?')) {
+            document.getElementById('deleteAccountForm').submit();
+        }
+    }
+}
+
+// Initialize all functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize counters
+    updateSpecCounter();
+    
+    // Specialization select event
+    const specSelect = document.getElementById('specialization-select');
+    if (specSelect) {
+        specSelect.addEventListener('change', function() {
+            if (this.value) {
+                addSpecialization();
+            }
+        });
+    }
+
+    // Real-time bio character counter
+    const bioTextarea = document.querySelector('textarea[name="bio"]');
+    const bioCounter = document.getElementById('bioCounter');
+    
+    if (bioTextarea && bioCounter) {
+        bioTextarea.addEventListener('input', function() {
+            bioCounter.textContent = this.value.length + '/500';
+        });
+    }
+    
+    // Loading state untuk form submission
+    const form = document.getElementById('profileForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function() {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="iconify" data-icon="mdi:loading" data-width="20"></span> Menyimpan...';
+        });
+    }
+
+    // Initialize drag & drop functionality
+    initializeCVDragDrop();
+    initializeProfilePictureDragDrop();
 });
 
 // Konfirmasi Logout
