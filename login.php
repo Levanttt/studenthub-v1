@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($email) || empty($password)) {
         $error = "Email dan password wajib diisi!";
     } else {
-        $stmt = $conn->prepare("SELECT id, email, password, role, name FROM users WHERE email = ?");
+        $stmt = $conn->prepare("SELECT id, email, password, role, name, profile_picture FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['name'] = $user['name'];
+                $_SESSION['profile_picture'] = $user['profile_picture']; 
                 
                 if ($user['role'] == 'student') {
                     header("Location: dashboard/student/");

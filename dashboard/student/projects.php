@@ -218,23 +218,24 @@ $student = $student_result->fetch_assoc();
                             FROM skills s 
                             JOIN project_skills ps ON s.id = ps.skill_id 
                             WHERE ps.project_id = ?
-                            LIMIT 4
                         ");
                         $skills_stmt->bind_param("i", $project['id']);
                         $skills_stmt->execute();
                         $skills_result = $skills_stmt->get_result();
-                        $skills = [];
+                        $all_skills = [];
                         while ($skill = $skills_result->fetch_assoc()) {
-                            $skills[] = $skill;
+                            $all_skills[] = $skill;
                         }
                         $skills_stmt->close();
 
-                        if (!empty($skills)): 
+                        if (!empty($all_skills)): 
                         ?>
                         <div class="flex flex-wrap gap-1 mb-3">
                             <?php 
-                            $displaySkills = array_slice($skills, 0, 3);
-                            $remaining = count($skills) - 3;
+                            // Tampilkan maksimal 3 skill
+                            $displaySkills = array_slice($all_skills, 0, 3);
+                            $totalSkills = count($all_skills);
+                            $remaining = $totalSkills - 3;
                             
                             foreach($displaySkills as $skill): 
                                 $color_class = [

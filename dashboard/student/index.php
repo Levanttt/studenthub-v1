@@ -271,15 +271,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                 </div>
                 <?php endwhile; ?>
             </div>
-            
-            <?php if ($project_count > 3): ?>
-                <div class="text-center mt-8">
-                    <a href="projects.php" class="bg-cyan-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-cyan-600 transition-colors duration-300 inline-flex items-center gap-2">
-                        <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
-                        Lihat Semua Proyek (<?php echo $project_count; ?>)
-                    </a>
-                </div>
-            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>

@@ -83,12 +83,22 @@ $skills_stmt->close();
                 <span class="text-gray-900 font-medium"><?php echo htmlspecialchars($project['title']); ?></span>
             </nav>
             
-            <!-- Tombol Kembali di pojok kanan atas -->
-            <a href="projects.php" 
-            class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+            <!-- Tombol Kembali -->
+            <button
+                type="button"
+                class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2"
+                aria-label="Kembali"
+                onclick="(function(){ if (history.length > 1) { history.back(); } else { window.location.href = 'projects.php'; } })()"
+            >
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                Kembali ke Proyek
-            </a>
+                Kembali
+            </button>
+            <noscript>
+                <a href="projects.php" class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
+                    Kembali
+                </a>
+            </noscript>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
