@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (empty($skills_input)) {
         $error = "Pilih minimal 1 skill!";
     } else {
-        // Handle main image upload (untuk image_path di projects)
+        // Handle main image upload
         $main_image_path = '';
         if (isset($_FILES['project_image']) && $_FILES['project_image']['error'] === UPLOAD_ERR_OK) {
             $upload_result = handleFileUpload($_FILES['project_image'], $user_id);
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Handle multiple images upload (untuk project_images)
+        // Handle multiple images upload
         $gallery_images = [];
         if (isset($_FILES['project_gallery']) && !empty($_FILES['project_gallery']['name'][0])) {
             foreach ($_FILES['project_gallery']['tmp_name'] as $key => $tmp_name) {
@@ -68,24 +68,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
+        // Handle certificate upload
+        $certificate_path = '';
+        if (isset($_FILES['certificate_file']) && $_FILES['certificate_file']['error'] === UPLOAD_ERR_OK) {
+            $upload_result = handleCertificateUpload($_FILES['certificate_file'], $user_id);
+            if ($upload_result['success']) {
+                $certificate_path = $upload_result['file_path'];
+            } else {
+                $error = $upload_result['error'];
+            }
+        }
+
         if (!$error) {
             // Start transaction
             $conn->begin_transaction();
             
             try {
-                // Insert project dengan main image
-                $stmt = $conn->prepare("INSERT INTO projects (student_id, title, description, image_path, github_url, figma_url, demo_url, video_url, category, status, project_type, project_year, project_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("issssssssssss", $user_id, $title, $description, $main_image_path, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration);
+                // Insert project dengan main image dan certificate
+                $stmt = $conn->prepare("INSERT INTO projects (student_id, title, description, image_path, certificate_path, github_url, figma_url, demo_url, video_url, category, status, project_type, project_year, project_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isssssssssssss", $user_id, $title, $description, $main_image_path, $certificate_path, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration);
                 
                 if ($stmt->execute()) {
                     $project_id = $conn->insert_id;
                     
-                    // Insert gallery images ke tabel project_images
+                    // Insert gallery images
                     if (!empty($gallery_images)) {
                         $image_stmt = $conn->prepare("INSERT INTO project_images (project_id, image_path, is_primary) VALUES (?, ?, ?)");
                         
                         foreach ($gallery_images as $image_path) {
-                            $is_primary = 0; // Semua gallery image bukan primary
+                            $is_primary = 0;
                             $image_stmt->bind_param("isi", $project_id, $image_path, $is_primary);
                             $image_stmt->execute();
                         }
@@ -152,35 +163,60 @@ while ($skill = $categorized_result->fetch_assoc()) {
 // File upload handler function
 function handleFileUpload($file, $user_id) {
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    $max_size = 5 * 1024 * 1024; // 5MB
+    $max_size = 5 * 1024 * 1024;
     
-    // Check file size
     if ($file['size'] > $max_size) {
         return ['success' => false, 'error' => 'Ukuran file maksimal 5MB'];
     }
     
-    // Check MIME type
     $file_info = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
     if (!in_array($file_info, $allowed_types)) {
         return ['success' => false, 'error' => 'Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan'];
     }
     
-    // Create upload directory
     $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/projects/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
     
-    // Generate unique filename
     $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'project_' . time() . '_' . uniqid() . '.' . $file_ext;
     $file_path = $upload_dir . $filename;
     
-    // Move uploaded file
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
         return ['success' => true, 'file_path' => '/studenthub/uploads/projects/' . $user_id . '/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Gagal mengupload file'];
+    }
+}
+
+// Certificate upload handler function
+function handleCertificateUpload($file, $user_id) {
+    $allowed_types = ['application/pdf', 'image/jpeg', 'image/png'];
+    $max_size = 5 * 1024 * 1024;
+    
+    if ($file['size'] > $max_size) {
+        return ['success' => false, 'error' => 'Ukuran file sertifikat maksimal 5MB'];
+    }
+    
+    $file_info = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
+    if (!in_array($file_info, $allowed_types)) {
+        return ['success' => false, 'error' => 'Hanya file PDF, JPG, dan PNG yang diizinkan untuk sertifikat'];
+    }
+    
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/certificates/' . $user_id . '/';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+    
+    $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = 'certificate_' . time() . '_' . uniqid() . '.' . $file_ext;
+    $file_path = $upload_dir . $filename;
+    
+    if (move_uploaded_file($file['tmp_name'], $file_path)) {
+        return ['success' => true, 'file_path' => '/studenthub/uploads/certificates/' . $user_id . '/' . $filename];
+    } else {
+        return ['success' => false, 'error' => 'Gagal mengupload sertifikat'];
     }
 }
 ?>
@@ -197,12 +233,11 @@ function handleFileUpload($file, $user_id) {
             </h1>
             <p class="text-gray-600 mt-2">Tunjukkan kemampuan nyata kamu melalui bukti kerja proyek</p>
         </div>
-        <div class="flex-shrink-0">
-            <a href="index.php" class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2 whitespace-nowrap">
-                <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                Kembali ke Dashboard
-            </a>
-        </div>
+        <a href="projects.php" 
+            class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+            <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
+            Kembali
+        </a>
     </div>
 
     <!-- Alerts -->
@@ -470,60 +505,109 @@ function handleFileUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Skills Section dengan Kategori -->
+            <!-- Skills Section dengan Dropdown Custom -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="24"></span>
                     Keterampilan yang Digunakan *
                 </h2>
                 
-                <!-- Technical Skills -->
-                <div>
+                <!-- Technical Skills - Custom Dropdown -->
+                <div class="relative" id="technical-skills-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Technical Skills *</label>
-                    <div class="border border-gray-300 rounded-lg p-4 min-h-[100px] bg-blue-50/30">
-                        <div id="selected-technical-skills" class="flex flex-wrap gap-2 mb-3">
-                            <!-- Selected technical skills will appear here -->
+                    
+                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="flex items-center gap-3">
+                            <span class="iconify" data-icon="mdi:code-braces" data-width="20" data-selected-icon></span>
+                            <span data-selected-text>Pilih Technical Skills</span>
                         </div>
-                        <input type="text" id="technical-skill-input" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                               placeholder="Ketik technical skill (PHP, React, etc)...">
-                        <div id="technical-skill-suggestions" class="hidden mt-2 p-2 bg-white border border-gray-300 rounded max-h-32 overflow-y-auto">
-                            <!-- Technical suggestions will appear here -->
+                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                    </div>
+                    
+                    <input type="hidden" name="technical_skills[]" id="technical-skills-value" multiple>
+                    
+                     <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="p-2 space-y-1">
+                            <?php foreach ($skills_by_category['technical'] as $skill): ?>
+                                <!-- 🔥 TAMBAH CLASS UNTUK STYLING YANG KONSISTEN -->
+                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200" 
+                                    data-option 
+                                    data-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <span><?php echo htmlspecialchars($skill); ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
+                    </div>
+                    
+                    <!-- Selected skills display -->
+                    <div id="selected-technical-skills" class="flex flex-wrap gap-2 mt-3">
+                        <!-- Selected technical skills will appear here -->
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Pilih minimal 1 technical skill</p>
                 </div>
 
-                <!-- Soft Skills -->
-                <div>
+                <!-- Soft Skills - Custom Dropdown -->
+                <div class="relative" id="soft-skills-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Soft Skills</label>
-                    <div class="border border-gray-300 rounded-lg p-4 min-h-[100px] bg-green-50/30">
-                        <div id="selected-soft-skills" class="flex flex-wrap gap-2 mb-3">
-                            <!-- Selected soft skills will appear here -->
+                    
+                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="flex items-center gap-3">
+                            <span class="iconify" data-icon="mdi:account-group" data-width="20" data-selected-icon></span>
+                            <span data-selected-text>Pilih Soft Skills</span>
                         </div>
-                        <input type="text" id="soft-skill-input" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                               placeholder="Ketik soft skill (Leadership, Communication, etc)...">
-                        <div id="soft-skill-suggestions" class="hidden mt-2 p-2 bg-white border border-gray-300 rounded max-h-32 overflow-y-auto">
-                            <!-- Soft skill suggestions will appear here -->
+                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                    </div>
+                    
+                    <input type="hidden" name="soft_skills[]" id="soft-skills-value" multiple>
+                    
+                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="p-2 space-y-1">
+                            <?php foreach ($skills_by_category['soft'] as $skill): ?>
+                                <!-- 🔥 TAMBAH CLASS UNTUK STYLING YANG KONSISTEN -->
+                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200" 
+                                    data-option 
+                                    data-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <span><?php echo htmlspecialchars($skill); ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
+                    </div>
+                    
+                    <!-- Selected skills display -->
+                    <div id="selected-soft-skills" class="flex flex-wrap gap-2 mt-3">
+                        <!-- Selected soft skills will appear here -->
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Soft skill yang digunakan dalam proyek</p>
                 </div>
 
-                <!-- Tools -->
-                <div>
+                <!-- Tools - Custom Dropdown -->
+                <div class="relative" id="tool-skills-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tools & Software</label>
-                    <div class="border border-gray-300 rounded-lg p-4 min-h-[100px] bg-purple-50/30">
-                        <div id="selected-tool-skills" class="flex flex-wrap gap-2 mb-3">
-                            <!-- Selected tool skills will appear here -->
+                    
+                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="flex items-center gap-3">
+                            <span class="iconify" data-icon="mdi:tools" data-width="20" data-selected-icon></span>
+                            <span data-selected-text>Pilih Tools & Software</span>
                         </div>
-                        <input type="text" id="tool-skill-input" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
-                               placeholder="Ketik tools (Figma, Git, VS Code, etc)...">
-                        <div id="tool-skill-suggestions" class="hidden mt-2 p-2 bg-white border border-gray-300 rounded max-h-32 overflow-y-auto">
-                            <!-- Tool suggestions will appear here -->
+                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                    </div>
+                    
+                    <input type="hidden" name="tool_skills[]" id="tool-skills-value" multiple>
+                    
+                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="p-2 space-y-1">
+                            <?php foreach ($skills_by_category['tool'] as $skill): ?>
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="<?php echo htmlspecialchars($skill); ?>" data-icon="mdi:tools">
+                                    <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
+                                    <span><?php echo htmlspecialchars($skill); ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
+                    </div>
+                    
+                    <!-- Selected skills display -->
+                    <div id="selected-tool-skills" class="flex flex-wrap gap-2 mt-3">
+                        <!-- Selected tool skills will appear here -->
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Software dan tools yang digunakan</p>
                 </div>
@@ -654,6 +738,51 @@ function handleFileUpload($file, $user_id) {
                 </div>
             </div>
 
+            <!-- Certificate Upload -->
+            <div class="space-y-6">
+                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
+                    Sertifikat (Opsional)
+                </h2>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-800 flex items-center gap-2 mb-2">
+                        <span class="iconify" data-icon="mdi:information" data-width="16"></span>
+                        <strong>Tambahkan Sertifikat</strong>
+                    </p>
+                    <p class="text-xs text-blue-700">
+                        Upload sertifikat jika proyek ini terkait dengan kompetisi, sertifikasi, atau program tertentu.
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Upload Sertifikat</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-cyan-400 transition-colors duration-300 bg-gray-50/50">
+                        <div class="flex flex-col items-center justify-center mb-4">
+                            <div class="text-gray-400 mb-3">
+                                <span class="iconify" data-icon="mdi:certificate-outline" data-width="64"></span>
+                            </div>
+                            <p class="text-lg font-medium text-gray-700 mb-1">Upload sertifikat proyek</p>
+                            <p class="text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
+                        </div>
+                        
+                        <label class="cursor-pointer inline-block">
+                            <span class="bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors duration-300 inline-flex items-center gap-2">
+                                <span class="iconify" data-icon="mdi:certificate" data-width="20"></span>
+                                Pilih Sertifikat
+                            </span>
+                            <input type="file" name="certificate_file" accept=".pdf,.jpg,.jpeg,.png" 
+                                class="hidden" id="certificate-input">
+                        </label>
+                        
+                        <p class="text-xs text-gray-500 mt-4">Max. 5MB per file (PDF, JPG, PNG)</p>
+                        
+                        <!-- File names display -->
+                        <div id="certificate-file-names" class="text-sm text-gray-600 mt-3 hidden"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200">
                 <button type="submit" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md flex-1">
@@ -723,157 +852,197 @@ class CustomDropdown {
     }
 }
 
-// Initialize all custom dropdowns
+// Multi Select Dropdown System untuk Skills
+class MultiSelectDropdown {
+    constructor(containerId, category) {
+        this.container = document.getElementById(containerId);
+        this.toggle = this.container.querySelector('[data-toggle]');
+        this.options = this.container.querySelector('[data-options]');
+        this.hiddenInput = this.container.querySelector('input[type="hidden"]');
+        this.selectedText = this.container.querySelector('[data-selected-text]');
+        this.selectedIcon = this.container.querySelector('[data-selected-icon]');
+        this.selectedContainer = document.getElementById(`selected-${category}-skills`);
+        this.category = category;
+        
+        this.selectedValues = new Set();
+        this.init();
+    }
+    
+    init() {
+        // Toggle dropdown
+        this.toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.options.classList.toggle('hidden');
+        });
+        
+        // Close when clicking outside
+        document.addEventListener('click', () => {
+            this.options.classList.add('hidden');
+        });
+        
+        // Handle option selection
+        this.options.querySelectorAll('[data-option]').forEach(option => {
+            option.addEventListener('click', () => {
+                const value = option.getAttribute('data-value');
+                const text = option.textContent.trim();
+                
+                if (this.selectedValues.has(value)) {
+                    this.removeSkill(value);
+                    // 🔥 HAPUS HIGHLIGHT SAAT SKILL DIHAPUS
+                    this.updateOptionStyle(option, false);
+                } else {
+                    this.addSkill(value, text);
+                    // 🔥 TAMBAH HIGHLIGHT SAAT SKILL DIPILIH
+                    this.updateOptionStyle(option, true);
+                }
+                
+                this.updateDisplay();
+                
+                // 🔥 JANGAN TUTUP DROPDOWN SETELAH MEMILIH
+                // this.options.classList.add('hidden'); // DIHAPUS
+            });
+        });
+        
+        // Prevent options from closing when clicking inside
+        this.options.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+    
+    // 🔥 METHOD BARU: Update style option berdasarkan status selected
+    updateOptionStyle(option, isSelected) {
+        if (isSelected) {
+            option.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+            option.classList.remove('hover:bg-gray-100');
+        } else {
+            option.classList.remove('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+            option.classList.add('hover:bg-gray-100');
+        }
+    }
+    
+    // 🔥 METHOD BARU: Sync option styles saat inisialisasi (untuk form edit)
+    syncOptionStyles() {
+        this.options.querySelectorAll('[data-option]').forEach(option => {
+            const value = option.getAttribute('data-value');
+            if (this.selectedValues.has(value)) {
+                this.updateOptionStyle(option, true);
+            } else {
+                this.updateOptionStyle(option, false);
+            }
+        });
+    }
+    
+    addSkill(value, text) {
+        this.selectedValues.add(value);
+        
+        // Add to visual display
+        const skillElement = document.createElement('div');
+        const colorClass = this.getColorClass();
+        skillElement.className = `${colorClass} px-3 py-1 rounded-full text-sm flex items-center gap-1`;
+        skillElement.innerHTML = `
+            ${text}
+            <button type="button" data-skill-value="${value}" class="hover:opacity-70">
+                <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+            </button>
+        `;
+        
+        // Add event listener untuk remove button
+        const removeBtn = skillElement.querySelector('button');
+        removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.removeSkill(value);
+        });
+        
+        this.selectedContainer.appendChild(skillElement);
+        
+        // Add hidden input
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'skills[]';
+        hiddenInput.value = value;
+        hiddenInput.id = `skill-${this.category}-${value}`;
+        document.getElementById('skills-hidden-container').appendChild(hiddenInput);
+        
+        this.updateDisplay();
+    }
+    
+    removeSkill(value) {
+        this.selectedValues.delete(value);
+        
+        // Remove from visual display
+        const skillElements = this.selectedContainer.querySelectorAll(`[data-skill-value="${value}"]`);
+        skillElements.forEach(element => {
+            element.closest('div').remove();
+        });
+        
+        // Juga remove berdasarkan text content (backup)
+        Array.from(this.selectedContainer.children).forEach(child => {
+            if (child.textContent.includes(value)) {
+                this.selectedContainer.removeChild(child);
+            }
+        });
+        
+        // Remove hidden input
+        const hiddenInput = document.getElementById(`skill-${this.category}-${value}`);
+        if (hiddenInput) {
+            hiddenInput.remove();
+        }
+        
+        // Update option style saat skill dihapus
+        const option = this.options.querySelector(`[data-option][data-value="${value}"]`);
+        if (option) {
+            this.updateOptionStyle(option, false);
+        }
+        
+        // Update display count
+        this.updateDisplay();
+    }
+    
+    updateDisplay() {
+        const count = this.selectedValues.size;
+        const placeholderText = this.category === 'technical' ? 'Technical' : 
+                                this.category === 'soft' ? 'Soft' : 'Tool';
+        
+        if (count > 0) {
+            this.selectedText.textContent = `${count} skill dipilih`;
+        } else {
+            this.selectedText.textContent = `Pilih ${placeholderText} Skills`;
+        }
+        
+        // Update border color based on selection (optional)
+        if (count > 0) {
+            this.toggle.classList.add('border-blue-500', 'ring-2', 'ring-blue-200');
+        } else {
+            this.toggle.classList.remove('border-blue-500', 'ring-2', 'ring-blue-200');
+        }
+    }
+    
+    getColorClass() {
+        switch(this.category) {
+            case 'technical': return 'bg-blue-100 text-blue-800 border border-blue-200';
+            case 'soft': return 'bg-green-100 text-green-800 border border-green-200';
+            case 'tool': return 'bg-purple-100 text-purple-800 border border-purple-200';
+            default: return 'bg-gray-100 text-gray-800 border border-gray-200';
+        }
+    }
+}
+
+// Initialize all dropdowns
+const multiSelectDropdowns = {};
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Single select dropdowns
     new CustomDropdown('project-type-dropdown');
     new CustomDropdown('category-dropdown');
     new CustomDropdown('status-dropdown');
     new CustomDropdown('year-dropdown');
     new CustomDropdown('duration-dropdown');
-});
-
-// Skills Management System dengan Kategori
-const skillCategories = {
-    technical: { 
-        color: 'blue', 
-        container: 'selected-technical-skills', 
-        input: 'technical-skill-input', 
-        suggestions: 'technical-skill-suggestions' 
-    },
-    soft: { 
-        color: 'green', 
-        container: 'selected-soft-skills', 
-        input: 'soft-skill-input', 
-        suggestions: 'soft-skill-suggestions' 
-    },
-    tool: { 
-        color: 'purple', 
-        container: 'selected-tool-skills', 
-        input: 'tool-skill-input', 
-        suggestions: 'tool-skill-suggestions' 
-    }
-};
-
-const skillsByCategory = {
-    technical: <?php echo json_encode($skills_by_category['technical']); ?>,
-    soft: <?php echo json_encode($skills_by_category['soft']); ?>,
-    tool: <?php echo json_encode($skills_by_category['tool']); ?>
-};
-
-const selectedSkills = new Set();
-
-// Initialize event listeners untuk setiap kategori
-Object.keys(skillCategories).forEach(category => {
-    const config = skillCategories[category];
-    const inputElement = document.getElementById(config.input);
     
-    inputElement.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const skill = this.value.trim();
-            if (skill && !selectedSkills.has(skill)) {
-                addSkill(skill, category);
-                this.value = '';
-                hideSuggestions(category);
-            }
-        }
-    });
-
-    inputElement.addEventListener('input', function() {
-        const query = this.value.trim();
-        if (query.length > 1) {
-            showSuggestions(query, category);
-        } else {
-            hideSuggestions(category);
-        }
-    });
-});
-
-function addSkill(skill, category) {
-    selectedSkills.add(skill);
-    
-    // Add to visual display
-    const config = skillCategories[category];
-    const skillElement = document.createElement('div');
-    skillElement.className = `bg-${config.color}-100 text-${config.color}-800 px-3 py-1 rounded-full text-sm flex items-center gap-1`;
-    skillElement.innerHTML = `
-        ${skill}
-        <button type="button" onclick="removeSkill('${skill}')" class="text-${config.color}-600 hover:text-${config.color}-800">
-            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
-        </button>
-    `;
-    document.getElementById(config.container).appendChild(skillElement);
-    
-    // Add hidden input
-    const hiddenInput = document.createElement('input');
-    hiddenInput.type = 'hidden';
-    hiddenInput.name = 'skills[]';
-    hiddenInput.value = skill;
-    document.getElementById('skills-hidden-container').appendChild(hiddenInput);
-}
-
-function removeSkill(skill) {
-    selectedSkills.delete(skill);
-    
-    // Remove from all visual displays
-    Object.keys(skillCategories).forEach(category => {
-        const container = document.getElementById(skillCategories[category].container);
-        Array.from(container.children).forEach(child => {
-            if (child.textContent.includes(skill)) {
-                container.removeChild(child);
-            }
-        });
-    });
-    
-    // Remove hidden input
-    const hiddenInputs = document.querySelectorAll('#skills-hidden-container input');
-    hiddenInputs.forEach(input => {
-        if (input.value === skill) {
-            input.remove();
-        }
-    });
-}
-
-function showSuggestions(query, category) {
-    const config = skillCategories[category];
-    const suggestions = skillsByCategory[category].filter(skill => 
-        skill.toLowerCase().includes(query.toLowerCase()) && !selectedSkills.has(skill)
-    );
-    
-    const suggestionsContainer = document.getElementById(config.suggestions);
-    suggestionsContainer.innerHTML = '';
-    
-    if (suggestions.length > 0) {
-        suggestions.forEach(skill => {
-            const suggestion = document.createElement('div');
-            suggestion.className = 'p-2 hover:bg-gray-100 cursor-pointer rounded';
-            suggestion.textContent = skill;
-            suggestion.onclick = () => {
-                addSkill(skill, category);
-                document.getElementById(config.input).value = '';
-                hideSuggestions(category);
-            };
-            suggestionsContainer.appendChild(suggestion);
-        });
-        suggestionsContainer.classList.remove('hidden');
-    } else {
-        hideSuggestions(category);
-    }
-}
-
-function hideSuggestions(category) {
-    const config = skillCategories[category];
-    document.getElementById(config.suggestions).classList.add('hidden');
-}
-
-// Hide suggestions when clicking outside
-document.addEventListener('click', function(e) {
-    Object.keys(skillCategories).forEach(category => {
-        const config = skillCategories[category];
-        if (!e.target.closest(`#${config.input}`) && !e.target.closest(`#${config.suggestions}`)) {
-            hideSuggestions(category);
-        }
-    });
+    // Multi select dropdowns untuk skills
+    multiSelectDropdowns['technical'] = new MultiSelectDropdown('technical-skills-dropdown', 'technical');
+    multiSelectDropdowns['soft'] = new MultiSelectDropdown('soft-skills-dropdown', 'soft');
+    multiSelectDropdowns['tool'] = new MultiSelectDropdown('tool-skills-dropdown', 'tool');
 });
 
 // Form validation - require at least 1 technical skill
@@ -882,7 +1051,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
     if (technicalSkills.length === 0) {
         e.preventDefault();
         alert('Pilih minimal 1 technical skill!');
-        document.getElementById('technical-skill-input').focus();
+        document.getElementById('technical-skills-dropdown').scrollIntoView({ behavior: 'smooth' });
     }
 });
 
@@ -912,10 +1081,8 @@ galleryFileInput.addEventListener('change', function(e) {
         let fileList = 'File terpilih:<br>';
         const maxFiles = 5;
         
-        // Limit to 5 files
         if (this.files.length > maxFiles) {
             fileList = `Maksimal ${maxFiles} file!<br>`;
-            // Reset files
             this.value = '';
         } else {
             for (let i = 0; i < this.files.length && i < maxFiles; i++) {
@@ -930,76 +1097,77 @@ galleryFileInput.addEventListener('change', function(e) {
     }
 });
 
-// Drag and drop functionality untuk main image
-const mainUploadArea = mainFileInput.closest('div');
+// Certificate file upload display
+const certificateInput = document.getElementById('certificate-input');
+const certificateFileNamesDisplay = document.getElementById('certificate-file-names');
 
-mainUploadArea.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    this.classList.add('border-cyan-400', 'bg-cyan-50');
-});
-
-mainUploadArea.addEventListener('dragleave', function(e) {
-    e.preventDefault();
-    this.classList.remove('border-cyan-400', 'bg-cyan-50');
-});
-
-mainUploadArea.addEventListener('drop', function(e) {
-    e.preventDefault();
-    this.classList.remove('border-cyan-400', 'bg-cyan-50');
-    
-    if (e.dataTransfer.files.length > 0) {
-        mainFileInput.files = e.dataTransfer.files;
-        
+certificateInput.addEventListener('change', function(e) {
+    if (this.files.length > 0) {
         let fileList = 'File terpilih:<br>';
-        for (let i = 0; i < e.dataTransfer.files.length; i++) {
-            fileList += `• ${e.dataTransfer.files[i].name}<br>`;
+        for (let i = 0; i < this.files.length; i++) {
+            fileList += `• ${this.files[i].name}<br>`;
         }
-        mainFileNamesDisplay.innerHTML = fileList;
-        mainFileNamesDisplay.classList.remove('hidden');
+        certificateFileNamesDisplay.innerHTML = fileList;
+        certificateFileNamesDisplay.classList.remove('hidden');
+    } else {
+        certificateFileNamesDisplay.classList.add('hidden');
     }
 });
 
-// Drag and drop functionality untuk gallery images
-const galleryUploadArea = galleryFileInput.closest('div');
+// Drag and drop functionality untuk semua upload areas
+function setupDragAndDrop(uploadArea, fileInput, fileNamesDisplay, maxFiles = 1) {
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('border-cyan-400', 'bg-cyan-50');
+    });
 
-galleryUploadArea.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    this.classList.add('border-cyan-400', 'bg-cyan-50');
-});
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-cyan-400', 'bg-cyan-50');
+    });
 
-galleryUploadArea.addEventListener('dragleave', function(e) {
-    e.preventDefault();
-    this.classList.remove('border-cyan-400', 'bg-cyan-50');
-});
-
-galleryUploadArea.addEventListener('drop', function(e) {
-    e.preventDefault();
-    this.classList.remove('border-cyan-400', 'bg-cyan-50');
-    
-    if (e.dataTransfer.files.length > 0) {
-        const files = e.dataTransfer.files;
-        const maxFiles = 5;
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-cyan-400', 'bg-cyan-50');
         
-        if (files.length > maxFiles) {
-            galleryFileNamesDisplay.innerHTML = `Maksimal ${maxFiles} file!<br>`;
-            galleryFileNamesDisplay.classList.remove('hidden');
-        } else {
-            // Create new DataTransfer to set multiple files
-            const dt = new DataTransfer();
-            for (let i = 0; i < files.length && i < maxFiles; i++) {
-                dt.items.add(files[i]);
+        if (e.dataTransfer.files.length > 0) {
+            if (maxFiles > 1) {
+                const files = e.dataTransfer.files;
+                if (files.length > maxFiles) {
+                    fileNamesDisplay.innerHTML = `Maksimal ${maxFiles} file!<br>`;
+                    fileNamesDisplay.classList.remove('hidden');
+                } else {
+                    const dt = new DataTransfer();
+                    for (let i = 0; i < files.length && i < maxFiles; i++) {
+                        dt.items.add(files[i]);
+                    }
+                    fileInput.files = dt.files;
+                    
+                    let fileList = 'File terpilih:<br>';
+                    for (let i = 0; i < files.length && i < maxFiles; i++) {
+                        fileList += `• ${files[i].name}<br>`;
+                    }
+                    fileNamesDisplay.innerHTML = fileList;
+                    fileNamesDisplay.classList.remove('hidden');
+                }
+            } else {
+                fileInput.files = e.dataTransfer.files;
+                
+                let fileList = 'File terpilih:<br>';
+                for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                    fileList += `• ${e.dataTransfer.files[i].name}<br>`;
+                }
+                fileNamesDisplay.innerHTML = fileList;
+                fileNamesDisplay.classList.remove('hidden');
             }
-            galleryFileInput.files = dt.files;
-            
-            let fileList = 'File terpilih:<br>';
-            for (let i = 0; i < files.length && i < maxFiles; i++) {
-                fileList += `• ${files[i].name}<br>`;
-            }
-            galleryFileNamesDisplay.innerHTML = fileList;
-            galleryFileNamesDisplay.classList.remove('hidden');
         }
-    }
-});
+    });
+}
+
+// Setup drag and drop untuk semua areas
+setupDragAndDrop(mainFileInput.closest('div'), mainFileInput, mainFileNamesDisplay, 1);
+setupDragAndDrop(galleryFileInput.closest('div'), galleryFileInput, galleryFileNamesDisplay, 5);
+setupDragAndDrop(certificateInput.closest('div'), certificateInput, certificateFileNamesDisplay, 1);
 </script>
 
 <?php include '../../includes/footer.php'; ?>

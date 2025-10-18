@@ -79,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $video_url = sanitize($_POST['video_url'] ?? '');
     $skills_input = $_POST['skills'] ?? [];
     $delete_images = $_POST['delete_images'] ?? [];
+    $delete_certificate = isset($_POST['delete_certificate']);
 
     // Validation
     if (empty($title) || empty($description)) {
@@ -122,17 +123,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
+        $delete_certificate = isset($_POST['delete_certificate']) && $_POST['delete_certificate'] == '1';
+
+        $certificate_path = $project['certificate_path'];
+        if ($delete_certificate) {
+            $certificate_path = '';
+        } elseif (isset($_FILES['certificate_file']) && $_FILES['certificate_file']['error'] === UPLOAD_ERR_OK) {
+            $upload_result = handleCertificateUpload($_FILES['certificate_file'], $user_id);
+            if ($upload_result['success']) {
+                $certificate_path = $upload_result['file_path'];
+            } else {
+                $error = $upload_result['error'];
+            }
+        }
+
         if (!$error) {
             $conn->begin_transaction();
             
             try {
-                $update_stmt = $conn->prepare("UPDATE projects SET title = ?, description = ?, image_path = ?, github_url = ?, figma_url = ?, demo_url = ?, video_url = ?, category = ?, status = ?, project_type = ?, project_year = ?, project_duration = ? WHERE id = ? AND student_id = ?");
+                $update_stmt = $conn->prepare("UPDATE projects SET title = ?, description = ?, image_path = ?, certificate_path = ?, github_url = ?, figma_url = ?, demo_url = ?, video_url = ?, category = ?, status = ?, project_type = ?, project_year = ?, project_duration = ? WHERE id = ? AND student_id = ?");
                 
                 if (!$update_stmt) {
                     throw new Exception("Error preparing update statement: " . $conn->error);
                 }
                 
-                $update_stmt->bind_param("ssssssssssssii", $title, $description, $main_image_path, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration, $project_id, $user_id);
+                $update_stmt->bind_param("sssssssssssssii", $title, $description, $main_image_path, $certificate_path, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration, $project_id, $user_id);
                 
                 if ($update_stmt->execute()) {
                     if (!empty($delete_images)) {
@@ -169,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     foreach ($skills_input as $skill_name) {
                         $skill_name = trim($skill_name);
                         if (!empty($skill_name)) {
-                            $skill_stmt = $conn->prepare("SELECT id FROM skills WHERE name = ?");
+                            $skill_stmt = $conn->prepare("SELECT id, skill_type FROM skills WHERE name = ?");
                             if ($skill_stmt) {
                                 $skill_stmt->bind_param("s", $skill_name);
                                 $skill_stmt->execute();
@@ -300,6 +315,35 @@ function handleFileUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Gagal mengupload file'];
     }
 }
+
+function handleCertificateUpload($file, $user_id) {
+    $allowed_types = ['application/pdf', 'image/jpeg', 'image/png'];
+    $max_size = 5 * 1024 * 1024;
+    
+    if ($file['size'] > $max_size) {
+        return ['success' => false, 'error' => 'Ukuran file sertifikat maksimal 5MB'];
+    }
+    
+    $file_info = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
+    if (!in_array($file_info, $allowed_types)) {
+        return ['success' => false, 'error' => 'Hanya file PDF, JPG, dan PNG yang diizinkan untuk sertifikat'];
+    }
+    
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/certificates/' . $user_id . '/';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+    
+    $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = 'certificate_' . time() . '_' . uniqid() . '.' . $file_ext;
+    $file_path = $upload_dir . $filename;
+    
+    if (move_uploaded_file($file['tmp_name'], $file_path)) {
+        return ['success' => true, 'file_path' => '/studenthub/uploads/certificates/' . $user_id . '/' . $filename];
+    } else {
+        return ['success' => false, 'error' => 'Gagal mengupload sertifikat'];
+    }
+}
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -314,23 +358,11 @@ function handleFileUpload($file, $user_id) {
             </h1>
             <p class="text-gray-600 mt-2">Perbarui informasi proyek portofolio Anda</p>
         </div>
-        <div class="flex-shrink-0">
-            <button
-                type="button"
-                class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2 whitespace-nowrap"
-                aria-label="Kembali"
-                onclick="(function(){ if (history.length > 1) { history.back(); } else { window.location.href = 'project-detail.php?id=<?php echo $project_id; ?>'; } })()"
-            >
-                <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                Kembali
-            </button>
-            <noscript>
-                <a href="project-detail.php?id=<?php echo $project_id; ?>" class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2 whitespace-nowrap">
-                    <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                    Kembali ke Detail
-                </a>
-            </noscript>
-        </div>
+        <a href="project-detail.php?id=<?php echo $project_id; ?>" 
+            class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+            <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
+            Kembali
+        </a>
     </div>
 
     <!-- Alerts -->
@@ -397,31 +429,31 @@ function handleFileUpload($file, $user_id) {
                         
                         <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
                             <div class="p-2 space-y-1">
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'web' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="web" data-icon="mdi:web">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'web' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="web" data-icon="mdi:web">
                                     <span class="iconify" data-icon="mdi:web" data-width="20"></span>
                                     <span>Web Development</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'mobile' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="mobile" data-icon="mdi:cellphone">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'mobile' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="mobile" data-icon="mdi:cellphone">
                                     <span class="iconify" data-icon="mdi:cellphone" data-width="20"></span>
                                     <span>Mobile Development</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'data-science' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="data-science" data-icon="mdi:chart-bar">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'data-science' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="data-science" data-icon="mdi:chart-bar">
                                     <span class="iconify" data-icon="mdi:chart-bar" data-width="20"></span>
                                     <span>Data Science & AI</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'design' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="design" data-icon="mdi:palette">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'design' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="design" data-icon="mdi:palette">
                                     <span class="iconify" data-icon="mdi:palette" data-width="20"></span>
                                     <span>UI/UX Design</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'iot' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="iot" data-icon="mdi:chip">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'iot' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="iot" data-icon="mdi:chip">
                                     <span class="iconify" data-icon="mdi:chip" data-width="20"></span>
                                     <span>IoT & Embedded Systems</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'game' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="game" data-icon="mdi:gamepad-variant">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'game' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="game" data-icon="mdi:gamepad-variant">
                                     <span class="iconify" data-icon="mdi:gamepad-variant" data-width="20"></span>
                                     <span>Game Development</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'other' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="other" data-icon="mdi:dots-horizontal">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'other' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="other" data-icon="mdi:dots-horizontal">
                                     <span class="iconify" data-icon="mdi:dots-horizontal" data-width="20"></span>
                                     <span>Lainnya</span>
                                 </div>
@@ -445,15 +477,15 @@ function handleFileUpload($file, $user_id) {
                         
                         <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden" data-options>
                             <div class="p-2 space-y-1">
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['status'] == 'completed' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="completed" data-icon="mdi:check-circle">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['status'] == 'completed' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="completed" data-icon="mdi:check-circle">
                                     <span class="iconify" data-icon="mdi:check-circle" data-width="20"></span>
                                     <span>Selesai</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['status'] == 'in-progress' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="in-progress" data-icon="mdi:progress-clock">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['status'] == 'in-progress' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="in-progress" data-icon="mdi:progress-clock">
                                     <span class="iconify" data-icon="mdi:progress-clock" data-width="20"></span>
                                     <span>Dalam Pengerjaan</span>
                                 </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['status'] == 'prototype' ? 'bg-blue-50 text-blue-700' : ''; ?>" data-option data-value="prototype" data-icon="mdi:flask">
+                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['status'] == 'prototype' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="prototype" data-icon="mdi:flask">
                                     <span class="iconify" data-icon="mdi:flask" data-width="20"></span>
                                     <span>Prototype</span>
                                 </div>
@@ -500,7 +532,7 @@ function handleFileUpload($file, $user_id) {
                                 <?php
                                 $current_year = date('Y');
                                 for ($year = $current_year; $year >= $current_year - 5; $year--) {
-                                    $selected = $project['project_year'] == $year ? 'bg-blue-50 text-blue-700' : '';
+                                    $selected = $project['project_year'] == $year ? 'bg-green-50 text-green-700' : '';
                                     echo '<div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer '.$selected.'" data-option data-value="'.$year.'" data-icon="mdi:calendar">
                                         <span class="iconify" data-icon="mdi:calendar" data-width="20"></span>
                                         <span>'.$year.'</span>
@@ -538,7 +570,7 @@ function handleFileUpload($file, $user_id) {
                                 ];
                                 
                                 foreach ($durations as $value => $label) {
-                                    $selected = $project['project_duration'] == $value ? 'bg-blue-50 text-blue-700' : '';
+                                    $selected = $project['project_duration'] == $value ? 'bg-green-50 text-green-700' : '';
                                     $icon = $value == '1+ years' ? 'mdi:calendar' : 'mdi:clock';
                                     echo '<div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer '.$selected.'" data-option data-value="'.$value.'" data-icon="'.$icon.'">
                                         <span class="iconify" data-icon="'.$icon.'" data-width="20"></span>
@@ -578,7 +610,7 @@ function handleFileUpload($file, $user_id) {
                                 ];
                                 
                                 foreach ($project_types as $value => $data) {
-                                    $selected = $project['project_type'] == $value ? 'bg-blue-50 text-blue-700' : '';
+                                    $selected = $project['project_type'] == $value ? 'bg-green-50 text-green-700' : '';
                                     echo '<div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer '.$selected.'" data-option data-value="'.$value.'" data-icon="'.$data['icon'].'">
                                         <span class="iconify" data-icon="'.$data['icon'].'" data-width="20"></span>
                                         <span>'.$data['label'].'</span>
@@ -591,107 +623,258 @@ function handleFileUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Skills Section dengan Kategori -->
+            <!-- Skills Section dengan Dropdown Custom -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="24"></span>
                     Keterampilan yang Digunakan *
                 </h2>
                 
-                <!-- Technical Skills -->
-                <div>
+                <!-- Technical Skills - Custom Dropdown -->
+                <div class="relative" id="technical-skills-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Technical Skills *</label>
-                    <div class="border border-gray-300 rounded-lg p-4 min-h-[100px] bg-blue-50/30">
-                        <div id="selected-technical-skills" class="flex flex-wrap gap-2 mb-3">
-                            <!-- Selected technical skills will be populated by JavaScript -->
+                    
+                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="flex items-center gap-3">
+                            <span class="iconify" data-icon="mdi:code-braces" data-width="20" data-selected-icon></span>
+                            <span data-selected-text>
+                                <?php 
+                                $technical_count = count(array_filter($existing_skills, function($skill) use ($skills_by_category) {
+                                    return in_array($skill, $skills_by_category['technical']);
+                                }));
+                                echo $technical_count > 0 ? $technical_count . ' skill dipilih' : 'Pilih Technical Skills';
+                                ?>
+                            </span>
                         </div>
-                        <input type="text" id="technical-skill-input" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                               placeholder="Ketik technical skill (PHP, React, etc)...">
-                        <div id="technical-skill-suggestions" class="hidden mt-2 p-2 bg-white border border-gray-300 rounded max-h-32 overflow-y-auto">
-                            <!-- Technical suggestions will appear here -->
+                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                    </div>
+                    
+                    <input type="hidden" name="technical_skills[]" id="technical-skills-value" multiple>
+                    
+                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="p-2 space-y-1">
+                            <?php foreach ($skills_by_category['technical'] as $skill): ?>
+                                <!-- HAPUS ICON DARI OPTIONS, HANYA TAMPILKAN TEXT -->
+                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200 <?php echo in_array($skill, $existing_skills) ? 'bg-green-50 text-green-700' : ''; ?>" 
+                                    data-option 
+                                    data-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <span><?php echo htmlspecialchars($skill); ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
+                    </div>
+                    
+                    <!-- Selected skills display -->
+                    <div id="selected-technical-skills" class="flex flex-wrap gap-2 mt-3">
+                        <?php 
+                        $technical_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
+                            return in_array($skill, $skills_by_category['technical']);
+                        });
+                        foreach ($technical_skills as $skill): ?>
+                            <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-blue-200">
+                                <?php echo htmlspecialchars($skill); ?>
+                                <button type="button" class="hover:opacity-70" data-skill-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+                                </button>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Pilih minimal 1 technical skill</p>
                 </div>
 
-                <!-- Soft Skills -->
-                <div>
+                <!-- Soft Skills - Custom Dropdown -->
+                <div class="relative" id="soft-skills-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Soft Skills</label>
-                    <div class="border border-gray-300 rounded-lg p-4 min-h-[100px] bg-green-50/30">
-                        <div id="selected-soft-skills" class="flex flex-wrap gap-2 mb-3">
-                            <!-- Selected soft skills will be populated by JavaScript -->
+                    
+                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="flex items-center gap-3">
+                            <span class="iconify" data-icon="mdi:account-group" data-width="20" data-selected-icon></span>
+                            <span data-selected-text>
+                                <?php 
+                                $soft_count = count(array_filter($existing_skills, function($skill) use ($skills_by_category) {
+                                    return in_array($skill, $skills_by_category['soft']);
+                                }));
+                                echo $soft_count > 0 ? $soft_count . ' skill dipilih' : 'Pilih Soft Skills';
+                                ?>
+                            </span>
                         </div>
-                        <input type="text" id="soft-skill-input" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                               placeholder="Ketik soft skill (Leadership, Communication, etc)...">
-                        <div id="soft-skill-suggestions" class="hidden mt-2 p-2 bg-white border border-gray-300 rounded max-h-32 overflow-y-auto">
-                            <!-- Soft skill suggestions will appear here -->
+                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                    </div>
+                    
+                    <input type="hidden" name="soft_skills[]" id="soft-skills-value" multiple>
+                    
+                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="p-2 space-y-1">
+                            <?php foreach ($skills_by_category['soft'] as $skill): ?>
+                                <!-- HAPUS ICON DARI OPTIONS, HANYA TAMPILKAN TEXT -->
+                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200 <?php echo in_array($skill, $existing_skills) ? 'bg-green-50 text-green-700' : ''; ?>" 
+                                    data-option 
+                                    data-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <span><?php echo htmlspecialchars($skill); ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
+                    </div>
+                    
+                    <!-- Selected skills display -->
+                    <div id="selected-soft-skills" class="flex flex-wrap gap-2 mt-3">
+                        <?php 
+                        $soft_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
+                            return in_array($skill, $skills_by_category['soft']);
+                        });
+                        foreach ($soft_skills as $skill): ?>
+                            <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-green-200">
+                                <?php echo htmlspecialchars($skill); ?>
+                                <button type="button" class="hover:opacity-70" data-skill-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+                                </button>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Soft skill yang digunakan dalam proyek</p>
                 </div>
 
-                <!-- Tools -->
-                <div>
+                <!-- Tools - Custom Dropdown -->
+                <div class="relative" id="tool-skills-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tools & Software</label>
-                    <div class="border border-gray-300 rounded-lg p-4 min-h-[100px] bg-purple-50/30">
-                        <div id="selected-tool-skills" class="flex flex-wrap gap-2 mb-3">
-                            <!-- Selected tool skills will be populated by JavaScript -->
+                    
+                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="flex items-center gap-3">
+                            <span class="iconify" data-icon="mdi:tools" data-width="20" data-selected-icon></span>
+                            <span data-selected-text>
+                                <?php 
+                                $tool_count = count(array_filter($existing_skills, function($skill) use ($skills_by_category) {
+                                    return in_array($skill, $skills_by_category['tool']);
+                                }));
+                                echo $tool_count > 0 ? $tool_count . ' skill dipilih' : 'Pilih Tools & Software';
+                                ?>
+                            </span>
                         </div>
-                        <input type="text" id="tool-skill-input" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
-                               placeholder="Ketik tools (Figma, Git, VS Code, etc)...">
-                        <div id="tool-skill-suggestions" class="hidden mt-2 p-2 bg-white border border-gray-300 rounded max-h-32 overflow-y-auto">
-                            <!-- Tool suggestions will appear here -->
+                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                    </div>
+                    
+                    <input type="hidden" name="tool_skills[]" id="tool-skills-value" multiple>
+                    
+                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="p-2 space-y-1">
+                            <?php foreach ($skills_by_category['tool'] as $skill): ?>
+                                <!-- HAPUS ICON DARI OPTIONS, HANYA TAMPILKAN TEXT -->
+                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200 <?php echo in_array($skill, $existing_skills) ? 'bg-green-50 text-green-700' : ''; ?>" 
+                                    data-option 
+                                    data-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <span><?php echo htmlspecialchars($skill); ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
+                    </div>
+                    
+                    <!-- Selected skills display -->
+                    <div id="selected-tool-skills" class="flex flex-wrap gap-2 mt-3">
+                        <?php 
+                        $tool_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
+                            return in_array($skill, $skills_by_category['tool']);
+                        });
+                        foreach ($tool_skills as $skill): ?>
+                            <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-purple-200">
+                                <?php echo htmlspecialchars($skill); ?>
+                                <button type="button" class="hover:opacity-70" data-skill-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+                                </button>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Software dan tools yang digunakan</p>
                 </div>
                 
                 <!-- Hidden input untuk menyimpan semua skills -->
                 <div id="skills-hidden-container">
-                    <!-- Dynamic hidden inputs will be added here -->
+                    <?php foreach ($existing_skills as $skill): ?>
+                        <input type="hidden" name="skills[]" value="<?php echo htmlspecialchars($skill); ?>">
+                    <?php endforeach; ?>
                 </div>
             </div>
 
             <!-- Media & Links -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:link-variant" data-width="24"></span>
+                    <span class="iconify" data-icon="mdi:link" data-width="24"></span>
                     Media & Links
                 </h2>
 
-                <!-- Project Images -->
-                <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Utama Proyek</label>
-                        <div class="flex items-center gap-4">
-                            <?php if (!empty($project['image_path'])): ?>
-                                <div class="relative">
-                                    <img src="<?php echo htmlspecialchars($project['image_path']); ?>" 
-                                         alt="Current project image" 
-                                         class="w-32 h-32 object-cover rounded-lg border border-gray-300">
-                                </div>
-                            <?php endif; ?>
-                            <div class="flex-1">
-                                <input type="file" name="project_image" accept="image/*" 
-                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                                <p class="text-gray-500 text-xs mt-1">Format: JPG, PNG, GIF, WebP (Maks. 5MB)</p>
-                            </div>
-                        </div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Repository URL</label>
+                        <input type="url" name="github_url" value="<?php echo htmlspecialchars($project['github_url'] ?? ''); ?>" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                               placeholder="https://github.com/username/repository">
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Figma Design URL</label>
+                        <input type="url" name="figma_url" value="<?php echo htmlspecialchars($project['figma_url'] ?? ''); ?>" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                               placeholder="https://figma.com/file/...">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Demo URL</label>
+                        <input type="url" name="demo_url" value="<?php echo htmlspecialchars($project['demo_url'] ?? ''); ?>" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                               placeholder="https://your-demo-site.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Video URL</label>
+                        <input type="url" name="video_url" value="<?php echo htmlspecialchars($project['video_url'] ?? ''); ?>" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                               placeholder="https://youtube.com/watch?v=...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images Section -->
+            <div class="space-y-6">
+                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:image-multiple" data-width="24"></span>
+                    Gambar Proyek
+                </h2>
+
+                <!-- Main Project Image -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Utama Proyek</label>
+                    <div class="flex items-center gap-4">
+                        <?php if (!empty($project['image_path'])): ?>
+                            <div class="relative group">
+                                <img src="<?php echo htmlspecialchars($project['image_path']); ?>" 
+                                     alt="Current Project Image" 
+                                     class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                                <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="text-white text-sm">Current</span>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                        <div class="flex-1">
+                            <input type="file" name="project_image" accept="image/*" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <p class="text-xs text-gray-500 mt-2">Format: JPG, PNG, GIF, WebP. Maksimal 5MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Images -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Gallery</label>
+                    
                     <!-- Existing Gallery Images -->
                     <?php if (!empty($existing_images)): ?>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Galeri Gambar Saat Ini</label>
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-600 mb-2">Gambar yang sudah diupload:</p>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <?php foreach ($existing_images as $image): ?>
                                     <?php if (!$image['is_primary']): ?>
                                         <div class="relative group">
                                             <img src="<?php echo htmlspecialchars($image['image_path']); ?>" 
-                                                 alt="Project gallery image" 
+                                                 alt="Gallery Image" 
                                                  class="w-full h-32 object-cover rounded-lg border border-gray-300">
                                             <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <label class="flex items-center gap-1 text-white text-sm cursor-pointer">
@@ -706,55 +889,74 @@ function handleFileUpload($file, $user_id) {
                         </div>
                     <?php endif; ?>
 
+                    <!-- New Gallery Images Upload -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tambah Gambar ke Galeri</label>
                         <input type="file" name="project_gallery[]" multiple accept="image/*" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        <p class="text-gray-500 text-xs mt-1">Pilih beberapa gambar untuk galeri proyek</p>
-                    </div>
-                </div>
-
-                <!-- Project Links -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Repository</label>
-                        <input type="url" name="github_url" value="<?php echo htmlspecialchars($project['github_url']); ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
-                               placeholder="https://github.com/username/repository">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Figma Design</label>
-                        <input type="url" name="figma_url" value="<?php echo htmlspecialchars($project['figma_url']); ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
-                               placeholder="https://figma.com/file/...">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Demo/Live URL</label>
-                        <input type="url" name="demo_url" value="<?php echo htmlspecialchars($project['demo_url']); ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
-                               placeholder="https://your-project.com">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Video Demo (YouTube/Vimeo)</label>
-                        <input type="url" name="video_url" value="<?php echo htmlspecialchars($project['video_url']); ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
-                               placeholder="https://youtube.com/watch?v=...">
+                        <p class="text-xs text-gray-500 mt-2">Pilih multiple files untuk upload beberapa gambar sekaligus</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Submit Buttons -->
+            <!-- Certificate Section -->
+            <div class="space-y-6">
+                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
+                    Sertifikat Proyek
+                </h2>
+
+                <?php if (!empty($project['certificate_path'])): ?>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="iconify text-green-600" data-icon="mdi:certificate" data-width="24"></span>
+                                <div>
+                                    <p class="font-medium text-green-800">Sertifikat sudah diupload</p>
+                                    <p class="text-sm text-green-600">File: <?php echo basename($project['certificate_path']); ?></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="<?php echo htmlspecialchars($project['certificate_path']); ?>" 
+                                target="_blank" 
+                                class="bg-green-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-600 transition-colors flex items-center gap-2">
+                                    <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
+                                    Lihat
+                                </a>
+                                <!-- PERBAIKAN: Tombol hapus yang berfungsi -->
+                                <button type="button" 
+                                        onclick="confirmDeleteCertificate()"
+                                        class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors flex items-center gap-2">
+                                    <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden input untuk delete certificate -->
+                    <input type="hidden" name="delete_certificate" id="delete_certificate" value="0">
+                <?php endif; ?>
+
+                <!-- Upload/Ganti Sertifikat - Versi Sederhana -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <?php echo empty($project['certificate_path']) ? 'Upload Sertifikat' : 'Ganti Sertifikat'; ?>
+                    </label>
+                    <input type="file" name="certificate_file" accept=".pdf,.jpg,.jpeg,.png" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <p class="text-xs text-gray-500 mt-2">Format: PDF, JPG, PNG. Maksimal 5MB</p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
             <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
                 <a href="project-detail.php?id=<?php echo $project_id; ?>" 
                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                     Batal
                 </a>
                 <button type="submit" 
-                        class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 font-medium shadow-sm hover:shadow-md">
-                    <span class="iconify inline mr-2" data-icon="mdi:content-save" data-width="18"></span>
+                        class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 font-medium shadow-sm hover:shadow-md flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:content-save" data-width="18"></span>
                     Simpan Perubahan
                 </button>
             </div>
@@ -763,223 +965,414 @@ function handleFileUpload($file, $user_id) {
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize existing skills
-    const existingSkills = <?php echo json_encode($existing_skills); ?>;
-    const skillsByCategory = <?php echo json_encode($skills_by_category); ?>;
+// Custom Dropdown System
+class CustomDropdown {
+    constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        this.toggle = this.container.querySelector('[data-toggle]');
+        this.options = this.container.querySelector('[data-options]');
+        this.hiddenInput = this.container.querySelector('input[type="hidden"]');
+        this.selectedText = this.container.querySelector('[data-selected-text]');
+        this.selectedIcon = this.container.querySelector('[data-selected-icon]');
+        
+        this.init();
+    }
     
-    // Initialize skills management
-    initializeSkillsManagement(existingSkills, skillsByCategory);
-    
-    // Initialize dropdowns
-    initializeDropdowns();
-});
-
-function initializeSkillsManagement(existingSkills, skillsByCategory) {
-    const skillCategories = {
-        'technical': {
-            container: document.getElementById('selected-technical-skills'),
-            input: document.getElementById('technical-skill-input'),
-            suggestions: document.getElementById('technical-skill-suggestions'),
-            hiddenContainer: document.getElementById('skills-hidden-container'),
-            color: 'blue'
-        },
-        'soft': {
-            container: document.getElementById('selected-soft-skills'),
-            input: document.getElementById('soft-skill-input'),
-            suggestions: document.getElementById('soft-skill-suggestions'),
-            hiddenContainer: document.getElementById('skills-hidden-container'),
-            color: 'green'
-        },
-        'tool': {
-            container: document.getElementById('selected-tool-skills'),
-            input: document.getElementById('tool-skill-input'),
-            suggestions: document.getElementById('tool-skill-suggestions'),
-            hiddenContainer: document.getElementById('skills-hidden-container'),
-            color: 'purple'
-        }
-    };
-
-    // Add existing skills on page load
-    existingSkills.forEach(skillName => {
-        let category = 'technical'; // default
-        
-        // Determine category based on existing data
-        if (skillsByCategory.soft.includes(skillName)) {
-            category = 'soft';
-        } else if (skillsByCategory.tool.includes(skillName)) {
-            category = 'tool';
-        }
-        
-        addSkill(skillName, category);
-    });
-
-    // Setup input handlers for each category
-    Object.keys(skillCategories).forEach(category => {
-        const { input, suggestions } = skillCategories[category];
-        
-        input.addEventListener('input', function() {
-            const value = this.value.trim();
-            if (value.length > 0) {
-                showSuggestions(value, category);
-            } else {
-                suggestions.classList.add('hidden');
-            }
-        });
-
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const value = this.value.trim();
-                if (value && !isSkillSelected(value)) {
-                    addSkill(value, category);
-                    this.value = '';
-                    suggestions.classList.add('hidden');
-                }
-            }
-        });
-
-        // Close suggestions when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!input.contains(e.target) && !suggestions.contains(e.target)) {
-                suggestions.classList.add('hidden');
-            }
-        });
-    });
-
-    function showSuggestions(value, category) {
-        const { suggestions } = skillCategories[category];
-        const availableSkills = skillsByCategory[category] || [];
-        
-        const filtered = availableSkills.filter(skill => 
-            skill.toLowerCase().includes(value.toLowerCase()) && !isSkillSelected(skill)
-        );
-
-        if (filtered.length > 0) {
-            suggestions.innerHTML = filtered.map(skill => `
-                <div class="p-2 hover:bg-gray-100 cursor-pointer rounded skill-suggestion" data-skill="${skill}">
-                    ${skill}
-                </div>
-            `).join('');
-            
-            suggestions.classList.remove('hidden');
-            
-            // Add click handlers to suggestions
-            suggestions.querySelectorAll('.skill-suggestion').forEach(item => {
-                item.addEventListener('click', function() {
-                    const skillName = this.getAttribute('data-skill');
-                    addSkill(skillName, category);
-                    skillCategories[category].input.value = '';
-                    suggestions.classList.add('hidden');
-                });
-            });
-        } else {
-            suggestions.classList.add('hidden');
-        }
-    }
-
-    function addSkill(skillName, category) {
-        if (isSkillSelected(skillName)) return;
-        
-        const { container, hiddenContainer, color } = skillCategories[category];
-        const skillId = `skill-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Create visual tag
-        const tag = document.createElement('div');
-        tag.className = `inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-${color}-100 text-${color}-800 border border-${color}-200`;
-        tag.innerHTML = `
-            ${skillName}
-            <button type="button" class="text-${color}-600 hover:text-${color}-800" onclick="removeSkill('${skillId}')">
-                <span class="iconify" data-icon="mdi:close" data-width="14"></span>
-            </button>
-        `;
-        tag.setAttribute('data-skill-id', skillId);
-        container.appendChild(tag);
-        
-        // Create hidden input
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'skills[]';
-        hiddenInput.value = skillName;
-        hiddenInput.id = skillId;
-        hiddenContainer.appendChild(hiddenInput);
-    }
-
-    window.removeSkill = function(skillId) {
-        const tag = document.querySelector(`[data-skill-id="${skillId}"]`);
-        const hiddenInput = document.getElementById(skillId);
-        
-        if (tag) tag.remove();
-        if (hiddenInput) hiddenInput.remove();
-    };
-
-    function isSkillSelected(skillName) {
-        return document.querySelectorAll(`input[name="skills[]"][value="${skillName}"]`).length > 0;
-    }
-}
-
-function initializeDropdowns() {
-    // Initialize all dropdowns
-    document.querySelectorAll('[id$="-dropdown"]').forEach(dropdown => {
-        const toggle = dropdown.querySelector('[data-toggle]');
-        const options = dropdown.querySelector('[data-options]');
-        const selectedText = dropdown.querySelector('[data-selected-text]');
-        const selectedIcon = dropdown.querySelector('[data-selected-icon]');
-        const hiddenInput = dropdown.querySelector('input[type="hidden"]');
-        
-        if (!toggle || !options || !selectedText || !hiddenInput) return;
-        
+    init() {
         // Toggle dropdown
-        toggle.addEventListener('click', function(e) {
+        this.toggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            const isHidden = options.classList.contains('hidden');
-            
-            // Close all other dropdowns
-            document.querySelectorAll('[data-options]').forEach(opt => {
-                if (opt !== options) opt.classList.add('hidden');
-            });
-            
-            // Toggle current dropdown
-            options.classList.toggle('hidden', !isHidden);
+            this.options.classList.toggle('hidden');
+        });
+        
+        // Close when clicking outside
+        document.addEventListener('click', () => {
+            this.options.classList.add('hidden');
         });
         
         // Handle option selection
-        options.querySelectorAll('[data-option]').forEach(option => {
-            option.addEventListener('click', function() {
-                const value = this.getAttribute('data-value');
-                const text = this.textContent.trim();
-                const icon = this.getAttribute('data-icon');
+        this.options.querySelectorAll('[data-option]').forEach(option => {
+            option.addEventListener('click', () => {
+                const value = option.getAttribute('data-value');
+                const text = option.textContent.trim();
+                const icon = option.getAttribute('data-icon');
                 
-                // Update display
-                selectedText.textContent = text;
-                if (selectedIcon) {
-                    selectedIcon.setAttribute('data-icon', icon);
+                this.hiddenInput.value = value;
+                this.selectedText.textContent = text;
+                if (this.selectedIcon) {
+                    this.selectedIcon.setAttribute('data-icon', icon);
                 }
                 
-                // Update hidden input
-                hiddenInput.value = value;
-                
-                // Update visual state
-                options.querySelectorAll('[data-option]').forEach(opt => {
+                // Update selected state
+                this.options.querySelectorAll('[data-option]').forEach(opt => {
                     opt.classList.remove('bg-blue-50', 'text-blue-700');
                 });
-                this.classList.add('bg-blue-50', 'text-blue-700');
+                option.classList.add('bg-blue-50', 'text-blue-700');
                 
-                // Close dropdown
-                options.classList.add('hidden');
+                this.options.classList.add('hidden');
             });
         });
         
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function() {
-            options.classList.add('hidden');
+        // Prevent options from closing when clicking inside
+        this.options.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
+    }
+}
+
+// Multi Select Dropdown System untuk Skills
+class MultiSelectDropdown {
+    constructor(containerId, category) {
+        this.container = document.getElementById(containerId);
+        this.toggle = this.container.querySelector('[data-toggle]');
+        this.options = this.container.querySelector('[data-options]');
+        this.hiddenInput = this.container.querySelector('input[type="hidden"]');
+        this.selectedText = this.container.querySelector('[data-selected-text]');
+        this.selectedIcon = this.container.querySelector('[data-selected-icon]');
+        this.selectedContainer = document.getElementById(`selected-${category}-skills`);
+        this.category = category;
+        
+        this.selectedValues = new Set();
+        this.init();
+        this.loadExistingSkills();
+    }
+    
+    init() {
+        // Toggle dropdown
+        this.toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.options.classList.toggle('hidden');
+        });
+        
+        // Close when clicking outside
+        document.addEventListener('click', () => {
+            this.options.classList.add('hidden');
+        });
+        
+        // Handle option selection
+        this.options.querySelectorAll('[data-option]').forEach(option => {
+            option.addEventListener('click', () => {
+                const value = option.getAttribute('data-value');
+                const text = option.textContent.trim();
+                
+                if (this.selectedValues.has(value)) {
+                    this.removeSkill(value);
+                    this.updateOptionStyle(option, false);
+                } else {
+                    this.addSkill(value, text);
+                    this.updateOptionStyle(option, true);
+                }
+                
+                this.updateDisplay();
+                // JANGAN TUTUP DROPDOWN SETELAH MEMILIH
+            });
+        });
+        
+        // Prevent options from closing when clicking inside
+        this.options.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+    
+    // Load existing skills from PHP-generated HTML
+    loadExistingSkills() {
+        const existingSkills = this.selectedContainer.querySelectorAll('.bg-blue-100, .bg-green-100, .bg-purple-100');
+        existingSkills.forEach(skillElement => {
+            const skillText = skillElement.textContent.trim();
+            const closeButton = skillElement.querySelector('button');
+            const skillValue = closeButton ? closeButton.getAttribute('data-skill-value') : skillText;
+            
+            if (skillValue) {
+                this.selectedValues.add(skillValue);
+                // Update event listener untuk remove button yang sudah ada
+                this.attachRemoveListener(skillElement, skillValue);
+            }
+        });
+        
+        this.updateDisplay();
+        this.syncOptionStyles();
+    }
+    
+    // Attach remove listener to existing skill elements
+    attachRemoveListener(skillElement, value) {
+        const removeBtn = skillElement.querySelector('button');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.removeSkill(value);
+            });
+        }
+    }
+    
+    // METHOD: Update style option berdasarkan status selected
+    updateOptionStyle(option, isSelected) {
+        if (isSelected) {
+            option.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+            option.classList.remove('hover:bg-gray-100');
+        } else {
+            option.classList.remove('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+            option.classList.add('hover:bg-gray-100');
+        }
+    }
+    
+    // METHOD: Sync option styles saat inisialisasi
+    syncOptionStyles() {
+        this.options.querySelectorAll('[data-option]').forEach(option => {
+            const value = option.getAttribute('data-value');
+            if (this.selectedValues.has(value)) {
+                this.updateOptionStyle(option, true);
+            } else {
+                this.updateOptionStyle(option, false);
+            }
+        });
+    }
+    
+    createSkillElement(value, text) {
+        const skillElement = document.createElement('div');
+        const colorClass = this.getColorClass();
+        skillElement.className = `${colorClass} px-3 py-1 rounded-full text-sm flex items-center gap-1`;
+        skillElement.innerHTML = `
+            ${text}
+            <button type="button" data-skill-value="${value}" class="hover:opacity-70">
+                <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+            </button>
+        `;
+        
+        // Add event listener untuk remove button
+        const removeBtn = skillElement.querySelector('button');
+        removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.removeSkill(value);
+        });
+        
+        return skillElement;
+    }
+    
+    addSkill(value, text) {
+        // Cek apakah skill sudah ada
+        if (this.selectedValues.has(value)) {
+            return;
+        }
+        
+        this.selectedValues.add(value);
+        
+        // Add to visual display
+        const skillElement = this.createSkillElement(value, text);
+        this.selectedContainer.appendChild(skillElement);
+        
+        // Add hidden input
+        this.addHiddenInput(value);
+        
+        this.updateDisplay();
+    }
+    
+    addHiddenInput(value) {
+        // Cek dulu apakah hidden input sudah ada
+        const existingInput = document.getElementById(`skill-${this.category}-${value}`);
+        if (!existingInput) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'skills[]';
+            hiddenInput.value = value;
+            hiddenInput.id = `skill-${this.category}-${value}`;
+            document.getElementById('skills-hidden-container').appendChild(hiddenInput);
+        }
+    }
+    
+    removeSkill(value) {
+        this.selectedValues.delete(value);
+        
+        // Remove from visual display
+        const skillElements = this.selectedContainer.querySelectorAll(`[data-skill-value="${value}"]`);
+        skillElements.forEach(element => {
+            element.closest('div').remove();
+        });
+        
+        // Juga remove berdasarkan class (untuk existing skills)
+        const existingSkillElements = this.selectedContainer.querySelectorAll('.bg-blue-100, .bg-green-100, .bg-purple-100');
+        existingSkillElements.forEach(element => {
+            if (element.textContent.includes(value)) {
+                element.remove();
+            }
+        });
+        
+        // Remove hidden input
+        const hiddenInput = document.getElementById(`skill-${this.category}-${value}`);
+        if (hiddenInput) {
+            hiddenInput.remove();
+        }
+        
+        // Update option style saat skill dihapus
+        const option = this.options.querySelector(`[data-option][data-value="${value}"]`);
+        if (option) {
+            this.updateOptionStyle(option, false);
+        }
+        
+        // Update display count
+        this.updateDisplay();
+    }
+    
+    updateDisplay() {
+        const count = this.selectedValues.size;
+        const placeholderText = this.category === 'technical' ? 'Technical' : 
+                              this.category === 'soft' ? 'Soft' : 'Tool';
+        
+        if (count > 0) {
+            this.selectedText.textContent = `${count} skill dipilih`;
+            this.toggle.classList.add('border-blue-500', 'ring-2', 'ring-blue-200');
+        } else {
+            this.selectedText.textContent = `Pilih ${placeholderText} Skills`;
+            this.toggle.classList.remove('border-blue-500', 'ring-2', 'ring-blue-200');
+        }
+    }
+    
+    getColorClass() {
+        switch(this.category) {
+            case 'technical': return 'bg-blue-100 text-blue-800 border border-blue-200';
+            case 'soft': return 'bg-green-100 text-green-800 border border-green-200';
+            case 'tool': return 'bg-purple-100 text-purple-800 border border-purple-200';
+            default: return 'bg-gray-100 text-gray-800 border border-gray-200';
+        }
+    }
+}
+
+// Initialize all dropdowns
+const multiSelectDropdowns = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing dropdowns...');
+    
+    // Single select dropdowns
+    const singleDropdowns = ['project-type-dropdown', 'category-dropdown', 'status-dropdown', 'year-dropdown', 'duration-dropdown'];
+    singleDropdowns.forEach(dropdownId => {
+        if (document.getElementById(dropdownId)) {
+            new CustomDropdown(dropdownId);
+            console.log('Initialized:', dropdownId);
+        }
+    });
+    
+    // Multi select dropdowns untuk skills
+    const skillCategories = ['technical', 'soft', 'tool'];
+    skillCategories.forEach(category => {
+        const dropdownId = `${category}-skills-dropdown`;
+        if (document.getElementById(dropdownId)) {
+            multiSelectDropdowns[category] = new MultiSelectDropdown(dropdownId, category);
+            console.log('Initialized skills dropdown:', dropdownId);
+        }
+    });
+    
+    // Form validation - require at least 1 technical skill
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const technicalSkills = document.getElementById('selected-technical-skills');
+            if (technicalSkills && technicalSkills.children.length === 0) {
+                e.preventDefault();
+                alert('Pilih minimal 1 technical skill!');
+                document.getElementById('technical-skills-dropdown').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        });
+    }
+    
+    // Certificate delete toggle
+    const certificateDeleteCheckbox = document.querySelector('input[name="delete_certificate"]');
+    if (certificateDeleteCheckbox) {
+        certificateDeleteCheckbox.addEventListener('change', function() {
+            const label = this.closest('label');
+            if (label) {
+                if (this.checked) {
+                    label.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    label.classList.add('bg-gray-400', 'hover:bg-gray-500');
+                } else {
+                    label.classList.add('bg-red-500', 'hover:bg-red-600');
+                    label.classList.remove('bg-gray-400', 'hover:bg-gray-500');
+                }
+            }
+        });
+        
+        // Initialize state
+        certificateDeleteCheckbox.dispatchEvent(new Event('change'));
+    }
+});
+
+function confirmDeleteCertificate() {
+    Swal.fire({
+        title: 'Hapus Sertifikat?',
+        html: `<div class="text-center">
+                <p class="text-gray-600 mt-2">Sertifikat akan dihapus permanent dari proyek ini.</p>
+               </div>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        background: '#ffffff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Set delete flag
+            document.getElementById('delete_certificate').value = '1';
+            
+            // Update visual feedback
+            const certificateSection = document.querySelector('.bg-green-50');
+            if (certificateSection) {
+                certificateSection.style.opacity = '0.6';
+                certificateSection.style.backgroundColor = '#fef2f2';
+                certificateSection.style.borderColor = '#fecaca';
+                
+                // Add status message
+                const statusMessage = document.createElement('div');
+                statusMessage.className = 'mt-3 p-3 bg-red-100 text-red-700 rounded-lg text-sm flex items-center gap-2';
+                statusMessage.innerHTML = `
+                    <span class="iconify" data-icon="mdi:alert-circle" data-width="16"></span>
+                    <span>Sertifikat akan dihapus saat perubahan disimpan</span>
+                `;
+                certificateSection.appendChild(statusMessage);
+            }
+            
+            Swal.fire({
+                title: 'Berhasil!',
+                text: 'Sertifikat akan dihapus saat perubahan disimpan',
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+        }
     });
 }
 
-// Helper function to format text (convert hyphens to spaces and capitalize)
+// Reset certificate delete status jika user memilih file baru
+document.querySelector('input[name="certificate_file"]').addEventListener('change', function() {
+    const deleteInput = document.getElementById('delete_certificate');
+    if (deleteInput && this.files.length > 0) {
+        deleteInput.value = '0';
+        
+        // Reset tampilan jika ada
+        const certificateSection = document.querySelector('.bg-green-50');
+        if (certificateSection) {
+            certificateSection.style.opacity = '1';
+            certificateSection.style.backgroundColor = '';
+            certificateSection.style.borderColor = '';
+            
+            // Hapus pesan status
+            const statusMessage = certificateSection.querySelector('.bg-red-100');
+            if (statusMessage) {
+                statusMessage.remove();
+            }
+        }
+    }
+});
+
 function formatText(text) {
-    return text.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    if (!text) return '';
+    return text.split(/[-_]/).map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
 }
 </script>
 

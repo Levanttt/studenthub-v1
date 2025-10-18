@@ -119,31 +119,49 @@ $userSkills = [
     'tool' => []
 ];
 
-// Cek apakah tabel skills dan project_skills ada
+// Query untuk mengambil skills dari project user
 $skills_stmt = $conn->prepare("
     SELECT DISTINCT s.name, s.skill_type 
     FROM project_skills ps 
     JOIN skills s ON ps.skill_id = s.id 
     JOIN projects p ON ps.project_id = p.id 
-    WHERE p.user_id = ? 
+    WHERE p.student_id = ? 
     ORDER BY s.skill_type, s.name
 ");
 
 if ($skills_stmt) {
     $skills_stmt->bind_param("i", $user_id);
-    $skills_stmt->execute();
-    $skills_result = $skills_stmt->get_result();
-
-    while ($skill = $skills_result->fetch_assoc()) {
-        $skill_type = $skill['skill_type'];
-        if (isset($userSkills[$skill_type])) {
-            $userSkills[$skill_type][] = $skill['name'];
+    if ($skills_stmt->execute()) {
+        $skills_result = $skills_stmt->get_result();
+        
+        // Debug: hitung total skills yang ditemukan
+        $total_skills = 0;
+        
+        while ($skill = $skills_result->fetch_assoc()) {
+            $skill_type = $skill['skill_type'];
+            $skill_name = $skill['name'];
+            
+            if (isset($userSkills[$skill_type])) {
+                // Pastikan tidak ada duplikat
+                if (!in_array($skill_name, $userSkills[$skill_type])) {
+                    $userSkills[$skill_type][] = $skill_name;
+                    $total_skills++;
+                }
+            }
         }
+        
+        // Debug log
+        error_log("User {$user_id} - Total skills found: {$total_skills}");
+        error_log("Technical: " . count($userSkills['technical']));
+        error_log("Soft: " . count($userSkills['soft'])); 
+        error_log("Tool: " . count($userSkills['tool']));
+        
+    } else {
+        error_log("Error executing skills query: " . $skills_stmt->error);
     }
     $skills_stmt->close();
 } else {
-    // Jika query gagal, mungkin tabel tidak ada - kita akan handle ini di UI
-    error_log("Skills query failed: " . $conn->error);
+    error_log("Error preparing skills query: " . $conn->error);
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -603,13 +621,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Specializations Section -->
+                    <!-- Specializations Section dengan Feedback Visual -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Spesialisasi / Bidang Fokus</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Pilih hingga 3 bidang spesialisasi</label>
-                            <div class="relative">
-                                <select id="specialization-select" class="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors appearance-none bg-white">
+                            
+                            <!-- Dropdown dengan feedback visual -->
+                            <div class="relative mb-3">
+                                <select id="specialization-select" 
+                                        class="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300 appearance-none bg-white hover:border-green-400">
                                     <option value="">Pilih spesialisasi...</option>
                                     <?php foreach ($availableSpecializations as $spec): ?>
                                         <option value="<?php echo htmlspecialchars($spec); ?>"><?php echo htmlspecialchars($spec); ?></option>
@@ -619,38 +640,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                                 </div>
                             </div>
-                            <p class="text-gray-500 text-xs mt-1">Pilih dari daftar yang tersedia</p>
                             
-                            <!-- Selected Specializations Display -->
-                            <div id="specializations-container" class="flex flex-wrap gap-2 mt-3 min-h-12">
+                            <p class="text-gray-500 text-xs mb-3">Pilih dari daftar yang tersedia</p>
+                            
+                            <!-- Selected Specializations Display dengan feedback visual -->
+                            <div id="specializations-container" class="flex flex-wrap gap-2 mt-3 min-h-12 p-3 bg-green-50 border border-green-200 rounded-lg transition-colors duration-300">
                                 <?php
                                 if (!empty($user['specializations'])) {
                                     $specs = explode(',', $user['specializations']);
                                     foreach ($specs as $spec) {
                                         $spec = trim($spec);
                                         if (!empty($spec)) {
-                                            echo '<span class="specialization-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">';
+                                            echo '<span class="specialization-tag bg-green-500 text-white px-3 py-2 rounded-full text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-200">';
+                                            echo '<span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>';
                                             echo htmlspecialchars($spec);
-                                            echo '<button type="button" onclick="removeSpecialization(this)" class="text-blue-600 hover:text-blue-800">';
+                                            echo '<button type="button" onclick="removeSpecialization(this)" class="text-white hover:text-green-200 transition-colors ml-1">';
                                             echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
                                             echo '</button>';
                                             echo '</span>';
                                         }
                                     }
+                                } else {
+                                    echo '<p class="text-gray-500 text-sm flex items-center gap-2">';
+                                    echo '<span class="iconify" data-icon="mdi:information" data-width="16"></span>';
+                                    echo 'Belum ada spesialisasi yang dipilih';
+                                    echo '</p>';
                                 }
                                 ?>
                             </div>
                             
                             <!-- Hidden input untuk menyimpan data -->
                             <input type="hidden" name="specializations" id="specializations-hidden" 
-                                   value="<?php echo htmlspecialchars($user['specializations'] ?? ''); ?>">
+                                value="<?php echo htmlspecialchars($user['specializations'] ?? ''); ?>">
                             
-                            <div class="flex justify-between items-center mt-1">
-                                <p class="text-gray-500 text-xs">Maksimal 3 spesialisasi</p>
-                                <p class="text-gray-500 text-xs" id="specCounter">0/3</p>
+                            <!-- Counter dengan progress bar visual -->
+                            <div class="mt-4 space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <p class="text-gray-600 text-sm font-medium">Progress Pemilihan</p>
+                                    <p class="text-gray-600 text-sm font-semibold" id="specCounter"><?php echo !empty($user['specializations']) ? count(explode(',', $user['specializations'])) : 0; ?>/3</p>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div id="specProgressBar" class="bg-green-500 h-2 rounded-full transition-all duration-500 ease-out" 
+                                        style="width: <?php echo !empty($user['specializations']) ? (count(explode(',', $user['specializations'])) / 3 * 100) : 0; ?>%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-500">
+                                    <span>Mulai</span>
+                                    <span>Optimal</span>
+                                    <span>Maksimal</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Success message ketika sudah memilih -->
+                            <div id="specSuccessMessage" class="hidden mt-3 p-3 bg-green-100 border border-green-300 rounded-lg">
+                                <p class="text-green-700 text-sm flex items-center gap-2">
+                                    <span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>
+                                    <span class="font-semibold">Bagus!</span> Spesialisasi telah dipilih. Ini akan membantu perusahaan menemukan profil Anda.
+                                </p>
                             </div>
                         </div>
-                    </div>
+                    </div> 
 
                     <!-- Skills from Projects Section -->
                     <div class="space-y-4">
@@ -722,7 +770,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:folder-open" data-width="48"></span>
                                     <p class="text-gray-500">Belum ada skills dari project</p>
                                     <p class="text-gray-400 text-sm mt-1">Skills akan otomatis muncul ketika Anda menambahkan project</p>
-                                    <a href="projects.php" class="inline-block mt-4 bg-cyan-500 text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition-colors">
+                                    <a href="add-project.php" class="inline-block mt-4 bg-cyan-500 text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition-colors">
                                         Tambah Project Pertama
                                     </a>
                                 </div>
@@ -818,8 +866,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Specializations Summary - Compact Version -->
-                <!-- Specializations Summary - Horizontal Wrap -->
+                    <!-- Specializations Summary -->
                     <?php if (!empty($user['specializations'])): ?>
                     <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                         <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -841,32 +888,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     endif;
                                 endforeach;
                                 ?>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                    <!-- Skills Summary -->
-                    <?php
-                    $totalSkills = count($userSkills['technical']) + count($userSkills['soft']) + count($userSkills['tool']);
-                    if ($totalSkills > 0): 
-                    ?>
-                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                            <span class="iconify text-orange-600" data-icon="mdi:tools" data-width="18"></span>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Skills dari Project</p>
-                            <div class="flex flex-wrap gap-1 mt-1">
-                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                                    <?php echo count($userSkills['technical']); ?> Technical
-                                </span>
-                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
-                                    <?php echo count($userSkills['soft']); ?> Soft
-                                </span>
-                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">
-                                    <?php echo count($userSkills['tool']); ?> Tools
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -910,9 +931,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </div>
 
-<!-- SCRIPT SECTION REMAINS THE SAME AS BEFORE -->
 <script>
-// Specializations Management
+// Specializations Management dengan Feedback Visual
 let specializationCount = <?php echo !empty($user['specializations']) ? count(explode(',', $user['specializations'])) : 0; ?>;
 
 function addSpecialization() {
@@ -923,56 +943,118 @@ function addSpecialization() {
     
     if (specializationCount >= 3) {
         showError('Maksimal 3 spesialisasi yang dapat dipilih');
+        // Feedback visual untuk max limit
+        select.classList.add('border-red-500', 'bg-red-50');
+        setTimeout(() => {
+            select.classList.remove('border-red-500', 'bg-red-50');
+        }, 2000);
         return;
     }
     
     // Check if already exists
     const existingSpecs = Array.from(document.querySelectorAll('.specialization-tag'))
-        .map(tag => tag.textContent.replace('×', '').trim());
+        .map(tag => tag.textContent.replace('×', '').replace('check-circle', '').trim());
     
     if (existingSpecs.includes(specText)) {
         showError('Spesialisasi sudah dipilih');
+        // Feedback visual untuk duplikat
+        select.classList.add('border-yellow-500', 'bg-yellow-50');
+        setTimeout(() => {
+            select.classList.remove('border-yellow-500', 'bg-yellow-50');
+        }, 2000);
         return;
     }
     
-    // Create tag
+    // Create tag dengan animasi
     const container = document.getElementById('specializations-container');
     const tag = document.createElement('span');
-    tag.className = 'specialization-tag bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1';
+    tag.className = 'specialization-tag bg-green-500 text-white px-3 py-2 rounded-full text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-200 animate-pulse';
     tag.innerHTML = `
+        <span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>
         ${specText}
-        <button type="button" onclick="removeSpecialization(this)" class="text-blue-600 hover:text-blue-800">
+        <button type="button" onclick="removeSpecialization(this)" class="text-white hover:text-green-200 transition-colors ml-1">
             <span class="iconify" data-icon="mdi:close" data-width="14"></span>
         </button>
     `;
     
     container.appendChild(tag);
+    
+    // Hapus placeholder text jika ada
+    const placeholder = container.querySelector('p.text-gray-500');
+    if (placeholder) {
+        placeholder.remove();
+    }
+    
     updateSpecializationsHidden();
     
-    // Reset select
+    // Reset select dengan feedback
     select.value = '';
+    select.classList.add('border-green-500', 'bg-green-50');
+    setTimeout(() => {
+        select.classList.remove('border-green-500', 'bg-green-50');
+    }, 1000);
+    
     specializationCount++;
     updateSpecCounter();
+    
+    // Show success message jika sudah memilih minimal 1
+    if (specializationCount >= 1) {
+        document.getElementById('specSuccessMessage').classList.remove('hidden');
+    }
 }
 
 function removeSpecialization(button) {
     const tag = button.parentElement;
-    tag.remove();
-    specializationCount--;
-    updateSpecializationsHidden();
-    updateSpecCounter();
+    
+    // Animasi sebelum remove
+    tag.classList.add('opacity-0', 'scale-95');
+    setTimeout(() => {
+        tag.remove();
+        specializationCount--;
+        updateSpecializationsHidden();
+        updateSpecCounter();
+        
+        // Hide success message jika tidak ada spesialisasi
+        if (specializationCount === 0) {
+            document.getElementById('specSuccessMessage').classList.add('hidden');
+            // Tambahkan placeholder kembali
+            const container = document.getElementById('specializations-container');
+            const placeholder = document.createElement('p');
+            placeholder.className = 'text-gray-500 text-sm flex items-center gap-2';
+            placeholder.innerHTML = '<span class="iconify" data-icon="mdi:information" data-width="16"></span>Belum ada spesialisasi yang dipilih';
+            container.appendChild(placeholder);
+        }
+    }, 300);
 }
 
 function updateSpecializationsHidden() {
     const tags = Array.from(document.querySelectorAll('.specialization-tag'))
-        .map(tag => tag.textContent.replace('×', '').trim())
+        .map(tag => tag.textContent.replace('×', '').replace('check-circle', '').trim())
         .filter(text => text !== '');
     
     document.getElementById('specializations-hidden').value = tags.join(',');
 }
 
 function updateSpecCounter() {
-    document.getElementById('specCounter').textContent = `${specializationCount}/3`;
+    const counter = document.getElementById('specCounter');
+    const progressBar = document.getElementById('specProgressBar');
+    
+    counter.textContent = `${specializationCount}/3`;
+    
+    // Update progress bar
+    const progressPercentage = (specializationCount / 3) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
+    
+    // Update progress bar color based on count
+    if (specializationCount === 0) {
+        progressBar.className = 'bg-gray-400 h-2 rounded-full transition-all duration-500 ease-out';
+    } else if (specializationCount === 1) {
+        progressBar.className = 'bg-yellow-500 h-2 rounded-full transition-all duration-500 ease-out';
+    } else if (specializationCount === 2) {
+        progressBar.className = 'bg-green-500 h-2 rounded-full transition-all duration-500 ease-out';
+    } else {
+        progressBar.className = 'bg-green-600 h-2 rounded-full transition-all duration-500 ease-out';
+    }
 }
 
 // CV Drag & Drop functionality

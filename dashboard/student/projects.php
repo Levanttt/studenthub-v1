@@ -295,7 +295,7 @@ $student = $student_result->fetch_assoc();
                         <a href="<?php echo htmlspecialchars($project['demo_url']); ?>" 
                         target="_blank"
                         class="hover:text-blue-600 transition-colors"
-                        title="Live Demo">
+                        title="Lihat Proyek">
                             <span class="iconify" data-icon="mdi:web" data-width="18"></span>
                         </a>
                         <?php endif; ?>
@@ -325,8 +325,7 @@ $student = $student_result->fetch_assoc();
 function confirmDelete(projectId, projectTitle) {
     Swal.fire({
         title: 'Hapus Proyek?',
-        html: `<div class="text-left">
-                <p class="text-red-600 font-semibold">Proyek: <span class="text-gray-800">"${projectTitle}"</span></p>
+        html: `<div class="text-middle">
                 <p class="text-gray-600 mt-2">Proyek akan dihapus permanent dari portofoliomu.</p>
                </div>`,
         icon: 'warning',

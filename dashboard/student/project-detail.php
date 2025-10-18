@@ -83,22 +83,11 @@ $skills_stmt->close();
                 <span class="text-gray-900 font-medium"><?php echo htmlspecialchars($project['title']); ?></span>
             </nav>
             
-            <!-- Tombol Kembali -->
-            <button
-                type="button"
-                class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2"
-                aria-label="Kembali"
-                onclick="(function(){ if (history.length > 1) { history.back(); } else { window.location.href = 'projects.php'; } })()"
-            >
+            <a href="projects.php?id=<?php echo $project_id; ?>" 
+                class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                 Kembali
-            </button>
-            <noscript>
-                <a href="projects.php" class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                    Kembali
-                </a>
-            </noscript>
+            </a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -216,6 +205,62 @@ $skills_stmt->close();
                     <?php endif; ?>
                 </div>
             </div>
+
+            <!-- Certificate Section - Compact Version -->
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+            <h2 class="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
+                Sertifikat Terkait
+            </h2>
+            
+            <?php if (!empty($project['certificate_path'])): ?>
+            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center border-4 border-amber-200">
+                            <span class="iconify text-amber-600" data-icon="mdi:certificate" data-width="32"></span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-amber-800">Sertifikat Tersedia</h3>
+                            <p class="text-amber-700 text-sm">
+                                <?php 
+                                $filename = basename($project['certificate_path']);
+                                echo htmlspecialchars($filename);
+                                ?>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <a href="<?php echo htmlspecialchars($project['certificate_path']); ?>" 
+                        target="_blank"
+                        class="bg-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 flex items-center gap-2 text-sm">
+                            <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
+                            Lihat
+                        </a>
+                        
+                        <a href="<?php echo htmlspecialchars($project['certificate_path']); ?>" 
+                        download
+                        class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 text-sm">
+                            <span class="iconify" data-icon="mdi:download" data-width="16"></span>
+                            Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <?php else: ?>
+            <div class="text-center py-8 bg-gray-50 rounded-xl border border-gray-300">
+                <div class="text-gray-400 mb-3 flex justify-center">
+                    <span class="iconify" data-icon="mdi:certificate-off" data-width="48"></span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Sertifikat</h3>
+                <p class="text-gray-500 text-sm mb-4">Tambahkan sertifikat untuk meningkatkan kredibilitas proyek</p>
+                <a href="edit-project.php?id=<?php echo $project['id']; ?>" class="inline-block bg-amber-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 shadow-md">
+                    Tambah Sertifikat
+                </a>
+            </div>
+            <?php endif; ?>
+        </div>
 
             <!-- Project Gallery -->
             <?php if (!empty($project_images)): ?>
@@ -356,10 +401,32 @@ document.getElementById('imageModal').addEventListener('click', function(e) {
     }
 });
 
-// Delete Confirmation
-function confirmDelete(projectId) {
-    if (confirm('Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.')) {
-        window.location.href = 'delete-project.php?id=' + projectId;
+function confirmDelete(projectId, projectTitle) {
+    Swal.fire({
+        title: 'Hapus Proyek?',
+        html: `<div class="text-middle">
+                <p class="text-gray-600 mt-2">Proyek akan dihapus permanent dari portofoliomu.</p>
+                </div>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        background: '#ffffff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = `projects.php?delete_id=${projectId}`;
+        }
+    });
+}
+
+// Fallback jika SweetAlert tidak tersedia
+if (typeof Swal === 'undefined') {
+    function confirmDelete(projectId, projectTitle) {
+        if (confirm(`Hapus proyek "${projectTitle}"?`)) {
+            window.location.href = `projects.php?delete_id=${projectId}`;
+        }
     }
 }
 
