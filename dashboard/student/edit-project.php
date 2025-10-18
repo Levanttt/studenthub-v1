@@ -1105,7 +1105,6 @@ class MultiSelectDropdown {
         }
     }
     
-    // METHOD: Update style option berdasarkan status selected
     updateOptionStyle(option, isSelected) {
         if (isSelected) {
             option.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
@@ -1116,7 +1115,6 @@ class MultiSelectDropdown {
         }
     }
     
-    // METHOD: Sync option styles saat inisialisasi
     syncOptionStyles() {
         this.options.querySelectorAll('[data-option]').forEach(option => {
             const value = option.getAttribute('data-value');
@@ -1139,7 +1137,6 @@ class MultiSelectDropdown {
             </button>
         `;
         
-        // Add event listener untuk remove button
         const removeBtn = skillElement.querySelector('button');
         removeBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1151,25 +1148,21 @@ class MultiSelectDropdown {
     }
     
     addSkill(value, text) {
-        // Cek apakah skill sudah ada
         if (this.selectedValues.has(value)) {
             return;
         }
         
         this.selectedValues.add(value);
         
-        // Add to visual display
         const skillElement = this.createSkillElement(value, text);
         this.selectedContainer.appendChild(skillElement);
         
-        // Add hidden input
         this.addHiddenInput(value);
         
         this.updateDisplay();
     }
     
     addHiddenInput(value) {
-        // Cek dulu apakah hidden input sudah ada
         const existingInput = document.getElementById(`skill-${this.category}-${value}`);
         if (!existingInput) {
             const hiddenInput = document.createElement('input');
@@ -1183,14 +1176,11 @@ class MultiSelectDropdown {
     
     removeSkill(value) {
         this.selectedValues.delete(value);
-        
-        // Remove from visual display
         const skillElements = this.selectedContainer.querySelectorAll(`[data-skill-value="${value}"]`);
         skillElements.forEach(element => {
             element.closest('div').remove();
         });
         
-        // Juga remove berdasarkan class (untuk existing skills)
         const existingSkillElements = this.selectedContainer.querySelectorAll('.bg-blue-100, .bg-green-100, .bg-purple-100');
         existingSkillElements.forEach(element => {
             if (element.textContent.includes(value)) {
@@ -1198,26 +1188,23 @@ class MultiSelectDropdown {
             }
         });
         
-        // Remove hidden input
         const hiddenInput = document.getElementById(`skill-${this.category}-${value}`);
         if (hiddenInput) {
             hiddenInput.remove();
         }
         
-        // Update option style saat skill dihapus
         const option = this.options.querySelector(`[data-option][data-value="${value}"]`);
         if (option) {
             this.updateOptionStyle(option, false);
         }
         
-        // Update display count
         this.updateDisplay();
     }
     
     updateDisplay() {
         const count = this.selectedValues.size;
         const placeholderText = this.category === 'technical' ? 'Technical' : 
-                              this.category === 'soft' ? 'Soft' : 'Tool';
+                                this.category === 'soft' ? 'Soft' : 'Tool';
         
         if (count > 0) {
             this.selectedText.textContent = `${count} skill dipilih`;
@@ -1295,7 +1282,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Initialize state
         certificateDeleteCheckbox.dispatchEvent(new Event('change'));
     }
 });
@@ -1305,7 +1291,7 @@ function confirmDeleteCertificate() {
         title: 'Hapus Sertifikat?',
         html: `<div class="text-center">
                 <p class="text-gray-600 mt-2">Sertifikat akan dihapus permanent dari proyek ini.</p>
-               </div>`,
+                </div>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -1315,17 +1301,14 @@ function confirmDeleteCertificate() {
         background: '#ffffff'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Set delete flag
             document.getElementById('delete_certificate').value = '1';
             
-            // Update visual feedback
             const certificateSection = document.querySelector('.bg-green-50');
             if (certificateSection) {
                 certificateSection.style.opacity = '0.6';
                 certificateSection.style.backgroundColor = '#fef2f2';
                 certificateSection.style.borderColor = '#fecaca';
                 
-                // Add status message
                 const statusMessage = document.createElement('div');
                 statusMessage.className = 'mt-3 p-3 bg-red-100 text-red-700 rounded-lg text-sm flex items-center gap-2';
                 statusMessage.innerHTML = `
