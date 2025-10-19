@@ -25,6 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $video_url = sanitize($_POST['video_url']);
     $skills_input = $_POST['skills'] ?? [];
 
+    // Certificate fields
+    $certificate_credential_id = !empty($_POST['certificate_credential_id']) ? sanitize($_POST['certificate_credential_id']) : null;
+    $certificate_credential_url = !empty($_POST['certificate_credential_url']) ? sanitize($_POST['certificate_credential_url']) : null;
+    $certificate_issue_date = !empty($_POST['certificate_issue_date']) ? sanitize($_POST['certificate_issue_date']) : null;
+    $certificate_expiry_date = !empty($_POST['certificate_expiry_date']) ? sanitize($_POST['certificate_expiry_date']) : null;
+
     // Validation
     if (empty($title) || empty($description)) {
         $error = "Judul dan deskripsi wajib diisi!";
@@ -84,9 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $conn->begin_transaction();
             
             try {
-                // Insert project dengan main image dan certificate
-                $stmt = $conn->prepare("INSERT INTO projects (student_id, title, description, image_path, certificate_path, github_url, figma_url, demo_url, video_url, category, status, project_type, project_year, project_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("isssssssssssss", $user_id, $title, $description, $main_image_path, $certificate_path, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration);
+                // Insert project dengan semua field certificate
+                $stmt = $conn->prepare("INSERT INTO projects (student_id, title, description, image_path, certificate_path, certificate_credential_id, certificate_credential_url, certificate_issue_date, certificate_expiry_date, github_url, figma_url, demo_url, video_url, category, status, project_type, project_year, project_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isssssssssssssssss", $user_id, $title, $description, $main_image_path, $certificate_path, $certificate_credential_id, $certificate_credential_url, $certificate_issue_date, $certificate_expiry_date, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration);
                 
                 if ($stmt->execute()) {
                     $project_id = $conn->insert_id;
@@ -743,6 +749,7 @@ function handleCertificateUpload($file, $user_id) {
                     </p>
                     <p class="text-xs text-blue-700">
                         Upload sertifikat jika proyek ini terkait dengan kompetisi, sertifikasi, atau program tertentu.
+                        Informasi kredensial akan muncul setelah upload file.
                     </p>
                 </div>
 
@@ -768,6 +775,70 @@ function handleCertificateUpload($file, $user_id) {
                         
                         <p class="text-xs text-gray-500 mt-4">Max. 5MB per file (PDF, JPG, PNG)</p>
                         <div id="certificate-file-names" class="text-sm text-gray-600 mt-3 hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Certificate Information Form (HIDDEN BY DEFAULT) -->
+                <div id="certificate-info-form" class="hidden space-y-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-xl font-bold text-blue-900 flex items-center gap-3">
+                        <span class="iconify" data-icon="mdi:certificate-edit" data-width="20"></span>
+                        Informasi Sertifikat
+                    </h3>
+
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <p class="text-sm text-green-800 flex items-center gap-2">
+                            <span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>
+                            <strong>File sertifikat berhasil dipilih!</strong>
+                        </p>
+                        <p class="text-xs text-green-700 mt-1">
+                            Lengkapi informasi di bawah ini untuk verifikasi yang lebih baik oleh stakeholder.
+                        </p>
+                    </div>
+
+                    <!-- Informasi Kredensial Sertifikat -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">ID Kredensial Sertifikat</label>
+                            <input type="text" name="certificate_credential_id" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                   placeholder="Contoh: ABC123XYZ, 123-456-789">
+                            <p class="text-xs text-gray-500 mt-1">ID unik untuk verifikasi sertifikat</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Link Verifikasi Sertifikat</label>
+                            <input type="url" name="certificate_credential_url" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                   placeholder="https://credential.net/verify/12345">
+                            <p class="text-xs text-gray-500 mt-1">Link untuk verifikasi online sertifikat</p>
+                        </div>
+                    </div>
+
+                    <!-- Tanggal Sertifikat -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Diterbitkan</label>
+                            <input type="date" name="certificate_issue_date" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            <p class="text-xs text-gray-500 mt-1">Tanggal sertifikat diterbitkan</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kadaluarsa</label>
+                            <input type="date" name="certificate_expiry_date" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                            <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada masa berlaku</p>
+                        </div>
+                    </div>
+
+                    <!-- Tombol untuk menghapus sertifikat -->
+                    <div class="flex justify-end">
+                        <button type="button" 
+                                onclick="removeCertificate()"
+                                class="bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors font-medium text-sm flex items-center gap-2">
+                            <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
+                            Hapus Sertifikat
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1055,8 +1126,10 @@ galleryFileInput.addEventListener('change', function(e) {
     }
 });
 
+// Certificate Upload Logic
 const certificateInput = document.getElementById('certificate-input');
 const certificateFileNamesDisplay = document.getElementById('certificate-file-names');
+const certificateInfoForm = document.getElementById('certificate-info-form');
 
 certificateInput.addEventListener('change', function(e) {
     if (this.files.length > 0) {
@@ -1066,10 +1139,36 @@ certificateInput.addEventListener('change', function(e) {
         }
         certificateFileNamesDisplay.innerHTML = fileList;
         certificateFileNamesDisplay.classList.remove('hidden');
+        
+        // Show certificate information form
+        certificateInfoForm.classList.remove('hidden');
+        
+        // Scroll to certificate form
+        setTimeout(() => {
+            certificateInfoForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 300);
     } else {
         certificateFileNamesDisplay.classList.add('hidden');
+        certificateInfoForm.classList.add('hidden');
     }
 });
+
+function removeCertificate() {
+    // Clear file input
+    certificateInput.value = '';
+    
+    // Hide file names display
+    certificateFileNamesDisplay.classList.add('hidden');
+    
+    // Hide certificate information form
+    certificateInfoForm.classList.add('hidden');
+    
+    // Clear form fields
+    const formFields = certificateInfoForm.querySelectorAll('input');
+    formFields.forEach(field => {
+        field.value = '';
+    });
+}
 
 function setupDragAndDrop(uploadArea, fileInput, fileNamesDisplay, maxFiles = 1) {
     uploadArea.addEventListener('dragover', function(e) {

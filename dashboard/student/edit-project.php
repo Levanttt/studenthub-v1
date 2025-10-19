@@ -138,16 +138,61 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         if (!$error) {
-            $conn->begin_transaction();
-            
-            try {
-                $update_stmt = $conn->prepare("UPDATE projects SET title = ?, description = ?, image_path = ?, certificate_path = ?, github_url = ?, figma_url = ?, demo_url = ?, video_url = ?, category = ?, status = ?, project_type = ?, project_year = ?, project_duration = ? WHERE id = ? AND student_id = ?");
-                
-                if (!$update_stmt) {
-                    throw new Exception("Error preparing update statement: " . $conn->error);
-                }
-                
-                $update_stmt->bind_param("sssssssssssssii", $title, $description, $main_image_path, $certificate_path, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration, $project_id, $user_id);
+        $conn->begin_transaction();
+        
+        try {
+            // Ambil data sertifikat dari form
+            $certificate_credential_id = sanitize($_POST['certificate_credential_id'] ?? '');
+            $certificate_credential_url = sanitize($_POST['certificate_credential_url'] ?? '');
+            $certificate_issue_date = sanitize($_POST['certificate_issue_date'] ?? '');
+            $certificate_expiry_date = sanitize($_POST['certificate_expiry_date'] ?? '');
+
+            $update_stmt = $conn->prepare("UPDATE projects SET 
+            title = ?, 
+            description = ?, 
+            image_path = ?, 
+            certificate_path = ?, 
+            github_url = ?, 
+            figma_url = ?, 
+            demo_url = ?, 
+            video_url = ?, 
+            category = ?, 
+            status = ?, 
+            project_type = ?, 
+            project_year = ?, 
+            project_duration = ?,
+            certificate_credential_id = ?,
+            certificate_credential_url = ?,
+            certificate_issue_date = ?,
+            certificate_expiry_date = ?
+        WHERE id = ? AND student_id = ?");
+
+        if (!$update_stmt) {
+            throw new Exception("Error preparing update statement: " . $conn->error);
+        }
+
+        // Perhatikan: 18 parameter (16 string + 2 integer)
+        $update_stmt->bind_param("sssssssssssssssssii", 
+            $title, 
+            $description, 
+            $main_image_path, 
+            $certificate_path, 
+            $github_url, 
+            $figma_url, 
+            $demo_url, 
+            $video_url, 
+            $category, 
+            $status, 
+            $project_type, 
+            $project_year, 
+            $project_duration,
+            $certificate_credential_id,
+            $certificate_credential_url,
+            $certificate_issue_date,
+            $certificate_expiry_date,
+            $project_id, 
+            $user_id
+        );
                 
                 if ($update_stmt->execute()) {
                     if (!empty($delete_images)) {
@@ -788,9 +833,6 @@ function handleCertificateUpload($file, $user_id) {
                 
                 <!-- Hidden input untuk menyimpan semua skills -->
                 <div id="skills-hidden-container">
-                    <?php foreach ($existing_skills as $skill): ?>
-                        <input type="hidden" name="skills[]" value="<?php echo htmlspecialchars($skill); ?>">
-                    <?php endforeach; ?>
                 </div>
             </div>
 
@@ -899,19 +941,74 @@ function handleCertificateUpload($file, $user_id) {
             </div>
 
             <!-- Certificate Section -->
-            <div class="space-y-6">
+            <div class="space-y-6 pt-6 border-t border-gray-200">
                 <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
-                    Sertifikat Proyek
+                    Informasi Sertifikat Proyek
                 </h2>
 
+                <!-- Info bahwa sertifikat akan muncul di halaman certificates -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <span class="iconify text-blue-600 mt-0.5" data-icon="mdi:information" data-width="20"></span>
+                        <div>
+                            <p class="text-sm text-blue-800 font-medium mb-1">Sertifikat Proyek</p>
+                            <p class="text-sm text-blue-700">
+                                Sertifikat ini akan muncul di halaman "Semua Sertifikat" dan dapat dilihat oleh stakeholder.
+                                Lengkapi informasi untuk verifikasi yang lebih baik.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informasi Kredensial Sertifikat -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ID Kredensial Sertifikat</label>
+                        <input type="text" name="certificate_credential_id" 
+                            value="<?php echo htmlspecialchars($project['certificate_credential_id'] ?? ''); ?>" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                            placeholder="Contoh: ABC123XYZ, 123-456-789">
+                        <p class="text-xs text-gray-500 mt-1">ID unik untuk verifikasi sertifikat</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Link Verifikasi Sertifikat</label>
+                        <input type="url" name="certificate_credential_url" 
+                            value="<?php echo htmlspecialchars($project['certificate_credential_url'] ?? ''); ?>" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                            placeholder="https://credential.net/verify/12345">
+                        <p class="text-xs text-gray-500 mt-1">Link untuk verifikasi online sertifikat</p>
+                    </div>
+                </div>
+
+                <!-- Tanggal Sertifikat -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Diterbitkan</label>
+                        <input type="date" name="certificate_issue_date" 
+                            value="<?php echo htmlspecialchars($project['certificate_issue_date'] ?? ''); ?>" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <p class="text-xs text-gray-500 mt-1">Tanggal sertifikat diterbitkan</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kadaluarsa</label>
+                        <input type="date" name="certificate_expiry_date" 
+                            value="<?php echo htmlspecialchars($project['certificate_expiry_date'] ?? ''); ?>" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada masa berlaku</p>
+                    </div>
+                </div>
+
+                <!-- Current File Info -->
                 <?php if (!empty($project['certificate_path'])): ?>
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <span class="iconify text-green-600" data-icon="mdi:certificate" data-width="24"></span>
                                 <div>
-                                    <p class="font-medium text-green-800">Sertifikat sudah diupload</p>
+                                    <p class="font-medium text-green-800">File sertifikat sudah diupload</p>
                                     <p class="text-sm text-green-600">File: <?php echo basename($project['certificate_path']); ?></p>
                                 </div>
                             </div>
@@ -922,7 +1019,6 @@ function handleCertificateUpload($file, $user_id) {
                                     <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
                                     Lihat
                                 </a>
-                                <!-- PERBAIKAN: Tombol hapus yang berfungsi -->
                                 <button type="button" 
                                         onclick="confirmDeleteCertificate()"
                                         class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors flex items-center gap-2">
@@ -933,17 +1029,16 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     </div>
                     
-                    <!-- Hidden input untuk delete certificate -->
                     <input type="hidden" name="delete_certificate" id="delete_certificate" value="0">
                 <?php endif; ?>
 
-                <!-- Upload/Ganti Sertifikat - Versi Sederhana -->
+                <!-- Upload/Ganti File Sertifikat -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        <?php echo empty($project['certificate_path']) ? 'Upload Sertifikat' : 'Ganti Sertifikat'; ?>
+                        <?php echo empty($project['certificate_path']) ? 'Upload File Sertifikat' : 'Ganti File Sertifikat'; ?>
                     </label>
                     <input type="file" name="certificate_file" accept=".pdf,.jpg,.jpeg,.png" 
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     <p class="text-xs text-gray-500 mt-2">Format: PDF, JPG, PNG. Maksimal 5MB</p>
                 </div>
             </div>
@@ -1026,7 +1121,6 @@ class MultiSelectDropdown {
         this.container = document.getElementById(containerId);
         this.toggle = this.container.querySelector('[data-toggle]');
         this.options = this.container.querySelector('[data-options]');
-        this.hiddenInput = this.container.querySelector('input[type="hidden"]');
         this.selectedText = this.container.querySelector('[data-selected-text]');
         this.selectedIcon = this.container.querySelector('[data-selected-icon]');
         this.selectedContainer = document.getElementById(`selected-${category}-skills`);
@@ -1064,7 +1158,6 @@ class MultiSelectDropdown {
                 }
                 
                 this.updateDisplay();
-                // JANGAN TUTUP DROPDOWN SETELAH MEMILIH
             });
         });
         
@@ -1084,7 +1177,7 @@ class MultiSelectDropdown {
             
             if (skillValue) {
                 this.selectedValues.add(skillValue);
-                // Update event listener untuk remove button yang sudah ada
+                this.addHiddenInput(skillValue);
                 this.attachRemoveListener(skillElement, skillValue);
             }
         });
@@ -1158,41 +1251,44 @@ class MultiSelectDropdown {
         this.selectedContainer.appendChild(skillElement);
         
         this.addHiddenInput(value);
-        
         this.updateDisplay();
     }
     
     addHiddenInput(value) {
-        const existingInput = document.getElementById(`skill-${this.category}-${value}`);
-        if (!existingInput) {
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'skills[]';
-            hiddenInput.value = value;
-            hiddenInput.id = `skill-${this.category}-${value}`;
-            document.getElementById('skills-hidden-container').appendChild(hiddenInput);
+        // Hapus dulu jika sudah ada
+        this.removeHiddenInput(value);
+        
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'skills[]';
+        hiddenInput.value = value;
+        hiddenInput.id = `skill-${this.category}-${value.replace(/\s+/g, '-')}`;
+        document.getElementById('skills-hidden-container').appendChild(hiddenInput);
+    }
+    
+    removeHiddenInput(value) {
+        const existingInput = document.getElementById(`skill-${this.category}-${value.replace(/\s+/g, '-')}`);
+        if (existingInput) {
+            existingInput.remove();
         }
     }
     
     removeSkill(value) {
         this.selectedValues.delete(value);
-        const skillElements = this.selectedContainer.querySelectorAll(`[data-skill-value="${value}"]`);
-        skillElements.forEach(element => {
-            element.closest('div').remove();
-        });
         
-        const existingSkillElements = this.selectedContainer.querySelectorAll('.bg-blue-100, .bg-green-100, .bg-purple-100');
-        existingSkillElements.forEach(element => {
-            if (element.textContent.includes(value)) {
-                element.remove();
+        // Remove skill element from display
+        const skillElements = this.selectedContainer.querySelectorAll(`button[data-skill-value="${value}"]`);
+        skillElements.forEach(button => {
+            const skillElement = button.closest('div');
+            if (skillElement) {
+                skillElement.remove();
             }
         });
         
-        const hiddenInput = document.getElementById(`skill-${this.category}-${value}`);
-        if (hiddenInput) {
-            hiddenInput.remove();
-        }
+        // Remove hidden input
+        this.removeHiddenInput(value);
         
+        // Update option style
         const option = this.options.querySelector(`[data-option][data-value="${value}"]`);
         if (option) {
             this.updateOptionStyle(option, false);
@@ -1226,8 +1322,6 @@ class MultiSelectDropdown {
 }
 
 // Initialize all dropdowns
-const multiSelectDropdowns = {};
-
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Initializing dropdowns...');
     
@@ -1236,7 +1330,6 @@ document.addEventListener('DOMContentLoaded', function() {
     singleDropdowns.forEach(dropdownId => {
         if (document.getElementById(dropdownId)) {
             new CustomDropdown(dropdownId);
-            console.log('Initialized:', dropdownId);
         }
     });
     
@@ -1245,8 +1338,7 @@ document.addEventListener('DOMContentLoaded', function() {
     skillCategories.forEach(category => {
         const dropdownId = `${category}-skills-dropdown`;
         if (document.getElementById(dropdownId)) {
-            multiSelectDropdowns[category] = new MultiSelectDropdown(dropdownId, category);
-            console.log('Initialized skills dropdown:', dropdownId);
+            new MultiSelectDropdown(dropdownId, category);
         }
     });
     
@@ -1255,7 +1347,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         form.addEventListener('submit', function(e) {
             const technicalSkills = document.getElementById('selected-technical-skills');
-            if (technicalSkills && technicalSkills.children.length === 0) {
+            const technicalSkillsCount = technicalSkills ? technicalSkills.children.length : 0;
+            
+            if (technicalSkillsCount === 0) {
                 e.preventDefault();
                 alert('Pilih minimal 1 technical skill!');
                 document.getElementById('technical-skills-dropdown').scrollIntoView({ 
@@ -1265,91 +1359,89 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Certificate delete toggle
-    const certificateDeleteCheckbox = document.querySelector('input[name="delete_certificate"]');
-    if (certificateDeleteCheckbox) {
-        certificateDeleteCheckbox.addEventListener('change', function() {
-            const label = this.closest('label');
-            if (label) {
-                if (this.checked) {
-                    label.classList.remove('bg-red-500', 'hover:bg-red-600');
-                    label.classList.add('bg-gray-400', 'hover:bg-gray-500');
-                } else {
-                    label.classList.add('bg-red-500', 'hover:bg-red-600');
-                    label.classList.remove('bg-gray-400', 'hover:bg-gray-500');
-                }
-            }
-        });
-        
-        certificateDeleteCheckbox.dispatchEvent(new Event('change'));
-    }
 });
 
 function confirmDeleteCertificate() {
-    Swal.fire({
-        title: 'Hapus Sertifikat?',
-        html: `<div class="text-center">
-                <p class="text-gray-600 mt-2">Sertifikat akan dihapus permanent dari proyek ini.</p>
-                </div>`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal',
-        background: '#ffffff'
-    }).then((result) => {
-        if (result.isConfirmed) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Hapus Sertifikat?',
+            html: `<div class="text-center">
+                    <p class="text-gray-600 mt-2">Sertifikat akan dihapus permanent dari proyek ini.</p>
+                    </div>`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            background: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete_certificate').value = '1';
+                
+                const certificateSection = document.querySelector('.bg-green-50');
+                if (certificateSection) {
+                    certificateSection.style.opacity = '0.6';
+                    certificateSection.style.backgroundColor = '#fef2f2';
+                    certificateSection.style.borderColor = '#fecaca';
+                    
+                    const statusMessage = document.createElement('div');
+                    statusMessage.className = 'mt-3 p-3 bg-red-100 text-red-700 rounded-lg text-sm flex items-center gap-2';
+                    statusMessage.innerHTML = `
+                        <span class="iconify" data-icon="mdi:alert-circle" data-width="16"></span>
+                        <span>Sertifikat akan dihapus saat perubahan disimpan</span>
+                    `;
+                    certificateSection.appendChild(statusMessage);
+                }
+                
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Sertifikat akan dihapus saat perubahan disimpan',
+                    icon: 'success',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    } else {
+        // Fallback jika SweetAlert tidak tersedia
+        if (confirm('Hapus sertifikat? Sertifikat akan dihapus permanent dari proyek ini.')) {
             document.getElementById('delete_certificate').value = '1';
-            
             const certificateSection = document.querySelector('.bg-green-50');
             if (certificateSection) {
                 certificateSection.style.opacity = '0.6';
                 certificateSection.style.backgroundColor = '#fef2f2';
                 certificateSection.style.borderColor = '#fecaca';
-                
-                const statusMessage = document.createElement('div');
-                statusMessage.className = 'mt-3 p-3 bg-red-100 text-red-700 rounded-lg text-sm flex items-center gap-2';
-                statusMessage.innerHTML = `
-                    <span class="iconify" data-icon="mdi:alert-circle" data-width="16"></span>
-                    <span>Sertifikat akan dihapus saat perubahan disimpan</span>
-                `;
-                certificateSection.appendChild(statusMessage);
             }
-            
-            Swal.fire({
-                title: 'Berhasil!',
-                text: 'Sertifikat akan dihapus saat perubahan disimpan',
-                icon: 'success',
-                confirmButtonColor: '#3085d6',
-                confirmButtonText: 'OK'
-            });
+            alert('Sertifikat akan dihapus saat perubahan disimpan');
         }
-    });
+    }
 }
 
 // Reset certificate delete status jika user memilih file baru
-document.querySelector('input[name="certificate_file"]').addEventListener('change', function() {
-    const deleteInput = document.getElementById('delete_certificate');
-    if (deleteInput && this.files.length > 0) {
-        deleteInput.value = '0';
-        
-        // Reset tampilan jika ada
-        const certificateSection = document.querySelector('.bg-green-50');
-        if (certificateSection) {
-            certificateSection.style.opacity = '1';
-            certificateSection.style.backgroundColor = '';
-            certificateSection.style.borderColor = '';
+const certificateFileInput = document.querySelector('input[name="certificate_file"]');
+if (certificateFileInput) {
+    certificateFileInput.addEventListener('change', function() {
+        const deleteInput = document.getElementById('delete_certificate');
+        if (deleteInput && this.files.length > 0) {
+            deleteInput.value = '0';
             
-            // Hapus pesan status
-            const statusMessage = certificateSection.querySelector('.bg-red-100');
-            if (statusMessage) {
-                statusMessage.remove();
+            // Reset tampilan jika ada
+            const certificateSection = document.querySelector('.bg-green-50');
+            if (certificateSection) {
+                certificateSection.style.opacity = '1';
+                certificateSection.style.backgroundColor = '';
+                certificateSection.style.borderColor = '';
+                
+                // Hapus pesan status
+                const statusMessage = certificateSection.querySelector('.bg-red-100');
+                if (statusMessage) {
+                    statusMessage.remove();
+                }
             }
         }
-    }
-});
+    });
+}
 
 function formatText(text) {
     if (!text) return '';

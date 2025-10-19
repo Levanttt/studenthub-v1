@@ -3,9 +3,9 @@ include 'includes/config.php';
 
 if (isLoggedIn()) {
     if (getUserRole() == 'student') {
-        header("Location: dashboard/student/");
+        header("Location: dashboard/student/index.php");
     } else {
-        header("Location: dashboard/stakeholder/");
+        header("Location: dashboard/stakeholder/index.php");
     }
     exit();
 }
@@ -35,9 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['profile_picture'] = $user['profile_picture']; 
                 
                 if ($user['role'] == 'student') {
-                    header("Location: dashboard/student/");
+                    header("Location: dashboard/student/index.php");
                 } else {
-                    header("Location: dashboard/stakeholder/");
+                    header("Location: dashboard/stakeholder/index.php");
                 }
                 exit();
             } else {
@@ -67,7 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Compact Navbar -->
     <nav class="bg-white shadow-sm border-b border-cyan-100 px-4 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="text-xl font-bold text-blue-900">StudentHub</div>
+            <a href="/studenthub/" 
+                class="text-xl font-bold text-blue-900 flex items-center gap-2 hover:text-blue-700 transition-colors">
+                <span class="iconify" data-icon="mdi:school" data-width="28"></span>
+                StudentHub
+            </a>
             <div class="flex items-center space-x-3">
                 <a href="/studenthub/register.php" class="text-gray-600 hover:text-blue-600 transition-colors text-sm">Daftar</a>
                 <a href="/studenthub/login.php" class="bg-cyan-500 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-cyan-600 transition-colors shadow-sm flex items-center gap-1 text-sm">

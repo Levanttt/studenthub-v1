@@ -43,7 +43,10 @@ while ($cert = $project_certs_result->fetch_assoc()) {
     }
 }
 
-// Get standalone certificates - dengan error handling
+// Get standalone certificates - PERBAIKAN DI SINI
+$standalone_certificates = [];
+$standalone_certs_stmt = null; // Inisialisasi variabel
+
 $standalone_certs_stmt = $conn->prepare("
     SELECT 
         id,
@@ -61,17 +64,18 @@ $standalone_certs_stmt = $conn->prepare("
     WHERE student_id = ?
 ");
 
-if (!$standalone_certs_stmt) {
-    $standalone_certificates = [];
-} else {
+// Check if prepare was successful
+if ($standalone_certs_stmt) {
     $standalone_certs_stmt->bind_param("i", $user_id);
     $standalone_certs_stmt->execute();
     $standalone_certs_result = $standalone_certs_stmt->get_result();
 
-    $standalone_certificates = [];
     while ($cert = $standalone_certs_result->fetch_assoc()) {
         $standalone_certificates[] = $cert;
     }
+} else {
+    // Jika tabel certificates tidak ada, tetap lanjut dengan array kosong
+    error_log("Certificates table doesn't exist or query error: " . $conn->error);
 }
 
 // Merge all certificates
@@ -87,6 +91,7 @@ $from_projects = count($project_certificates);
 $standalone = count($standalone_certificates);
 ?>
 
+<!-- HTML code tetap sama seperti sebelumnya -->
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -175,7 +180,7 @@ $standalone = count($standalone_certificates);
         <?php else: ?>
             <div class="grid grid-cols-1 gap-6">
                 <?php foreach ($all_certificates as $certificate): ?>
-                <!-- Certificate Card - Horizontal dengan Blue Theme -->
+                <!-- Certificate Card -->
                 <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6 hover:shadow-lg transition-all duration-300 group hover:border-blue-300">
                     <div class="flex flex-col md:flex-row gap-6">
                         <!-- Certificate Thumbnail/Icon -->
@@ -187,7 +192,6 @@ $standalone = count($standalone_certificates);
                         
                         <!-- Certificate Content -->
                         <div class="flex-1">
-                            <!-- Header dengan Source Badge -->
                             <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-3">
                                 <div class="flex-1">
                                     <div class="flex items-center gap-3 mb-2">
@@ -219,13 +223,6 @@ $standalone = count($standalone_certificates);
                                     </span>
                                 </div>
                             </div>
-
-                            <!-- Description -->
-                            <?php if (!empty($certificate['description'])): ?>
-                            <p class="text-gray-600 mb-4 line-clamp-2">
-                                <?php echo htmlspecialchars($certificate['description']); ?>
-                            </p>
-                            <?php endif; ?>
 
                             <!-- Validity Period -->
                             <div class="flex items-center gap-4 text-sm text-gray-500 mb-4">
@@ -307,7 +304,7 @@ function confirmDeleteCertificate(certificateId) {
         title: 'Hapus Sertifikat?',
         html: `<div class="text-center">
                 <p class="text-gray-600 mt-2">Sertifikat akan dihapus permanent dari portofoliomu.</p>
-               </div>`,
+                </div>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',

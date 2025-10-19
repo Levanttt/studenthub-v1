@@ -110,7 +110,7 @@ $recent_projects_result = $recent_projects_stmt->get_result();
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Add Project -->
-            <a href="add-project.php" class="group bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-6 text-center border-2 border-cyan-100 hover:border-cyan-300 transition-all duration-300 transform hover:scale-[1.02]">
+            <a href="add-project.php" class="group bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl p-6 text-center border-2 border-teal-100 hover:border-teal-300 transition-all duration-300 transform hover:scale-[1.02]">
                 <div class="text-cyan-500 mb-3 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                     <span class="iconify" data-icon="mdi:plus-box" data-width="48"></span>
                 </div>
@@ -119,7 +119,7 @@ $recent_projects_result = $recent_projects_stmt->get_result();
             </a>
 
             <!-- Manage Projects -->
-            <a href="projects.php" class="group bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 text-center border-2 border-green-100 hover:border-green-300 transition-all duration-300 transform hover:scale-[1.02]">
+            <a href="projects.php" class="group bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl p-6 text-center border-2 border-teal-100 hover:border-teal-300 transition-all duration-300 transform hover:scale-[1.02]">
                 <div class="text-green-500 mb-3 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                     <span class="iconify" data-icon="mdi:folder-open" data-width="48"></span>
                 </div>
@@ -127,8 +127,8 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                 <p class="text-gray-600 text-sm">Lihat dan edit proyek</p>
             </a>
             
-            <!-- CERTIFICATES - biru-hijau (distinct) -->
-            <a href="certificates.php" class="group bg-gradient-to-br from-indigo-50 to-lime-50 rounded-2xl p-6 text-center border-2 border-indigo-100 hover:border-lime-300 transition-all duration-300 transform hover:scale-[1.02]">
+            <!-- CERTIFICATES -->
+            <a href="certificates.php" class="group bg-gradient-to-br from-teal-50 to-cyan-50 rounded-2xl p-6 text-center border-2 border-teal-100 hover:border-teal-300 transition-all duration-300 transform hover:scale-[1.02]">
                 <div class="text-indigo-500 mb-3 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                     <span class="iconify" data-icon="mdi:certificate" data-width="48"></span>
                 </div>

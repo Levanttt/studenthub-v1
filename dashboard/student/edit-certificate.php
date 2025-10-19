@@ -261,84 +261,80 @@ function handleCertificateUpload($file, $user_id) {
             <!-- File Upload -->
             <div class="space-y-6 pt-6 border-t border-gray-200">
                 <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:file-upload" data-width="24"></span>
+                    <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
                     File Sertifikat
                 </h2>
 
                 <!-- Current File Info -->
                 <?php if (!empty($certificate['file_path'])): ?>
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="iconify text-green-600" data-icon="mdi:file-check" data-width="24"></span>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="iconify text-green-600" data-icon="mdi:certificate" data-width="24"></span>
+                                <div>
+                                    <p class="font-medium text-green-800">Sertifikat sudah diupload</p>
+                                    <p class="text-sm text-green-600">File: <?php echo basename($certificate['file_path']); ?></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="<?php echo htmlspecialchars($certificate['file_path']); ?>" 
+                                target="_blank" 
+                                class="bg-green-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-600 transition-colors flex items-center gap-2">
+                                    <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
+                                    Lihat
+                                </a>
+                                <button type="button" 
+                                        onclick="confirmDeleteFile()"
+                                        class="bg-red-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-600 transition-colors flex items-center gap-2">
+                                    <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden input untuk delete file -->
+                    <input type="hidden" name="delete_file" id="delete_file" value="0">
+                <?php else: ?>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <div class="flex items-start gap-3">
+                            <span class="iconify text-blue-600 mt-0.5" data-icon="mdi:information" data-width="20"></span>
                             <div>
-                                <p class="text-sm text-green-800 font-medium">File sertifikat sudah diupload</p>
-                                <p class="text-xs text-green-700">
-                                    <a href="<?php echo htmlspecialchars($certificate['file_path']); ?>" 
-                                       target="_blank" 
-                                       class="underline hover:no-underline">
-                                        Lihat file saat ini
-                                    </a>
+                                <p class="text-sm text-blue-800 font-medium mb-1">Upload File Sertifikat</p>
+                                <p class="text-sm text-blue-700">
+                                    Upload file sertifikat untuk bukti fisik. Format PDF, JPG, atau PNG dengan ukuran maksimal 5MB.
                                 </p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <a href="<?php echo htmlspecialchars($certificate['file_path']); ?>" 
-                               target="_blank"
-                               class="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-200 transition-colors text-sm font-medium flex items-center gap-2">
-                                <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
-                                Lihat
-                            </a>
-                            <button type="button" 
-                                    onclick="confirmDeleteFile()"
-                                    class="bg-red-100 text-red-700 px-3 py-2 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium flex items-center gap-2">
-                                <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
-                                Hapus File
-                            </button>
-                        </div>
                     </div>
-                </div>
-                <input type="hidden" name="delete_file" id="delete_file" value="0">
-                <?php else: ?>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                    <div class="flex items-start gap-3">
-                        <span class="iconify text-blue-600 mt-0.5" data-icon="mdi:information" data-width="20"></span>
-                        <div>
-                            <p class="text-sm text-blue-800 font-medium mb-1">Upload File Sertifikat</p>
-                            <p class="text-sm text-blue-700">
-                                Upload file sertifikat untuk bukti fisik. Format PDF, JPG, atau PNG dengan ukuran maksimal 5MB.
-                            </p>
-                        </div>
-                    </div>
-                </div>
                 <?php endif; ?>
 
-                <!-- File Upload Input -->
-                <div class="max-w-2xl">
+                <!-- Upload/Ganti File Sertifikat -->
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         <?php echo empty($certificate['file_path']) ? 'Upload File Sertifikat' : 'Ganti File Sertifikat'; ?>
                     </label>
                     <input type="file" name="certificate_file" accept=".pdf,.jpg,.jpeg,.png" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                     <p class="text-xs text-gray-500 mt-2">Format: PDF, JPG, PNG. Maksimal 5MB</p>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="flex justify-end gap-4 pt-8 border-t border-gray-200">
-                <a href="certificates.php" 
-                   class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                    Batal
-                </a>
-                <button type="submit" 
-                        class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium shadow-sm hover:shadow-md flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:content-save" data-width="18"></span>
-                    Simpan Perubahan
-                </button>
+                        <!-- Submit Button -->
+                        <div class="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                            <a href="certificates.php" 
+                            class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                                Batal
+                            </a>
+                            <button type="submit" 
+                                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 font-medium shadow-sm hover:shadow-md flex items-center gap-2">
+                                <span class="iconify" data-icon="mdi:content-save" data-width="18"></span>
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
-    </div>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -361,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function confirmDeleteFile() {
     Swal.fire({
-        title: 'Hapus File?',
+        title: 'Hapus File Sertifikat?',
         html: `<div class="text-center">
                 <p class="text-gray-600 mt-2">File sertifikat akan dihapus permanent. Anda dapat mengupload file baru nanti.</p>
                 </div>`,
@@ -375,10 +371,8 @@ function confirmDeleteFile() {
     }).then((result) => {
         if (result.isConfirmed) {
             document.getElementById('delete_file').value = '1';
-            // Reload to show updated state
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            // Submit form setelah konfirmasi
+            document.querySelector('form').submit();
         }
     });
 }
