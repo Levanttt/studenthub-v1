@@ -165,6 +165,7 @@ $categorized_result = $categorized_skills_stmt->get_result();
 while ($skill = $categorized_result->fetch_assoc()) {
     $skills_by_category[$skill['skill_type']][] = $skill['name'];
 }
+$categorized_skills_stmt->close();
 
 // File upload handler function
 function handleFileUpload($file, $user_id) {
@@ -228,6 +229,94 @@ function handleCertificateUpload($file, $user_id) {
 ?>
 
 <?php include '../../includes/header.php'; ?>
+
+<style>
+.searchable-dropdown {
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.option-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.option-item:last-child {
+    border-bottom: none;
+}
+
+.option-item:hover {
+    background-color: #f3f4f6;
+}
+
+.option-item.selected {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 2px;
+}
+
+.skill-tag button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+}
+
+.skill-tag button:hover {
+    opacity: 1;
+}
+
+.technical-tag { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.soft-tag { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.tool-tag { background-color: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+</style>
 
 <div class="px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
@@ -510,110 +599,158 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Skills Section -->
+            <!-- Skills Section dengan Searchable Dropdown -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="24"></span>
                     Keterampilan yang Digunakan *
                 </h2>
-                
+                <p class="text-gray-500 text-sm -mt-4">Klik dropdown dan ketik untuk mencari skill. Pilih dari daftar yang tersedia.</p>
+
                 <!-- Technical Skills -->
-                <div class="relative" id="technical-skills-dropdown">
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Technical Skills *</label>
-                    
-                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
-                        <div class="flex items-center gap-3">
-                            <span class="iconify" data-icon="mdi:code-braces" data-width="20" data-selected-icon></span>
-                            <span data-selected-text>Pilih Technical Skills</span>
+                    <div class="searchable-dropdown">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="technical">
+                            <div class="flex items-center gap-3">
+                                <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
+                                <span class="skill-placeholder">Pilih Technical Skills</span>
+                            </div>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                         </div>
-                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
-                    </div>
-                    
-                    <input type="hidden" name="technical_skills[]" id="technical-skills-value" multiple>
-                    
-                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
-                        <div class="p-2 space-y-1">
-                            <?php foreach ($skills_by_category['technical'] as $skill): ?>
-                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200" 
-                                    data-option 
-                                    data-value="<?php echo htmlspecialchars($skill); ?>">
-                                    <span><?php echo htmlspecialchars($skill); ?></span>
-                                </div>
-                            <?php endforeach; ?>
+                        
+                        <div class="dropdown-options" data-category="technical">
+                            <input type="text" class="search-input" placeholder="Ketik untuk mencari..." data-category="technical">
+                            <div class="options-list" data-category="technical">
+                                <?php foreach ($skills_by_category['technical'] as $skill): ?>
+                                    <div class="option-item" data-value="<?php echo htmlspecialchars($skill); ?>" data-category="technical">
+                                        <span class="iconify" data-icon="mdi:code-braces" data-width="16"></span>
+                                        <?php echo htmlspecialchars($skill); ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Selected skills display -->
                     <div id="selected-technical-skills" class="flex flex-wrap gap-2 mt-3">
+                        <?php
+                        if (isset($_POST['skills'])) {
+                            foreach ($_POST['skills'] as $skill) {
+                                if (!empty(trim($skill)) && in_array($skill, $skills_by_category['technical'])) {
+                                    echo '<span class="skill-tag technical-tag">';
+                                    echo htmlspecialchars($skill);
+                                    echo '<button type="button" onclick="removeSkill(this, \'' . htmlspecialchars($skill) . '\', \'technical\')">';
+                                    echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
+                                    echo '</button>';
+                                    echo '</span>';
+                                }
+                            }
+                        }
+                        ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Pilih minimal 1 technical skill</p>
                 </div>
 
                 <!-- Soft Skills -->
-                <div class="relative" id="soft-skills-dropdown">
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Soft Skills</label>
-                    
-                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
-                        <div class="flex items-center gap-3">
-                            <span class="iconify" data-icon="mdi:account-group" data-width="20" data-selected-icon></span>
-                            <span data-selected-text>Pilih Soft Skills</span>
+                    <div class="searchable-dropdown">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="soft">
+                            <div class="flex items-center gap-3">
+                                <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
+                                <span class="skill-placeholder">Pilih Soft Skills</span>
+                            </div>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                         </div>
-                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
-                    </div>
-                    
-                    <input type="hidden" name="soft_skills[]" id="soft-skills-value" multiple>
-                    
-                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
-                        <div class="p-2 space-y-1">
-                            <?php foreach ($skills_by_category['soft'] as $skill): ?>
-                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200" 
-                                    data-option 
-                                    data-value="<?php echo htmlspecialchars($skill); ?>">
-                                    <span><?php echo htmlspecialchars($skill); ?></span>
-                                </div>
-                            <?php endforeach; ?>
+                        
+                        <div class="dropdown-options" data-category="soft">
+                            <input type="text" class="search-input" placeholder="Ketik untuk mencari..." data-category="soft">
+                            <div class="options-list" data-category="soft">
+                                <?php foreach ($skills_by_category['soft'] as $skill): ?>
+                                    <div class="option-item" data-value="<?php echo htmlspecialchars($skill); ?>" data-category="soft">
+                                        <span class="iconify" data-icon="mdi:account-group" data-width="16"></span>
+                                        <?php echo htmlspecialchars($skill); ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Selected skills display -->
                     <div id="selected-soft-skills" class="flex flex-wrap gap-2 mt-3">
+                        <?php
+                        if (isset($_POST['skills'])) {
+                            foreach ($_POST['skills'] as $skill) {
+                                if (!empty(trim($skill)) && in_array($skill, $skills_by_category['soft'])) {
+                                    echo '<span class="skill-tag soft-tag">';
+                                    echo htmlspecialchars($skill);
+                                    echo '<button type="button" onclick="removeSkill(this, \'' . htmlspecialchars($skill) . '\', \'soft\')">';
+                                    echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
+                                    echo '</button>';
+                                    echo '</span>';
+                                }
+                            }
+                        }
+                        ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Soft skill yang digunakan dalam proyek</p>
                 </div>
 
-                <!-- Tools -->
-                <div class="relative" id="tool-skills-dropdown">
+                <!-- Tools & Software -->
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tools & Software</label>
-                    
-                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
-                        <div class="flex items-center gap-3">
-                            <span class="iconify" data-icon="mdi:tools" data-width="20" data-selected-icon></span>
-                            <span data-selected-text>Pilih Tools & Software</span>
+                    <div class="searchable-dropdown">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="tool">
+                            <div class="flex items-center gap-3">
+                                <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
+                                <span class="skill-placeholder">Pilih Tools & Software</span>
+                            </div>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                         </div>
-                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
-                    </div>
-                    
-                    <input type="hidden" name="tool_skills[]" id="tool-skills-value" multiple>
-                    
-                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
-                        <div class="p-2 space-y-1">
-                            <?php foreach ($skills_by_category['tool'] as $skill): ?>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="<?php echo htmlspecialchars($skill); ?>" data-icon="mdi:tools">
-                                    <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
-                                    <span><?php echo htmlspecialchars($skill); ?></span>
-                                </div>
-                            <?php endforeach; ?>
+                        
+                        <div class="dropdown-options" data-category="tool">
+                            <input type="text" class="search-input" placeholder="Ketik untuk mencari..." data-category="tool">
+                            <div class="options-list" data-category="tool">
+                                <?php foreach ($skills_by_category['tool'] as $skill): ?>
+                                    <div class="option-item" data-value="<?php echo htmlspecialchars($skill); ?>" data-category="tool">
+                                        <span class="iconify" data-icon="mdi:tools" data-width="16"></span>
+                                        <?php echo htmlspecialchars($skill); ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Selected skills display -->
                     <div id="selected-tool-skills" class="flex flex-wrap gap-2 mt-3">
+                        <?php
+                        if (isset($_POST['skills'])) {
+                            foreach ($_POST['skills'] as $skill) {
+                                if (!empty(trim($skill)) && in_array($skill, $skills_by_category['tool'])) {
+                                    echo '<span class="skill-tag tool-tag">';
+                                    echo htmlspecialchars($skill);
+                                    echo '<button type="button" onclick="removeSkill(this, \'' . htmlspecialchars($skill) . '\', \'tool\')">';
+                                    echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
+                                    echo '</button>';
+                                    echo '</span>';
+                                }
+                            }
+                        }
+                        ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Software dan tools yang digunakan</p>
                 </div>
-                
+
                 <!-- Hidden input untuk menyimpan semua skills -->
                 <div id="skills-hidden-container">
+                    <?php
+                    if (isset($_POST['skills'])) {
+                        foreach ($_POST['skills'] as $skill) {
+                            echo '<input type="hidden" name="skills[]" value="' . htmlspecialchars($skill) . '">';
+                        }
+                    }
+                    ?>
                 </div>
             </div>
 
@@ -859,7 +996,7 @@ function handleCertificateUpload($file, $user_id) {
 </div>
 
 <script>
-// Custom Dropdown System
+// Custom Dropdown System (TETAP SAMA)
 class CustomDropdown {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
@@ -907,321 +1044,302 @@ class CustomDropdown {
     }
 }
 
-class MultiSelectDropdown {
-    constructor(containerId, category) {
-        this.container = document.getElementById(containerId);
-        this.toggle = this.container.querySelector('[data-toggle]');
-        this.options = this.container.querySelector('[data-options]');
-        this.hiddenInput = this.container.querySelector('input[type="hidden"]');
-        this.selectedText = this.container.querySelector('[data-selected-text]');
-        this.selectedIcon = this.container.querySelector('[data-selected-icon]');
-        this.selectedContainer = document.getElementById(`selected-${category}-skills`);
-        this.category = category;
-        
-        this.selectedValues = new Set();
+// Searchable Dropdown System untuk Skills
+class SearchableDropdown {
+    constructor() {
+        this.selectedSkills = new Set();
         this.init();
     }
-    
+
     init() {
-        this.toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.options.classList.toggle('hidden');
-        });
-        
-        document.addEventListener('click', () => {
-            this.options.classList.add('hidden');
-        });
-        
-        this.options.querySelectorAll('[data-option]').forEach(option => {
-            option.addEventListener('click', () => {
-                const value = option.getAttribute('data-value');
-                const text = option.textContent.trim();
-                
-                if (this.selectedValues.has(value)) {
-                    this.removeSkill(value);
-                    this.updateOptionStyle(option, false);
-                } else {
-                    this.addSkill(value, text);
-                    this.updateOptionStyle(option, true);
-                }
-                
-                this.updateDisplay();
-                
+        // Event listeners untuk dropdown toggle
+        document.querySelectorAll('.skill-dropdown-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const category = toggle.getAttribute('data-category');
+                this.toggleDropdown(category);
             });
         });
-        
-        this.options.addEventListener('click', (e) => {
-            e.stopPropagation();
+
+        // Event listeners untuk search input
+        document.querySelectorAll('.search-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const category = e.target.getAttribute('data-category');
+                this.filterOptions(category, e.target.value);
+            });
+
+            input.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // Event listeners untuk option items
+        document.querySelectorAll('.option-item').forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const category = option.getAttribute('data-category');
+                const value = option.getAttribute('data-value');
+                this.selectSkill(value, category);
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            this.closeAllDropdowns();
         });
     }
-    
-    updateOptionStyle(option, isSelected) {
-        if (isSelected) {
-            option.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
-            option.classList.remove('hover:bg-gray-100');
-        } else {
-            option.classList.remove('bg-green-50', 'text-green-700', 'border', 'border-green-200');
-            option.classList.add('hover:bg-gray-100');
+
+    toggleDropdown(category) {
+        const dropdown = document.querySelector(`.dropdown-options[data-category="${category}"]`);
+        const isOpen = dropdown.style.display === 'block';
+        
+        this.closeAllDropdowns();
+        
+        if (!isOpen) {
+            dropdown.style.display = 'block';
+            const searchInput = dropdown.querySelector('.search-input');
+            searchInput.value = '';
+            searchInput.focus();
+            this.filterOptions(category, '');
         }
     }
-    
-    syncOptionStyles() {
-        this.options.querySelectorAll('[data-option]').forEach(option => {
-            const value = option.getAttribute('data-value');
-            if (this.selectedValues.has(value)) {
-                this.updateOptionStyle(option, true);
+
+    closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-options').forEach(dropdown => {
+            dropdown.style.display = 'none';
+        });
+    }
+
+    filterOptions(category, query) {
+        const optionsList = document.querySelector(`.options-list[data-category="${category}"]`);
+        const options = optionsList.querySelectorAll('.option-item');
+        const lowerQuery = query.toLowerCase();
+
+        options.forEach(option => {
+            const text = option.textContent.toLowerCase();
+            if (text.includes(lowerQuery)) {
+                option.style.display = 'flex';
             } else {
-                this.updateOptionStyle(option, false);
+                option.style.display = 'none';
             }
         });
     }
-    
-    addSkill(value, text) {
-        this.selectedValues.add(value);
 
-        const skillElement = document.createElement('div');
-        const colorClass = this.getColorClass();
-        skillElement.className = `${colorClass} px-3 py-1 rounded-full text-sm flex items-center gap-1`;
-        skillElement.innerHTML = `
-            ${text}
-            <button type="button" data-skill-value="${value}" class="hover:opacity-70">
+    selectSkill(skillName, category) {
+        if (this.selectedSkills.has(skillName)) return;
+
+        this.selectedSkills.add(skillName);
+        
+        // Create visual tag
+        const container = document.getElementById(`selected-${category}-skills`);
+        const tag = document.createElement('span');
+        tag.className = `skill-tag ${category}-tag`;
+        tag.innerHTML = `
+            ${skillName}
+            <button type="button" onclick="searchableDropdown.removeSkill('${skillName}', '${category}')">
                 <span class="iconify" data-icon="mdi:close" data-width="14"></span>
             </button>
         `;
-        
-        const removeBtn = skillElement.querySelector('button');
-        removeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.removeSkill(value);
-        });
-        
-        this.selectedContainer.appendChild(skillElement);
-        
+        container.appendChild(tag);
+
+        // Create hidden input
+        const hiddenContainer = document.getElementById('skills-hidden-container');
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
         hiddenInput.name = 'skills[]';
-        hiddenInput.value = value;
-        hiddenInput.id = `skill-${this.category}-${value}`;
-        document.getElementById('skills-hidden-container').appendChild(hiddenInput);
-        
-        this.updateDisplay();
+        hiddenInput.value = skillName;
+        hiddenInput.id = `skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`;
+        hiddenContainer.appendChild(hiddenInput);
+
+        // Close dropdown
+        this.closeAllDropdowns();
+
+        // Add visual feedback
+        const dropdownToggle = document.querySelector(`.skill-dropdown-toggle[data-category="${category}"]`);
+        dropdownToggle.classList.add('border-green-500', 'bg-green-50');
+        setTimeout(() => {
+            dropdownToggle.classList.remove('border-green-500', 'bg-green-50');
+        }, 1000);
     }
-    
-    removeSkill(value) {
-        this.selectedValues.delete(value);
+
+    removeSkill(skillName, category) {
+        this.selectedSkills.delete(skillName);
         
-        const skillElements = this.selectedContainer.querySelectorAll(`[data-skill-value="${value}"]`);
-        skillElements.forEach(element => {
-            element.closest('div').remove();
-        });
-        
-        Array.from(this.selectedContainer.children).forEach(child => {
-            if (child.textContent.includes(value)) {
-                this.selectedContainer.removeChild(child);
+        // Remove visual tag
+        const container = document.getElementById(`selected-${category}-skills`);
+        const tags = container.querySelectorAll('.skill-tag');
+        tags.forEach(tag => {
+            if (tag.textContent.includes(skillName)) {
+                tag.remove();
             }
         });
-        
-        const hiddenInput = document.getElementById(`skill-${this.category}-${value}`);
+
+        // Remove hidden input
+        const hiddenInput = document.getElementById(`skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`);
         if (hiddenInput) {
             hiddenInput.remove();
-        }
-        
-        const option = this.options.querySelector(`[data-option][data-value="${value}"]`);
-        if (option) {
-            this.updateOptionStyle(option, false);
-        }
-        
-        this.updateDisplay();
-    }
-    
-    updateDisplay() {
-        const count = this.selectedValues.size;
-        const placeholderText = this.category === 'technical' ? 'Technical' : 
-                                this.category === 'soft' ? 'Soft' : 'Tool';
-        
-        if (count > 0) {
-            this.selectedText.textContent = `${count} skill dipilih`;
-        } else {
-            this.selectedText.textContent = `Pilih ${placeholderText} Skills`;
-        }
-        
-        if (count > 0) {
-            this.toggle.classList.add('border-blue-500', 'ring-2', 'ring-blue-200');
-        } else {
-            this.toggle.classList.remove('border-blue-500', 'ring-2', 'ring-blue-200');
-        }
-    }
-    
-    getColorClass() {
-        switch(this.category) {
-            case 'technical': return 'bg-blue-100 text-blue-800 border border-blue-200';
-            case 'soft': return 'bg-green-100 text-green-800 border border-green-200';
-            case 'tool': return 'bg-purple-100 text-purple-800 border border-purple-200';
-            default: return 'bg-gray-100 text-gray-800 border border-gray-200';
         }
     }
 }
 
-const multiSelectDropdowns = {};
-
+// Initialize systems
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize custom dropdowns
     new CustomDropdown('project-type-dropdown');
     new CustomDropdown('category-dropdown');
     new CustomDropdown('status-dropdown');
     new CustomDropdown('year-dropdown');
     new CustomDropdown('duration-dropdown');
-    
-    multiSelectDropdowns['technical'] = new MultiSelectDropdown('technical-skills-dropdown', 'technical');
-    multiSelectDropdowns['soft'] = new MultiSelectDropdown('soft-skills-dropdown', 'soft');
-    multiSelectDropdowns['tool'] = new MultiSelectDropdown('tool-skills-dropdown', 'tool');
-});
 
-document.querySelector('form').addEventListener('submit', function(e) {
-    const technicalSkills = document.getElementById('selected-technical-skills').children;
-    if (technicalSkills.length === 0) {
-        e.preventDefault();
-        alert('Pilih minimal 1 technical skill!');
-        document.getElementById('technical-skills-dropdown').scrollIntoView({ behavior: 'smooth' });
-    }
-});
+    // Initialize searchable dropdown
+    window.searchableDropdown = new SearchableDropdown();
 
-const mainFileInput = document.getElementById('project-image-input');
-const mainFileNamesDisplay = document.getElementById('main-file-names');
-
-mainFileInput.addEventListener('change', function(e) {
-    if (this.files.length > 0) {
-        let fileList = 'File terpilih:<br>';
-        for (let i = 0; i < this.files.length; i++) {
-            fileList += `• ${this.files[i].name}<br>`;
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const technicalSkillsContainer = document.getElementById('selected-technical-skills');
+        if (technicalSkillsContainer && technicalSkillsContainer.children.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal 1 technical skill!');
+            const technicalDropdown = document.querySelector('.skill-dropdown-toggle[data-category="technical"]');
+            technicalDropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-        mainFileNamesDisplay.innerHTML = fileList;
-        mainFileNamesDisplay.classList.remove('hidden');
-    } else {
-        mainFileNamesDisplay.classList.add('hidden');
-    }
-});
+    });
 
-const galleryFileInput = document.getElementById('project-gallery-input');
-const galleryFileNamesDisplay = document.getElementById('gallery-file-names');
+    // File Input display logic (tetap sama)
+    const mainFileInput = document.getElementById('project-image-input');
+    const mainFileNamesDisplay = document.getElementById('main-file-names');
 
-galleryFileInput.addEventListener('change', function(e) {
-    if (this.files.length > 0) {
-        let fileList = 'File terpilih:<br>';
-        const maxFiles = 5;
-        
-        if (this.files.length > maxFiles) {
-            fileList = `Maksimal ${maxFiles} file!<br>`;
-            this.value = '';
-        } else {
-            for (let i = 0; i < this.files.length && i < maxFiles; i++) {
+    mainFileInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            let fileList = 'File terpilih:<br>';
+            for (let i = 0; i < this.files.length; i++) {
                 fileList += `• ${this.files[i].name}<br>`;
             }
+            mainFileNamesDisplay.innerHTML = fileList;
+            mainFileNamesDisplay.classList.remove('hidden');
+        } else {
+            mainFileNamesDisplay.classList.add('hidden');
         }
-        
-        galleryFileNamesDisplay.innerHTML = fileList;
-        galleryFileNamesDisplay.classList.remove('hidden');
-    } else {
-        galleryFileNamesDisplay.classList.add('hidden');
-    }
-});
+    });
 
-// Certificate Upload Logic
-const certificateInput = document.getElementById('certificate-input');
-const certificateFileNamesDisplay = document.getElementById('certificate-file-names');
-const certificateInfoForm = document.getElementById('certificate-info-form');
+    const galleryFileInput = document.getElementById('project-gallery-input');
+    const galleryFileNamesDisplay = document.getElementById('gallery-file-names');
 
-certificateInput.addEventListener('change', function(e) {
-    if (this.files.length > 0) {
-        let fileList = 'File terpilih:<br>';
-        for (let i = 0; i < this.files.length; i++) {
-            fileList += `• ${this.files[i].name}<br>`;
+    galleryFileInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            let fileList = 'File terpilih:<br>';
+            const maxFiles = 5;
+            
+            if (this.files.length > maxFiles) {
+                fileList = `Maksimal ${maxFiles} file!<br>`;
+                this.value = '';
+            } else {
+                for (let i = 0; i < this.files.length && i < maxFiles; i++) {
+                    fileList += `• ${this.files[i].name}<br>`;
+                }
+            }
+            
+            galleryFileNamesDisplay.innerHTML = fileList;
+            galleryFileNamesDisplay.classList.remove('hidden');
+        } else {
+            galleryFileNamesDisplay.classList.add('hidden');
         }
-        certificateFileNamesDisplay.innerHTML = fileList;
-        certificateFileNamesDisplay.classList.remove('hidden');
-        
-        // Show certificate information form
-        certificateInfoForm.classList.remove('hidden');
-        
-        // Scroll to certificate form
-        setTimeout(() => {
-            certificateInfoForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 300);
-    } else {
-        certificateFileNamesDisplay.classList.add('hidden');
-        certificateInfoForm.classList.add('hidden');
+    });
+
+    // Certificate Upload Logic (tetap sama)
+    const certificateInput = document.getElementById('certificate-input');
+    const certificateFileNamesDisplay = document.getElementById('certificate-file-names');
+    const certificateInfoForm = document.getElementById('certificate-info-form');
+
+    certificateInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            let fileList = 'File terpilih:<br>';
+            for (let i = 0; i < this.files.length; i++) {
+                fileList += `• ${this.files[i].name}<br>`;
+            }
+            certificateFileNamesDisplay.innerHTML = fileList;
+            certificateFileNamesDisplay.classList.remove('hidden');
+            
+            certificateInfoForm.classList.remove('hidden');
+            
+            setTimeout(() => {
+                certificateInfoForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 300);
+        } else {
+            certificateFileNamesDisplay.classList.add('hidden');
+            certificateInfoForm.classList.add('hidden');
+        }
+    });
+
+    // Drag & Drop functionality (tetap sama)
+    function setupDragAndDrop(uploadArea, fileInput, fileNamesDisplay, maxFiles = 1) {
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('border-cyan-400', 'bg-cyan-50');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-cyan-400', 'bg-cyan-50');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-cyan-400', 'bg-cyan-50');
+            
+            if (e.dataTransfer.files.length > 0) {
+                if (maxFiles > 1) {
+                    const files = e.dataTransfer.files;
+                    if (files.length > maxFiles) {
+                        fileNamesDisplay.innerHTML = `Maksimal ${maxFiles} file!<br>`;
+                        fileNamesDisplay.classList.remove('hidden');
+                    } else {
+                        const dt = new DataTransfer();
+                        for (let i = 0; i < files.length && i < maxFiles; i++) {
+                            dt.items.add(files[i]);
+                        }
+                        fileInput.files = dt.files;
+                        
+                        let fileList = 'File terpilih:<br>';
+                        for (let i = 0; i < files.length && i < maxFiles; i++) {
+                            fileList += `• ${files[i].name}<br>`;
+                        }
+                        fileNamesDisplay.innerHTML = fileList;
+                        fileNamesDisplay.classList.remove('hidden');
+                    }
+                } else {
+                    fileInput.files = e.dataTransfer.files;
+                    
+                    let fileList = 'File terpilih:<br>';
+                    for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                        fileList += `• ${e.dataTransfer.files[i].name}<br>`;
+                    }
+                    fileNamesDisplay.innerHTML = fileList;
+                    fileNamesDisplay.classList.remove('hidden');
+                }
+            }
+        });
     }
+
+    setupDragAndDrop(mainFileInput.closest('div'), mainFileInput, mainFileNamesDisplay, 1);
+    setupDragAndDrop(galleryFileInput.closest('div'), galleryFileInput, galleryFileNamesDisplay, 5);
+    setupDragAndDrop(certificateInput.closest('div'), certificateInput, certificateFileNamesDisplay, 1);
 });
 
 function removeCertificate() {
-    // Clear file input
+    const certificateInput = document.getElementById('certificate-input');
+    const certificateFileNamesDisplay = document.getElementById('certificate-file-names');
+    const certificateInfoForm = document.getElementById('certificate-info-form');
+    
     certificateInput.value = '';
-    
-    // Hide file names display
     certificateFileNamesDisplay.classList.add('hidden');
-    
-    // Hide certificate information form
     certificateInfoForm.classList.add('hidden');
     
-    // Clear form fields
     const formFields = certificateInfoForm.querySelectorAll('input');
     formFields.forEach(field => {
         field.value = '';
     });
 }
-
-function setupDragAndDrop(uploadArea, fileInput, fileNamesDisplay, maxFiles = 1) {
-    uploadArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        this.classList.add('border-cyan-400', 'bg-cyan-50');
-    });
-
-    uploadArea.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        this.classList.remove('border-cyan-400', 'bg-cyan-50');
-    });
-
-    uploadArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        this.classList.remove('border-cyan-400', 'bg-cyan-50');
-        
-        if (e.dataTransfer.files.length > 0) {
-            if (maxFiles > 1) {
-                const files = e.dataTransfer.files;
-                if (files.length > maxFiles) {
-                    fileNamesDisplay.innerHTML = `Maksimal ${maxFiles} file!<br>`;
-                    fileNamesDisplay.classList.remove('hidden');
-                } else {
-                    const dt = new DataTransfer();
-                    for (let i = 0; i < files.length && i < maxFiles; i++) {
-                        dt.items.add(files[i]);
-                    }
-                    fileInput.files = dt.files;
-                    
-                    let fileList = 'File terpilih:<br>';
-                    for (let i = 0; i < files.length && i < maxFiles; i++) {
-                        fileList += `• ${files[i].name}<br>`;
-                    }
-                    fileNamesDisplay.innerHTML = fileList;
-                    fileNamesDisplay.classList.remove('hidden');
-                }
-            } else {
-                fileInput.files = e.dataTransfer.files;
-                
-                let fileList = 'File terpilih:<br>';
-                for (let i = 0; i < e.dataTransfer.files.length; i++) {
-                    fileList += `• ${e.dataTransfer.files[i].name}<br>`;
-                }
-                fileNamesDisplay.innerHTML = fileList;
-                fileNamesDisplay.classList.remove('hidden');
-            }
-        }
-    });
-}
-
-setupDragAndDrop(mainFileInput.closest('div'), mainFileInput, mainFileNamesDisplay, 1);
-setupDragAndDrop(galleryFileInput.closest('div'), galleryFileInput, galleryFileNamesDisplay, 5);
-setupDragAndDrop(certificateInput.closest('div'), certificateInput, certificateFileNamesDisplay, 1);
 </script>
 
 <?php include '../../includes/footer.php'; ?>

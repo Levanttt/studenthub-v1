@@ -393,6 +393,94 @@ function handleCertificateUpload($file, $user_id) {
 
 <?php include '../../includes/header.php'; ?>
 
+<style>
+.searchable-dropdown {
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.option-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.option-item:last-child {
+    border-bottom: none;
+}
+
+.option-item:hover {
+    background-color: #f3f4f6;
+}
+
+.option-item.selected {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 2px;
+}
+
+.skill-tag button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+}
+
+.skill-tag button:hover {
+    opacity: 1;
+}
+
+.technical-tag { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.soft-tag { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.tool-tag { background-color: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+</style>
+
 <div class="px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="flex justify-between items-center w-full mb-8">
@@ -668,171 +756,149 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Skills Section dengan Dropdown Custom -->
+            <!-- Skills Section dengan Searchable Dropdown -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="24"></span>
                     Keterampilan yang Digunakan *
                 </h2>
-                
-                <!-- Technical Skills - Custom Dropdown -->
-                <div class="relative" id="technical-skills-dropdown">
+                <p class="text-gray-500 text-sm -mt-4">Klik dropdown dan ketik untuk mencari skill. Pilih dari daftar yang tersedia.</p>
+
+                <!-- Technical Skills -->
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Technical Skills *</label>
-                    
-                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
-                        <div class="flex items-center gap-3">
-                            <span class="iconify" data-icon="mdi:code-braces" data-width="20" data-selected-icon></span>
-                            <span data-selected-text>
-                                <?php 
-                                $technical_count = count(array_filter($existing_skills, function($skill) use ($skills_by_category) {
-                                    return in_array($skill, $skills_by_category['technical']);
-                                }));
-                                echo $technical_count > 0 ? $technical_count . ' skill dipilih' : 'Pilih Technical Skills';
-                                ?>
-                            </span>
+                    <div class="searchable-dropdown">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="technical">
+                            <div class="flex items-center gap-3">
+                                <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
+                                <span class="skill-placeholder">Pilih Technical Skills</span>
+                            </div>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                         </div>
-                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
-                    </div>
-                    
-                    <input type="hidden" name="technical_skills[]" id="technical-skills-value" multiple>
-                    
-                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
-                        <div class="p-2 space-y-1">
-                            <?php foreach ($skills_by_category['technical'] as $skill): ?>
-                                <!-- HAPUS ICON DARI OPTIONS, HANYA TAMPILKAN TEXT -->
-                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200 <?php echo in_array($skill, $existing_skills) ? 'bg-green-50 text-green-700' : ''; ?>" 
-                                    data-option 
-                                    data-value="<?php echo htmlspecialchars($skill); ?>">
-                                    <span><?php echo htmlspecialchars($skill); ?></span>
-                                </div>
-                            <?php endforeach; ?>
+                        
+                        <div class="dropdown-options" data-category="technical">
+                            <input type="text" class="search-input" placeholder="Ketik untuk mencari..." data-category="technical">
+                            <div class="options-list" data-category="technical">
+                                <?php foreach ($skills_by_category['technical'] as $skill): ?>
+                                    <div class="option-item" data-value="<?php echo htmlspecialchars($skill); ?>" data-category="technical">
+                                        <span class="iconify" data-icon="mdi:code-braces" data-width="16"></span>
+                                        <?php echo htmlspecialchars($skill); ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Selected skills display -->
                     <div id="selected-technical-skills" class="flex flex-wrap gap-2 mt-3">
-                        <?php 
+                        <?php
                         $technical_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
                             return in_array($skill, $skills_by_category['technical']);
                         });
                         foreach ($technical_skills as $skill): ?>
-                            <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-blue-200">
+                            <span class="skill-tag technical-tag">
                                 <?php echo htmlspecialchars($skill); ?>
-                                <button type="button" class="hover:opacity-70" data-skill-value="<?php echo htmlspecialchars($skill); ?>">
+                                <button type="button" onclick="searchableDropdown.removeSkill('<?php echo htmlspecialchars($skill); ?>', 'technical')">
                                     <span class="iconify" data-icon="mdi:close" data-width="14"></span>
                                 </button>
-                            </div>
+                            </span>
                         <?php endforeach; ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Pilih minimal 1 technical skill</p>
                 </div>
 
-                <!-- Soft Skills - Custom Dropdown -->
-                <div class="relative" id="soft-skills-dropdown">
+                <!-- Soft Skills -->
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Soft Skills</label>
-                    
-                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
-                        <div class="flex items-center gap-3">
-                            <span class="iconify" data-icon="mdi:account-group" data-width="20" data-selected-icon></span>
-                            <span data-selected-text>
-                                <?php 
-                                $soft_count = count(array_filter($existing_skills, function($skill) use ($skills_by_category) {
-                                    return in_array($skill, $skills_by_category['soft']);
-                                }));
-                                echo $soft_count > 0 ? $soft_count . ' skill dipilih' : 'Pilih Soft Skills';
-                                ?>
-                            </span>
+                    <div class="searchable-dropdown">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="soft">
+                            <div class="flex items-center gap-3">
+                                <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
+                                <span class="skill-placeholder">Pilih Soft Skills</span>
+                            </div>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                         </div>
-                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
-                    </div>
-                    
-                    <input type="hidden" name="soft_skills[]" id="soft-skills-value" multiple>
-                    
-                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
-                        <div class="p-2 space-y-1">
-                            <?php foreach ($skills_by_category['soft'] as $skill): ?>
-                                <!-- HAPUS ICON DARI OPTIONS, HANYA TAMPILKAN TEXT -->
-                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200 <?php echo in_array($skill, $existing_skills) ? 'bg-green-50 text-green-700' : ''; ?>" 
-                                    data-option 
-                                    data-value="<?php echo htmlspecialchars($skill); ?>">
-                                    <span><?php echo htmlspecialchars($skill); ?></span>
-                                </div>
-                            <?php endforeach; ?>
+                        
+                        <div class="dropdown-options" data-category="soft">
+                            <input type="text" class="search-input" placeholder="Ketik untuk mencari..." data-category="soft">
+                            <div class="options-list" data-category="soft">
+                                <?php foreach ($skills_by_category['soft'] as $skill): ?>
+                                    <div class="option-item" data-value="<?php echo htmlspecialchars($skill); ?>" data-category="soft">
+                                        <span class="iconify" data-icon="mdi:account-group" data-width="16"></span>
+                                        <?php echo htmlspecialchars($skill); ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Selected skills display -->
                     <div id="selected-soft-skills" class="flex flex-wrap gap-2 mt-3">
-                        <?php 
+                        <?php
                         $soft_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
                             return in_array($skill, $skills_by_category['soft']);
                         });
                         foreach ($soft_skills as $skill): ?>
-                            <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-green-200">
+                            <span class="skill-tag soft-tag">
                                 <?php echo htmlspecialchars($skill); ?>
-                                <button type="button" class="hover:opacity-70" data-skill-value="<?php echo htmlspecialchars($skill); ?>">
+                                <button type="button" onclick="searchableDropdown.removeSkill('<?php echo htmlspecialchars($skill); ?>', 'soft')">
                                     <span class="iconify" data-icon="mdi:close" data-width="14"></span>
                                 </button>
-                            </div>
+                            </span>
                         <?php endforeach; ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Soft skill yang digunakan dalam proyek</p>
                 </div>
 
-                <!-- Tools - Custom Dropdown -->
-                <div class="relative" id="tool-skills-dropdown">
+                <!-- Tools & Software -->
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tools & Software</label>
-                    
-                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
-                        <div class="flex items-center gap-3">
-                            <span class="iconify" data-icon="mdi:tools" data-width="20" data-selected-icon></span>
-                            <span data-selected-text>
-                                <?php 
-                                $tool_count = count(array_filter($existing_skills, function($skill) use ($skills_by_category) {
-                                    return in_array($skill, $skills_by_category['tool']);
-                                }));
-                                echo $tool_count > 0 ? $tool_count . ' skill dipilih' : 'Pilih Tools & Software';
-                                ?>
-                            </span>
+                    <div class="searchable-dropdown">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="tool">
+                            <div class="flex items-center gap-3">
+                                <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
+                                <span class="skill-placeholder">Pilih Tools & Software</span>
+                            </div>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                         </div>
-                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
-                    </div>
-                    
-                    <input type="hidden" name="tool_skills[]" id="tool-skills-value" multiple>
-                    
-                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
-                        <div class="p-2 space-y-1">
-                            <?php foreach ($skills_by_category['tool'] as $skill): ?>
-                                <!-- HAPUS ICON DARI OPTIONS, HANYA TAMPILKAN TEXT -->
-                                <div class="p-3 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200 <?php echo in_array($skill, $existing_skills) ? 'bg-green-50 text-green-700' : ''; ?>" 
-                                    data-option 
-                                    data-value="<?php echo htmlspecialchars($skill); ?>">
-                                    <span><?php echo htmlspecialchars($skill); ?></span>
-                                </div>
-                            <?php endforeach; ?>
+                        
+                        <div class="dropdown-options" data-category="tool">
+                            <input type="text" class="search-input" placeholder="Ketik untuk mencari..." data-category="tool">
+                            <div class="options-list" data-category="tool">
+                                <?php foreach ($skills_by_category['tool'] as $skill): ?>
+                                    <div class="option-item" data-value="<?php echo htmlspecialchars($skill); ?>" data-category="tool">
+                                        <span class="iconify" data-icon="mdi:tools" data-width="16"></span>
+                                        <?php echo htmlspecialchars($skill); ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Selected skills display -->
                     <div id="selected-tool-skills" class="flex flex-wrap gap-2 mt-3">
-                        <?php 
+                        <?php
                         $tool_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
                             return in_array($skill, $skills_by_category['tool']);
                         });
                         foreach ($tool_skills as $skill): ?>
-                            <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-purple-200">
+                            <span class="skill-tag tool-tag">
                                 <?php echo htmlspecialchars($skill); ?>
-                                <button type="button" class="hover:opacity-70" data-skill-value="<?php echo htmlspecialchars($skill); ?>">
+                                <button type="button" onclick="searchableDropdown.removeSkill('<?php echo htmlspecialchars($skill); ?>', 'tool')">
                                     <span class="iconify" data-icon="mdi:close" data-width="14"></span>
                                 </button>
-                            </div>
+                            </span>
                         <?php endforeach; ?>
                     </div>
                     <p class="text-gray-500 text-xs mt-1">Software dan tools yang digunakan</p>
                 </div>
-                
+
                 <!-- Hidden input untuk menyimpan semua skills -->
                 <div id="skills-hidden-container">
+                    <?php
+                    foreach ($existing_skills as $skill): ?>
+                        <input type="hidden" name="skills[]" value="<?php echo htmlspecialchars($skill); ?>" id="skill-<?php echo strtolower(str_replace(' ', '-', $skill)); ?>">
+                    <?php endforeach; ?>
                 </div>
             </div>
 
@@ -1115,234 +1181,170 @@ class CustomDropdown {
     }
 }
 
-// Multi Select Dropdown System untuk Skills
-class MultiSelectDropdown {
-    constructor(containerId, category) {
-        this.container = document.getElementById(containerId);
-        this.toggle = this.container.querySelector('[data-toggle]');
-        this.options = this.container.querySelector('[data-options]');
-        this.selectedText = this.container.querySelector('[data-selected-text]');
-        this.selectedIcon = this.container.querySelector('[data-selected-icon]');
-        this.selectedContainer = document.getElementById(`selected-${category}-skills`);
-        this.category = category;
-        
-        this.selectedValues = new Set();
+// Searchable Dropdown System untuk Skills
+class SearchableDropdown {
+    constructor() {
+        this.selectedSkills = new Set();
         this.init();
+    }
+
+    init() {
+        // Event listeners untuk dropdown toggle
+        document.querySelectorAll('.skill-dropdown-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const category = toggle.getAttribute('data-category');
+                this.toggleDropdown(category);
+            });
+        });
+
+        // Event listeners untuk search input
+        document.querySelectorAll('.search-input').forEach(input => {
+            input.addEventListener('input', (e) => {
+                const category = e.target.getAttribute('data-category');
+                this.filterOptions(category, e.target.value);
+            });
+
+            input.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // Event listeners untuk option items
+        document.querySelectorAll('.option-item').forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const category = option.getAttribute('data-category');
+                const value = option.getAttribute('data-value');
+                this.selectSkill(value, category);
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            this.closeAllDropdowns();
+        });
+
+        // Load existing skills
         this.loadExistingSkills();
     }
-    
-    init() {
-        // Toggle dropdown
-        this.toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.options.classList.toggle('hidden');
-        });
+
+    toggleDropdown(category) {
+        const dropdown = document.querySelector(`.dropdown-options[data-category="${category}"]`);
+        const isOpen = dropdown.style.display === 'block';
         
-        // Close when clicking outside
-        document.addEventListener('click', () => {
-            this.options.classList.add('hidden');
-        });
+        this.closeAllDropdowns();
         
-        // Handle option selection
-        this.options.querySelectorAll('[data-option]').forEach(option => {
-            option.addEventListener('click', () => {
-                const value = option.getAttribute('data-value');
-                const text = option.textContent.trim();
-                
-                if (this.selectedValues.has(value)) {
-                    this.removeSkill(value);
-                    this.updateOptionStyle(option, false);
-                } else {
-                    this.addSkill(value, text);
-                    this.updateOptionStyle(option, true);
-                }
-                
-                this.updateDisplay();
-            });
-        });
-        
-        // Prevent options from closing when clicking inside
-        this.options.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-    }
-    
-    // Load existing skills from PHP-generated HTML
-    loadExistingSkills() {
-        const existingSkills = this.selectedContainer.querySelectorAll('.bg-blue-100, .bg-green-100, .bg-purple-100');
-        existingSkills.forEach(skillElement => {
-            const skillText = skillElement.textContent.trim();
-            const closeButton = skillElement.querySelector('button');
-            const skillValue = closeButton ? closeButton.getAttribute('data-skill-value') : skillText;
-            
-            if (skillValue) {
-                this.selectedValues.add(skillValue);
-                this.addHiddenInput(skillValue);
-                this.attachRemoveListener(skillElement, skillValue);
-            }
-        });
-        
-        this.updateDisplay();
-        this.syncOptionStyles();
-    }
-    
-    // Attach remove listener to existing skill elements
-    attachRemoveListener(skillElement, value) {
-        const removeBtn = skillElement.querySelector('button');
-        if (removeBtn) {
-            removeBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.removeSkill(value);
-            });
+        if (!isOpen) {
+            dropdown.style.display = 'block';
+            const searchInput = dropdown.querySelector('.search-input');
+            searchInput.value = '';
+            searchInput.focus();
+            this.filterOptions(category, '');
         }
     }
-    
-    updateOptionStyle(option, isSelected) {
-        if (isSelected) {
-            option.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
-            option.classList.remove('hover:bg-gray-100');
-        } else {
-            option.classList.remove('bg-green-50', 'text-green-700', 'border', 'border-green-200');
-            option.classList.add('hover:bg-gray-100');
-        }
+
+    closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-options').forEach(dropdown => {
+            dropdown.style.display = 'none';
+        });
     }
-    
-    syncOptionStyles() {
-        this.options.querySelectorAll('[data-option]').forEach(option => {
-            const value = option.getAttribute('data-value');
-            if (this.selectedValues.has(value)) {
-                this.updateOptionStyle(option, true);
+
+    filterOptions(category, query) {
+        const optionsList = document.querySelector(`.options-list[data-category="${category}"]`);
+        const options = optionsList.querySelectorAll('.option-item');
+        const lowerQuery = query.toLowerCase();
+
+        options.forEach(option => {
+            const text = option.textContent.toLowerCase();
+            if (text.includes(lowerQuery)) {
+                option.style.display = 'flex';
             } else {
-                this.updateOptionStyle(option, false);
+                option.style.display = 'none';
             }
         });
     }
-    
-    createSkillElement(value, text) {
-        const skillElement = document.createElement('div');
-        const colorClass = this.getColorClass();
-        skillElement.className = `${colorClass} px-3 py-1 rounded-full text-sm flex items-center gap-1`;
-        skillElement.innerHTML = `
-            ${text}
-            <button type="button" data-skill-value="${value}" class="hover:opacity-70">
+
+    loadExistingSkills() {
+        // Load existing skills from hidden inputs
+        const hiddenInputs = document.querySelectorAll('#skills-hidden-container input[name="skills[]"]');
+        hiddenInputs.forEach(input => {
+            const skillName = input.value;
+            this.selectedSkills.add(skillName);
+        });
+    }
+
+    selectSkill(skillName, category) {
+        if (this.selectedSkills.has(skillName)) return;
+
+        this.selectedSkills.add(skillName);
+        
+        // Create visual tag
+        const container = document.getElementById(`selected-${category}-skills`);
+        const tag = document.createElement('span');
+        tag.className = `skill-tag ${category}-tag`;
+        tag.innerHTML = `
+            ${skillName}
+            <button type="button" onclick="searchableDropdown.removeSkill('${skillName}', '${category}')">
                 <span class="iconify" data-icon="mdi:close" data-width="14"></span>
             </button>
         `;
-        
-        const removeBtn = skillElement.querySelector('button');
-        removeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            this.removeSkill(value);
-        });
-        
-        return skillElement;
-    }
-    
-    addSkill(value, text) {
-        if (this.selectedValues.has(value)) {
-            return;
-        }
-        
-        this.selectedValues.add(value);
-        
-        const skillElement = this.createSkillElement(value, text);
-        this.selectedContainer.appendChild(skillElement);
-        
-        this.addHiddenInput(value);
-        this.updateDisplay();
-    }
-    
-    addHiddenInput(value) {
-        // Hapus dulu jika sudah ada
-        this.removeHiddenInput(value);
-        
+        container.appendChild(tag);
+
+        // Create hidden input
+        const hiddenContainer = document.getElementById('skills-hidden-container');
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
         hiddenInput.name = 'skills[]';
-        hiddenInput.value = value;
-        hiddenInput.id = `skill-${this.category}-${value.replace(/\s+/g, '-')}`;
-        document.getElementById('skills-hidden-container').appendChild(hiddenInput);
+        hiddenInput.value = skillName;
+        hiddenInput.id = `skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`;
+        hiddenContainer.appendChild(hiddenInput);
+
+        // Close dropdown
+        this.closeAllDropdowns();
+
+        // Add visual feedback
+        const dropdownToggle = document.querySelector(`.skill-dropdown-toggle[data-category="${category}"]`);
+        dropdownToggle.classList.add('border-green-500', 'bg-green-50');
+        setTimeout(() => {
+            dropdownToggle.classList.remove('border-green-500', 'bg-green-50');
+        }, 1000);
     }
-    
-    removeHiddenInput(value) {
-        const existingInput = document.getElementById(`skill-${this.category}-${value.replace(/\s+/g, '-')}`);
-        if (existingInput) {
-            existingInput.remove();
-        }
-    }
-    
-    removeSkill(value) {
-        this.selectedValues.delete(value);
+
+    removeSkill(skillName, category) {
+        this.selectedSkills.delete(skillName);
         
-        // Remove skill element from display
-        const skillElements = this.selectedContainer.querySelectorAll(`button[data-skill-value="${value}"]`);
-        skillElements.forEach(button => {
-            const skillElement = button.closest('div');
-            if (skillElement) {
-                skillElement.remove();
+        // Remove visual tag
+        const container = document.getElementById(`selected-${category}-skills`);
+        const tags = container.querySelectorAll('.skill-tag');
+        tags.forEach(tag => {
+            if (tag.textContent.includes(skillName)) {
+                tag.remove();
             }
         });
-        
+
         // Remove hidden input
-        this.removeHiddenInput(value);
-        
-        // Update option style
-        const option = this.options.querySelector(`[data-option][data-value="${value}"]`);
-        if (option) {
-            this.updateOptionStyle(option, false);
-        }
-        
-        this.updateDisplay();
-    }
-    
-    updateDisplay() {
-        const count = this.selectedValues.size;
-        const placeholderText = this.category === 'technical' ? 'Technical' : 
-                                this.category === 'soft' ? 'Soft' : 'Tool';
-        
-        if (count > 0) {
-            this.selectedText.textContent = `${count} skill dipilih`;
-            this.toggle.classList.add('border-blue-500', 'ring-2', 'ring-blue-200');
-        } else {
-            this.selectedText.textContent = `Pilih ${placeholderText} Skills`;
-            this.toggle.classList.remove('border-blue-500', 'ring-2', 'ring-blue-200');
-        }
-    }
-    
-    getColorClass() {
-        switch(this.category) {
-            case 'technical': return 'bg-blue-100 text-blue-800 border border-blue-200';
-            case 'soft': return 'bg-green-100 text-green-800 border border-green-200';
-            case 'tool': return 'bg-purple-100 text-purple-800 border border-purple-200';
-            default: return 'bg-gray-100 text-gray-800 border border-gray-200';
+        const hiddenInput = document.getElementById(`skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`);
+        if (hiddenInput) {
+            hiddenInput.remove();
         }
     }
 }
 
-// Initialize all dropdowns
+// Initialize systems
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Initializing dropdowns...');
-    
-    // Single select dropdowns
+    // Initialize custom dropdowns
     const singleDropdowns = ['project-type-dropdown', 'category-dropdown', 'status-dropdown', 'year-dropdown', 'duration-dropdown'];
     singleDropdowns.forEach(dropdownId => {
         if (document.getElementById(dropdownId)) {
             new CustomDropdown(dropdownId);
         }
     });
-    
-    // Multi select dropdowns untuk skills
-    const skillCategories = ['technical', 'soft', 'tool'];
-    skillCategories.forEach(category => {
-        const dropdownId = `${category}-skills-dropdown`;
-        if (document.getElementById(dropdownId)) {
-            new MultiSelectDropdown(dropdownId, category);
-        }
-    });
-    
-    // Form validation - require at least 1 technical skill
+
+    // Initialize searchable dropdown
+    window.searchableDropdown = new SearchableDropdown();
+
+    // Form validation
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(e) {
@@ -1352,7 +1354,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (technicalSkillsCount === 0) {
                 e.preventDefault();
                 alert('Pilih minimal 1 technical skill!');
-                document.getElementById('technical-skills-dropdown').scrollIntoView({ 
+                const technicalDropdown = document.querySelector('.skill-dropdown-toggle[data-category="technical"]');
+                technicalDropdown.scrollIntoView({ 
                     behavior: 'smooth',
                     block: 'center'
                 });
