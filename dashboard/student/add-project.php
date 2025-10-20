@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $certificate_credential_url = !empty($_POST['certificate_credential_url']) ? sanitize($_POST['certificate_credential_url']) : null;
     $certificate_issue_date = !empty($_POST['certificate_issue_date']) ? sanitize($_POST['certificate_issue_date']) : null;
     $certificate_expiry_date = !empty($_POST['certificate_expiry_date']) ? sanitize($_POST['certificate_expiry_date']) : null;
+    $certificate_description = !empty($_POST['certificate_description']) ? sanitize($_POST['certificate_description']) : null; 
 
     // Validation
     if (empty($title) || empty($description)) {
@@ -91,8 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             try {
                 // Insert project dengan semua field certificate
-                $stmt = $conn->prepare("INSERT INTO projects (student_id, title, description, image_path, certificate_path, certificate_credential_id, certificate_credential_url, certificate_issue_date, certificate_expiry_date, github_url, figma_url, demo_url, video_url, category, status, project_type, project_year, project_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("isssssssssssssssss", $user_id, $title, $description, $main_image_path, $certificate_path, $certificate_credential_id, $certificate_credential_url, $certificate_issue_date, $certificate_expiry_date, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration);
+                $stmt = $conn->prepare("INSERT INTO projects (student_id, title, description, image_path, certificate_path, certificate_credential_id, certificate_credential_url, certificate_issue_date, certificate_expiry_date, certificate_description, github_url, figma_url, demo_url, video_url, category, status, project_type, project_year, project_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("issssssssssssssssss", $user_id, $title, $description, $main_image_path, $certificate_path, $certificate_credential_id, $certificate_credential_url, $certificate_issue_date, $certificate_expiry_date, $certificate_description, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration);
                 
                 if ($stmt->execute()) {
                     $project_id = $conn->insert_id;
@@ -368,9 +369,10 @@ function handleCertificateUpload($file, $user_id) {
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Proyek *</label>
-                    <textarea name="description" rows="6" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none" 
-                                placeholder="Jelaskan proyek menggunakan metode STAR..." required><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
+                    <textarea name="description" rows="6"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none"
+                    placeholder="Jelaskan proyek menggunakan metode STAR (Situasi, Task, Aksi, Result). Tulis sebagai satu paragraf."
+                    required><?php echo htmlspecialchars($project['description'] ?? ''); ?></textarea>
                 </div>
             </div>
 
@@ -937,16 +939,16 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">ID Kredensial Sertifikat</label>
                             <input type="text" name="certificate_credential_id" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
-                                   placeholder="Contoh: ABC123XYZ, 123-456-789">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                placeholder="Contoh: ABC123XYZ, 123-456-789">
                             <p class="text-xs text-gray-500 mt-1">ID unik untuk verifikasi sertifikat</p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Link Verifikasi Sertifikat</label>
                             <input type="url" name="certificate_credential_url" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
-                                   placeholder="https://credential.net/verify/12345">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                placeholder="https://credential.net/verify/12345">
                             <p class="text-xs text-gray-500 mt-1">Link untuk verifikasi online sertifikat</p>
                         </div>
                     </div>
@@ -956,16 +958,25 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Diterbitkan</label>
                             <input type="date" name="certificate_issue_date" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                             <p class="text-xs text-gray-500 mt-1">Tanggal sertifikat diterbitkan</p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kadaluarsa</label>
                             <input type="date" name="certificate_expiry_date" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                             <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada masa berlaku</p>
                         </div>
+                    </div>
+
+                    <!-- Deskripsi Sertifikat -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Sertifikat</label>
+                        <textarea name="certificate_description" rows="3"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                                placeholder="Jelaskan tentang sertifikat ini, misalnya: 'Sertifikat lulus bootcamp dengan project..'"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Deskripsi singkat tentang sertifikat dan pencapaiannya</p>
                     </div>
 
                     <!-- Tombol untuk menghapus sertifikat -->

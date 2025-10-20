@@ -10,25 +10,22 @@ $user_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
 
-// Generate CSRF token jika belum ada
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Define available specializations
-$availableSpecializations = [
-    'Frontend Development',
-    'Backend Development', 
-    'Full Stack Development',
-    'Mobile Development',
-    'UI/UX Design',
-    'Data Analysis',
-    'Machine Learning',
-    'Cybersecurity',
-    'DevOps',
-    'Cloud Computing',
-    'Game Development'
-];
+$availableSpecializations = [];
+try {
+    $spec_query = "SELECT name FROM specializations ORDER BY name ASC";
+    $spec_result = $conn->query($spec_query);
+    if ($spec_result) {
+        while ($row = $spec_result->fetch_assoc()) {
+            $availableSpecializations[] = $row['name'];
+        }
+    }
+} catch (Exception $e) {
+    error_log("Error fetching specializations: " . $e->getMessage());
+}
 
 // Handle file upload untuk profile picture
 function handleProfilePictureUpload($file, $user_id) {
@@ -1391,12 +1388,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize drag & drop functionality
     initializeCVDragDrop();
     initializeProfilePictureDragDrop();
 });
 
-// Konfirmasi Logout
 function confirmLogout() {
     if (typeof Swal !== 'undefined') {
         Swal.fire({

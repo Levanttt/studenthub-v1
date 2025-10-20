@@ -100,14 +100,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
     }
 }
 
-// Get all skills categorized
+// Get all skills categorized by usage frequency
 $skills_by_category = [
     'technical' => [],
     'soft' => [],
     'tool' => []
 ];
 
-$skills_stmt = $conn->prepare("SELECT id, name, skill_type FROM skills ORDER BY skill_type, name");
+// Query untuk mengambil skill diurutkan berdasarkan usage count
+$skills_stmt = $conn->prepare("
+    SELECT s.id, s.name, s.skill_type, COUNT(ps.project_id) as usage_count 
+    FROM skills s 
+    LEFT JOIN project_skills ps ON s.id = ps.skill_id 
+    GROUP BY s.id 
+    ORDER BY usage_count DESC, s.skill_type, s.name
+");
 $skills_stmt->execute();
 $skills_result = $skills_stmt->get_result();
 
@@ -118,21 +125,13 @@ while ($skill = $skills_result->fetch_assoc()) {
 $total_skills = $skills_result->num_rows;
 $skills_stmt->close();
 
-// Get skill usage statistics
-$usage_stmt = $conn->prepare("
-    SELECT s.id, s.name, COUNT(ps.project_id) as usage_count 
-    FROM skills s 
-    LEFT JOIN project_skills ps ON s.id = ps.skill_id 
-    GROUP BY s.id 
-    ORDER BY usage_count DESC
-");
-$usage_stmt->execute();
-$usage_result = $usage_stmt->get_result();
+// Get skill usage statistics (untuk kompatibilitas dengan kode existing)
 $skill_usage = [];
-while ($row = $usage_result->fetch_assoc()) {
-    $skill_usage[$row['id']] = $row['usage_count'];
+foreach ($skills_by_category as $category => $skills) {
+    foreach ($skills as $skill) {
+        $skill_usage[$skill['id']] = $skill['usage_count'];
+    }
 }
-$usage_stmt->close();
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -433,11 +432,9 @@ $usage_stmt->close();
                                         <span class="soft-badge px-3 py-1 rounded-lg text-sm font-medium">
                                             <?php echo htmlspecialchars($skill['name']); ?>
                                         </span>
-                                        <?php if (isset($skill_usage[$skill['id']]) && $skill_usage[$skill['id']] > 0): ?>
-                                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                                <?php echo $skill_usage[$skill['id']]; ?> proyek
-                                            </span>
-                                        <?php endif; ?>
+                                        <span class="text-xs <?php echo $skill['usage_count'] > 0 ? 'text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded' : 'text-gray-500 bg-gray-100'; ?> px-2 py-1 rounded">
+                                            <?php echo $skill['usage_count']; ?> proyek
+                                        </span>
                                     </div>
                                     <div class="flex gap-2">
                                         <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', 'soft')" 

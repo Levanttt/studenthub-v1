@@ -146,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $certificate_credential_url = sanitize($_POST['certificate_credential_url'] ?? '');
             $certificate_issue_date = sanitize($_POST['certificate_issue_date'] ?? '');
             $certificate_expiry_date = sanitize($_POST['certificate_expiry_date'] ?? '');
+            $certificate_description = sanitize($_POST['certificate_description'] ?? '');
 
             $update_stmt = $conn->prepare("UPDATE projects SET 
             title = ?, 
@@ -164,15 +165,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             certificate_credential_id = ?,
             certificate_credential_url = ?,
             certificate_issue_date = ?,
-            certificate_expiry_date = ?
+            certificate_expiry_date = ?,
+            certificate_description = ?
         WHERE id = ? AND student_id = ?");
 
         if (!$update_stmt) {
             throw new Exception("Error preparing update statement: " . $conn->error);
         }
 
-        // Perhatikan: 18 parameter (16 string + 2 integer)
-        $update_stmt->bind_param("sssssssssssssssssii", 
+        // Perhatikan: sekarang 19 parameter (17 string + 2 integer)
+        $update_stmt->bind_param("ssssssssssssssssssii", 
             $title, 
             $description, 
             $main_image_path, 
@@ -190,6 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $certificate_credential_url,
             $certificate_issue_date,
             $certificate_expiry_date,
+            $certificate_description, // Parameter baru
             $project_id, 
             $user_id
         );
@@ -532,9 +535,10 @@ function handleCertificateUpload($file, $user_id) {
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Proyek *</label>
-                    <textarea name="description" rows="6" 
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none" 
-                              placeholder="Jelaskan proyek menggunakan metode STAR..." required><?php echo htmlspecialchars($project['description']); ?></textarea>
+                    <textarea name="description" rows="6"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none"
+                    placeholder="Jelaskan proyek menggunakan metode STAR (Situasi, Task, Aksi, Result). Tulis sebagai satu paragraf."
+                    required><?php echo htmlspecialchars($project['description'] ?? ''); ?></textarea>
                 </div>
             </div>
 
@@ -1065,6 +1069,15 @@ function handleCertificateUpload($file, $user_id) {
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                         <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada masa berlaku</p>
                     </div>
+                </div>
+
+                                <!-- Deskripsi Sertifikat - TAMBAHAN BARU -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Sertifikat</label>
+                    <textarea name="certificate_description" rows="3"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                            placeholder="Jelaskan tentang sertifikat ini, misalnya: 'Sertifikat lulus bootcamp dengan project..'"><?php echo htmlspecialchars($project['certificate_description'] ?? ''); ?></textarea>
+                    <p class="text-xs text-gray-500 mt-1">Deskripsi singkat tentang sertifikat dan pencapaiannya</p>
                 </div>
 
                 <!-- Current File Info -->

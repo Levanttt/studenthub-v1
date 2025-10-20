@@ -124,6 +124,84 @@ unset($project); // Unset reference
 
 // 7. Hitung total projects
 $total_projects = count($projects);
+
+// 8. Ambil semua sertifikat student dari berbagai sumber
+$certificates = [];
+
+try {
+    // Sertifikat dari tabel certificates (standalone) - DIPERBAIKI
+    $standalone_certs_query = "
+        SELECT 
+            c.id,
+            c.title as certificate_name,
+            c.organization as issuing_organization,
+            c.issue_date,
+            c.expiry_date,
+            c.credential_id,
+            c.credential_url,
+            c.file_path as image_path,
+            c.description,
+            c.project_id,
+            'standalone' as source_type
+        FROM certificates c
+        WHERE c.student_id = ?
+        ORDER BY c.issue_date DESC
+    ";
+    
+    $standalone_stmt = $conn->prepare($standalone_certs_query);
+    if ($standalone_stmt) {
+        $standalone_stmt->bind_param("i", $student_id);
+        $standalone_stmt->execute();
+        $standalone_result = $standalone_stmt->get_result();
+        while ($cert = $standalone_result->fetch_assoc()) {
+            $certificates[] = $cert;
+        }
+        $standalone_stmt->close();
+    }
+} catch (Exception $e) {
+    error_log("Error fetching standalone certificates: " . $e->getMessage());
+}
+
+try {
+    // Sertifikat dari tabel projects (certificate_path) - DIPERBAIKI
+    $project_certs_query = "
+        SELECT 
+            p.id as id,
+            p.title as certificate_name,
+            'Project Completion' as issuing_organization,
+            p.certificate_issue_date as issue_date,
+            p.certificate_expiry_date as expiry_date,
+            p.certificate_credential_id as credential_id,
+            p.certificate_credential_url as credential_url,
+            p.certificate_path as image_path,
+            p.certificate_description as description,  -- TAMBAH INI
+            p.id as project_id,
+            'project' as source_type
+        FROM projects p
+        WHERE p.student_id = ? 
+        AND p.certificate_path IS NOT NULL 
+        AND p.certificate_path != ''
+        ORDER BY p.created_at DESC
+    ";
+    
+    $project_certs_stmt = $conn->prepare($project_certs_query);
+    if ($project_certs_stmt) {
+        $project_certs_stmt->bind_param("i", $student_id);
+        $project_certs_stmt->execute();
+        $project_certs_result = $project_certs_stmt->get_result();
+        while ($cert = $project_certs_result->fetch_assoc()) {
+            $certificates[] = $cert;
+        }
+        $project_certs_stmt->close();
+    }
+} catch (Exception $e) {
+    error_log("Error fetching project certificates: " . $e->getMessage());
+}
+
+// Urutkan semua sertifikat berdasarkan tanggal issue
+usort($certificates, function($a, $b) {
+    return strtotime($b['issue_date']) - strtotime($a['issue_date']);
+});
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -338,7 +416,7 @@ $total_projects = count($projects);
             </div>
         </div>
 
-        <!-- Main Content -->
+                <!-- Main Content -->
         <div class="lg:col-span-3">
             <!-- Bio Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
@@ -370,7 +448,10 @@ $total_projects = count($projects);
 
                 <?php if ($total_projects > 0): ?>
                     <div class="space-y-6">
-                        <?php foreach ($projects as $project): ?>
+                        <?php 
+                        // Batasi hanya 2 project pertama
+                        $display_projects = array_slice($projects, 0, 2);
+                        foreach ($display_projects as $project): ?>
                             <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 project-card">
                                 <!-- Project Header -->
                                 <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
@@ -508,7 +589,7 @@ $total_projects = count($projects);
                                                             <div class="flex gap-2 overflow-x-auto py-2 px-4 justify-center flex-1 max-w-2xl">
                                                                 <?php foreach ($all_project_images as $index => $image): ?>
                                                                     <img src="<?php echo htmlspecialchars($image); ?>" 
-                                                                         alt="Thumbnail <?php echo $index + 1; ?>"
+                                                                         alt="Thumbnail <?php echo $index + 1; ?>" 
                                                                          class="w-16 h-16 object-cover rounded border-2 cursor-pointer transition-all <?php echo $index === 0 ? 'border-cyan-500' : 'border-gray-300'; ?>"
                                                                          onclick="changeMainImage(<?php echo $project['id']; ?>, '<?php echo htmlspecialchars($image); ?>', <?php echo $index; ?>)"
                                                                          data-project-id="<?php echo $project['id']; ?>"
@@ -562,11 +643,199 @@ $total_projects = count($projects);
                             </div>
                         <?php endforeach; ?>
                     </div>
+
+                    <!-- Tombol Lihat Semua Project jika lebih dari 2 -->
+                    <?php if ($total_projects > 2): ?>
+                    <div class="text-center mt-8 pt-6 border-t border-gray-200">
+                        <a href="student-all-projects.php?id=<?php echo $student_id; ?>" 
+                           class="bg-blue-500/10 text-blue-700 px-8 py-3 rounded-xl font-bold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 inline-flex items-center gap-2">
+                            <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
+                            Lihat Semua Project (<?php echo $total_projects; ?>)
+                        </a>
+                    </div>
+                    <?php endif; ?>
+
                 <?php else: ?>
                     <div class="text-center py-12 bg-gray-50 rounded-xl">
                         <span class="iconify text-gray-400 mx-auto mb-4" data-icon="mdi:folder-open" data-width="64"></span>
                         <h3 class="text-xl font-bold text-blue-900 mb-2">Belum Ada Project</h3>
                         <p class="text-gray-600 max-w-md mx-auto">Mahasiswa ini belum menambahkan project ke portofolio mereka.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Certificates Section -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mt-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                        <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
+                        Sertifikat & Sertifikasi
+                    </h2>
+                    <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold">
+                        <?php echo count($certificates); ?> Sertifikat
+                    </span>
+                </div>
+
+                <?php if (!empty($certificates)): ?>
+                    <!-- Horizontal Scroll Container -->
+                    <div class="relative">
+                        <!-- Certificates Horizontal Scroll -->
+                        <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" id="certificates-scroll">
+                            <?php foreach ($certificates as $cert): ?>
+                                <div class="flex-shrink-0 w-80 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 group relative certificate-card">
+                                    
+                                    <!-- Compact Badge dengan Tooltip di pojok kanan atas -->
+                                    <div class="absolute top-3 right-3">
+                                        <?php if ($cert['source_type'] == 'project'): ?>
+                                            <div class="relative group/badge">
+                                                <span class="inline-flex items-center justify-center w-7 h-7 bg-green-100 text-green-800 rounded-full text-xs font-medium transition-colors group-hover/badge:bg-green-200">
+                                                    <span class="iconify" data-icon="mdi:folder" data-width="14"></span>
+                                                </span>
+                                                <div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                                                    Dari Project
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="relative group/badge">
+                                                <span class="inline-flex items-center justify-center w-7 h-7 bg-blue-100 text-blue-800 rounded-full text-xs font-medium transition-colors group-hover/badge:bg-blue-200">
+                                                    <span class="iconify" data-icon="mdi:star" data-width="14"></span>
+                                                </span>
+                                                <div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                                                    Standalone
+                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <!-- Certificate Header -->
+                                    <div class="flex items-start gap-3 mb-3">
+                                        <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                                            <span class="iconify text-white" data-icon="mdi:certificate" data-width="24"></span>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h3 class="font-bold text-gray-800 group-hover:text-amber-600 transition-colors line-clamp-2 text-sm leading-tight">
+                                                <?php echo htmlspecialchars($cert['certificate_name']); ?>
+                                            </h3>
+                                            <p class="text-xs text-gray-600 mt-1 flex items-center gap-1">
+                                                <span class="iconify" data-icon="mdi:office-building" data-width="12"></span>
+                                                <?php echo htmlspecialchars($cert['issuing_organization']); ?>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Certificate Details -->
+                                    <div class="space-y-2 text-xs text-gray-600">
+                                        <?php if (!empty($cert['issue_date'])): ?>
+                                            <div class="flex items-center gap-2">
+                                                <span class="iconify" data-icon="mdi:calendar" data-width="12"></span>
+                                                <span>Diterbitkan: <?php echo date('M Y', strtotime($cert['issue_date'])); ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($cert['expiry_date'])): ?>
+                                            <div class="flex items-center gap-2 <?php echo strtotime($cert['expiry_date']) < time() ? 'text-red-600' : ''; ?>">
+                                                <span class="iconify" data-icon="mdi:clock" data-width="12"></span>
+                                                <span>Berlaku hingga: <?php echo date('M Y', strtotime($cert['expiry_date'])); ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($cert['credential_id'])): ?>
+                                            <div class="flex items-center gap-2">
+                                                <span class="iconify" data-icon="mdi:identifier" data-width="12"></span>
+                                                <span>ID: <?php echo htmlspecialchars($cert['credential_id']); ?></span>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <!-- Tampilkan credential URL jika ada -->
+                                        <?php if (!empty($cert['credential_url'])): ?>
+                                            <div class="flex items-center gap-2">
+                                                <span class="iconify" data-icon="mdi:link" data-width="12"></span>
+                                                <span class="truncate">URL: <a href="<?php echo htmlspecialchars($cert['credential_url']); ?>" target="_blank" class="text-amber-600 hover:text-amber-700">Verifikasi</a></span>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <!-- Certificate Description -->
+                                    <?php if (!empty($cert['description'])): ?>
+                                        <div class="mt-3">
+                                            <h4 class="font-semibold text-gray-700 text-xs mb-1">Deskripsi:</h4>
+                                            <p class="text-xs text-gray-600 line-clamp-3">
+                                                <?php echo htmlspecialchars($cert['description']); ?>
+                                            </p>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <!-- Action Buttons -->
+                                    <div class="flex gap-2 mt-4">
+                                        <?php if (!empty($cert['image_path'])): ?>
+                                            <?php
+                                            // Cek tipe file
+                                            $file_extension = strtolower(pathinfo($cert['image_path'], PATHINFO_EXTENSION));
+                                            $is_pdf = $file_extension === 'pdf';
+                                            ?>
+                                            
+                                            <?php if ($is_pdf): ?>
+                                                <!-- Untuk PDF, buka di tab baru -->
+                                                <a href="<?php echo htmlspecialchars($cert['image_path']); ?>" 
+                                                target="_blank"
+                                                class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
+                                                    <span class="iconify" data-icon="mdi:file-pdf-box" data-width="12"></span>
+                                                    Lihat PDF
+                                                </a>
+                                            <?php else: ?>
+                                                <!-- Untuk images, buka di modal -->
+                                                <button onclick="openImageModal('<?php echo htmlspecialchars($cert['image_path']); ?>')"
+                                                        class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
+                                                    <span class="iconify" data-icon="mdi:eye" data-width="12"></span>
+                                                    Lihat
+                                                </button>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($cert['credential_url'])): ?>
+                                            <a href="<?php echo htmlspecialchars($cert['credential_url']); ?>" 
+                                            target="_blank"
+                                            class="flex-1 bg-white text-amber-700 py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-50 transition-colors flex items-center justify-center gap-1 border border-amber-300">
+                                                <span class="iconify" data-icon="mdi:shield-check" data-width="12"></span>
+                                                Verify
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+
+                        <!-- Navigation Arrows dengan transparansi -->
+                        <?php if (count($certificates) > 2): ?>
+                        <button onclick="scrollCertificates(-320)" 
+                                class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white/70 border border-gray-300/50 rounded-full p-2 shadow-lg hover:bg-white hover:border-gray-300 transition-all duration-300 z-10 hidden md:flex items-center justify-center backdrop-blur-sm">
+                            <span class="iconify text-gray-600/70 hover:text-gray-600 transition-colors" data-icon="mdi:chevron-left" data-width="20"></span>
+                        </button>
+                        <button onclick="scrollCertificates(320)" 
+                                class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-white/70 border border-gray-300/50 rounded-full p-2 shadow-lg hover:bg-white hover:border-gray-300 transition-all duration-300 z-10 hidden md:flex items-center justify-center backdrop-blur-sm">
+                            <span class="iconify text-gray-600/70 hover:text-gray-600 transition-colors" data-icon="mdi:chevron-right" data-width="20"></span>
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <!-- Scroll Indicator untuk Mobile -->
+                    <?php if (count($certificates) > 2): ?>
+                    <div class="flex justify-center mt-4 md:hidden">
+                        <div class="flex gap-1">
+                            <div class="w-2 h-2 bg-amber-400 rounded-full"></div>
+                            <div class="w-2 h-2 bg-amber-200 rounded-full"></div>
+                            <div class="w-2 h-2 bg-amber-200 rounded-full"></div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                <?php else: ?>
+                    <div class="text-center py-8 bg-gray-50 rounded-xl">
+                        <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:certificate-outline" data-width="48"></span>
+                        <h3 class="text-lg font-bold text-blue-900 mb-2">Belum Ada Sertifikat</h3>
+                        <p class="text-gray-600 text-sm">Mahasiswa ini belum menambahkan sertifikat atau sertifikasi.</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -597,10 +866,53 @@ $total_projects = count($projects);
     transform: translateY(-4px);
 }
 
-/* Style untuk thumbnail aktif */
 .thumbnail-active {
     border-color: #06b6d4 !important;
     transform: scale(1.05);
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.certificate-card {
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+}
+
+.certificate-card .certificate-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.certificate-card .certificate-actions {
+    margin-top: auto;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Smooth scrolling for certificates */
+#certificates-scroll {
+    scroll-behavior: smooth;
 }
 </style>
 
@@ -689,6 +1001,53 @@ document.addEventListener('keydown', function(e) {
 document.getElementById('imageModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeImageModal();
+    }
+});
+
+// Certificates Horizontal Scroll
+function scrollCertificates(scrollAmount) {
+    const container = document.getElementById('certificates-scroll');
+    if (container) {
+        container.scrollBy({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Initialize certificates scroll on load
+document.addEventListener('DOMContentLoaded', function() {
+    const certificatesScroll = document.getElementById('certificates-scroll');
+    if (certificatesScroll) {
+        // Add touch scrolling for mobile
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        certificatesScroll.addEventListener('mousedown', (e) => {
+            isDown = true;
+            certificatesScroll.classList.add('active');
+            startX = e.pageX - certificatesScroll.offsetLeft;
+            scrollLeft = certificatesScroll.scrollLeft;
+        });
+
+        certificatesScroll.addEventListener('mouseleave', () => {
+            isDown = false;
+            certificatesScroll.classList.remove('active');
+        });
+
+        certificatesScroll.addEventListener('mouseup', () => {
+            isDown = false;
+            certificatesScroll.classList.remove('active');
+        });
+
+        certificatesScroll.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - certificatesScroll.offsetLeft;
+            const walk = (x - startX) * 2;
+            certificatesScroll.scrollLeft = scrollLeft - walk;
+        });
     }
 });
 </script>

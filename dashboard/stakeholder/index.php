@@ -14,63 +14,44 @@ $specialization_filter = isset($_GET['specialization']) ? sanitize($_GET['specia
 $skill_filter = isset($_GET['skill']) ? sanitize($_GET['skill']) : '';
 $show_all = isset($_GET['show_all']) && $_GET['show_all'] == '1';
 
-// 3. Ambil daftar spesialisasi unik dari database
+// 3. Ambil daftar spesialisasi unik DARI TABEL 'specializations'
 $all_specializations = [];
 try {
-    $specializations_query = "SELECT DISTINCT specializations FROM users WHERE role = 'student' AND specializations IS NOT NULL AND specializations != ''";
+    // Query langsung ke tabel specializations
+    $specializations_query = "SELECT name FROM specializations ORDER BY name ASC";
     $specializations_result = $conn->query($specializations_query);
     if ($specializations_result) {
         while ($row = $specializations_result->fetch_assoc()) {
-            if (!empty($row['specializations'])) {
-                $specs = explode(',', $row['specializations']);
-                foreach ($specs as $spec) {
-                    $spec = trim($spec);
-                    if (!empty($spec) && !in_array($spec, $all_specializations)) {
-                        $all_specializations[] = $spec;
-                    }
-                }
-            }
+            $all_specializations[] = $row['name']; 
         }
-        sort($all_specializations);
     }
-} catch (Exception $e) {}
-
-// Jika tidak ada spesialisasi di database, gunakan default
-if (empty($all_specializations)) {
-    $all_specializations = [
-        'Frontend Development',
-        'Backend Development', 
-        'Full Stack Development',
-        'Mobile Development',
-        'UI/UX Design',
-        'Data Analysis',
-        'Machine Learning',
-        'Cybersecurity',
-        'DevOps',
-        'Cloud Computing',
-        'Game Development'
-    ];
+} catch (Exception $e) {
+     error_log("Error fetching specializations list: " . $e->getMessage()); // Log error jika terjadi
 }
 
-// 4. Ambil daftar skill unik untuk filter
+// 4. Ambil daftar skill unik untuk filter - FIXED
 $all_skills = [];
 try {
+    // Query langsung ke tabel skills tanpa join yang restriktif
     $skills_query = "
-        SELECT DISTINCT s.name, s.skill_type 
-        FROM skills s
-        JOIN project_skills ps ON s.id = ps.skill_id
-        JOIN projects p ON ps.project_id = p.id
-        JOIN users u ON p.student_id = u.id
-        WHERE u.role = 'student'
-        ORDER BY s.skill_type, s.name
+        SELECT DISTINCT name, skill_type 
+        FROM skills 
+        ORDER BY skill_type, name
     ";
     $skills_result = $conn->query($skills_query);
-    if ($skills_result) {
+
+    if ($skills_result instanceof mysqli_result) {
         while ($row = $skills_result->fetch_assoc()) {
             $all_skills[] = $row;
         }
+        $skills_result->free();
+    } else {
+        error_log("Error fetching skills for filter: " . $conn->error);
     }
-} catch (Exception $e) {}
+
+} catch (Exception $e) {
+    error_log("Exception fetching skills for filter: " . $e->getMessage());
+}
 
 // 5. Ambil data untuk search suggestions
 $search_suggestions = [
