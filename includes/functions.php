@@ -1,13 +1,9 @@
 <?php
-// includes/functions.php
-
-// Function untuk format text dengan huruf pertama kapital
 function formatText($text) {
     if (empty($text)) return $text;
     return ucfirst(strtolower(trim($text)));
 }
 
-// Function untuk format status dengan warna yang sesuai
 function getStatusBadge($status) {
     $statusLower = strtolower($status);
     $formattedStatus = formatText($status);

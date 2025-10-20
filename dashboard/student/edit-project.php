@@ -86,7 +86,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Judul dan deskripsi wajib diisi!";
     } elseif (empty($category) || empty($status) || empty($project_type) || empty($project_year)) {
         $error = "Kategori, status, tipe proyek, dan tahun proyek wajib diisi!";
-    } elseif (empty($skills_input)) {
+    } 
+    // TAMBAHKAN VALIDASI CATEGORY DARI DATABASE
+    elseif (!empty($category)) {
+        // Validasi apakah category value ada di database
+        $validate_category = $conn->prepare("SELECT id FROM project_categories WHERE value = ?");
+        if ($validate_category) {
+            $validate_category->bind_param("s", $category);
+            $validate_category->execute();
+            $validate_result = $validate_category->get_result();
+            
+            if ($validate_result->num_rows == 0) {
+                $error = "Kategori yang dipilih tidak valid!";
+            }
+            $validate_category->close();
+        }
+    }
+    
+    // Lanjut validasi lainnya
+    if (empty($skills_input) && !$error) {
         $error = "Pilih minimal 1 skill!";
     } else {
         $main_image_path = $project['image_path'];
@@ -146,7 +164,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $certificate_credential_url = sanitize($_POST['certificate_credential_url'] ?? '');
             $certificate_issue_date = sanitize($_POST['certificate_issue_date'] ?? '');
             $certificate_expiry_date = sanitize($_POST['certificate_expiry_date'] ?? '');
-            $certificate_description = sanitize($_POST['certificate_description'] ?? '');
 
             $update_stmt = $conn->prepare("UPDATE projects SET 
             title = ?, 
@@ -165,16 +182,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             certificate_credential_id = ?,
             certificate_credential_url = ?,
             certificate_issue_date = ?,
-            certificate_expiry_date = ?,
-            certificate_description = ?
+            certificate_expiry_date = ?
         WHERE id = ? AND student_id = ?");
 
         if (!$update_stmt) {
             throw new Exception("Error preparing update statement: " . $conn->error);
         }
 
-        // Perhatikan: sekarang 19 parameter (17 string + 2 integer)
-        $update_stmt->bind_param("ssssssssssssssssssii", 
+        // Perhatikan: 18 parameter (16 string + 2 integer)
+        $update_stmt->bind_param("sssssssssssssssssii", 
             $title, 
             $description, 
             $main_image_path, 
@@ -192,7 +208,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $certificate_credential_url,
             $certificate_issue_date,
             $certificate_expiry_date,
-            $certificate_description, // Parameter baru
             $project_id, 
             $user_id
         );
@@ -333,6 +348,20 @@ if ($categorized_skills_stmt) {
         $skills_by_category[$skill['skill_type']][] = $skill['name'];
     }
     $categorized_skills_stmt->close();
+}
+
+$categories = [];
+$categories_stmt = $conn->prepare("SELECT id, value, name, icon FROM project_categories ORDER BY CASE WHEN value = 'other' THEN 1 ELSE 0 END, name ASC");
+if ($categories_stmt) {
+    $categories_stmt->execute();
+    $categories_result = $categories_stmt->get_result();
+    while ($category = $categories_result->fetch_assoc()) {
+        $categories[] = $category;
+    }
+    $categories_stmt->close();
+} else {
+    // Fallback jika query error
+    error_log("Error fetching categories: " . $conn->error);
 }
 
 function handleFileUpload($file, $user_id) {
@@ -535,10 +564,9 @@ function handleCertificateUpload($file, $user_id) {
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Proyek *</label>
-                    <textarea name="description" rows="6"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none"
-                    placeholder="Jelaskan proyek menggunakan metode STAR (Situasi, Task, Aksi, Result). Tulis sebagai satu paragraf."
-                    required><?php echo htmlspecialchars($project['description'] ?? ''); ?></textarea>
+                    <textarea name="description" rows="6" 
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none" 
+                              placeholder="Jelaskan proyek menggunakan metode STAR..." required><?php echo htmlspecialchars($project['description']); ?></textarea>
                 </div>
             </div>
 
@@ -556,8 +584,21 @@ function handleCertificateUpload($file, $user_id) {
                         
                         <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:tag-outline" data-width="20" data-selected-icon></span>
-                                <span data-selected-text><?php echo formatText($project['category']); ?></span>
+                                <?php 
+                                // Find current category icon
+                                $current_icon = 'mdi:tag-outline';
+                                $current_category_name = formatText($project['category']);
+                                
+                                foreach ($categories as $cat) {
+                                    if ($cat['value'] == $project['category']) {
+                                        $current_icon = $cat['icon'];
+                                        $current_category_name = $cat['name'];
+                                        break;
+                                    }
+                                }
+                                ?>
+                                <span class="iconify" data-icon="<?php echo htmlspecialchars($current_icon); ?>" data-width="20" data-selected-icon></span>
+                                <span data-selected-text><?php echo htmlspecialchars($current_category_name); ?></span>
                             </div>
                             <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                         </div>
@@ -566,34 +607,22 @@ function handleCertificateUpload($file, $user_id) {
                         
                         <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
                             <div class="p-2 space-y-1">
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'web' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="web" data-icon="mdi:web">
-                                    <span class="iconify" data-icon="mdi:web" data-width="20"></span>
-                                    <span>Web Development</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'mobile' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="mobile" data-icon="mdi:cellphone">
-                                    <span class="iconify" data-icon="mdi:cellphone" data-width="20"></span>
-                                    <span>Mobile Development</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'data-science' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="data-science" data-icon="mdi:chart-bar">
-                                    <span class="iconify" data-icon="mdi:chart-bar" data-width="20"></span>
-                                    <span>Data Science & AI</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'design' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="design" data-icon="mdi:palette">
-                                    <span class="iconify" data-icon="mdi:palette" data-width="20"></span>
-                                    <span>UI/UX Design</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'iot' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="iot" data-icon="mdi:chip">
-                                    <span class="iconify" data-icon="mdi:chip" data-width="20"></span>
-                                    <span>IoT & Embedded Systems</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'game' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="game" data-icon="mdi:gamepad-variant">
-                                    <span class="iconify" data-icon="mdi:gamepad-variant" data-width="20"></span>
-                                    <span>Game Development</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == 'other' ? 'bg-green-50 text-green-700' : ''; ?>" data-option data-value="other" data-icon="mdi:dots-horizontal">
-                                    <span class="iconify" data-icon="mdi:dots-horizontal" data-width="20"></span>
-                                    <span>Lainnya</span>
-                                </div>
+                                <?php if (!empty($categories)): ?>
+                                    <?php foreach ($categories as $category): ?>
+                                        <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $project['category'] == $category['value'] ? 'bg-green-50 text-green-700' : ''; ?>" 
+                                            data-option 
+                                            data-value="<?php echo htmlspecialchars($category['value']); ?>" 
+                                            data-icon="<?php echo htmlspecialchars($category['icon']); ?>">
+                                            <span class="iconify" data-icon="<?php echo htmlspecialchars($category['icon']); ?>" data-width="20"></span>
+                                            <span><?php echo htmlspecialchars($category['name']); ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="p-3 text-gray-500 text-sm text-center">
+                                        <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
+                                        Tidak ada kategori tersedia
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -1071,15 +1100,6 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                                <!-- Deskripsi Sertifikat - TAMBAHAN BARU -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Sertifikat</label>
-                    <textarea name="certificate_description" rows="3"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
-                            placeholder="Jelaskan tentang sertifikat ini, misalnya: 'Sertifikat lulus bootcamp dengan project..'"><?php echo htmlspecialchars($project['certificate_description'] ?? ''); ?></textarea>
-                    <p class="text-xs text-gray-500 mt-1">Deskripsi singkat tentang sertifikat dan pencapaiannya</p>
-                </div>
-
                 <!-- Current File Info -->
                 <?php if (!empty($project['certificate_path'])): ?>
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -1139,6 +1159,8 @@ function handleCertificateUpload($file, $user_id) {
 </div>
 
 <script>
+console.log('Categories loaded:', <?php echo json_encode($categories); ?>);
+console.log('Current category:', '<?php echo $project['category']; ?>');
 // Custom Dropdown System
 class CustomDropdown {
     constructor(containerId) {

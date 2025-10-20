@@ -12,17 +12,17 @@ $success = '';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = sanitize($_POST['title']);
-    $description = sanitize($_POST['description']);
-    $category = sanitize($_POST['category']);
-    $status = sanitize($_POST['status']);
-    $project_type = sanitize($_POST['project_type']);
-    $project_year = sanitize($_POST['project_year']);
-    $project_duration = sanitize($_POST['project_duration']);
-    $github_url = sanitize($_POST['github_url']);
-    $figma_url = sanitize($_POST['figma_url']);
-    $demo_url = sanitize($_POST['demo_url']);
-    $video_url = sanitize($_POST['video_url']);
+    $title = sanitize($_POST['title'] ?? '');
+    $description = sanitize($_POST['description'] ?? '');
+    $category = sanitize($_POST['category'] ?? '');
+    $status = sanitize($_POST['status'] ?? '');
+    $project_type = sanitize($_POST['project_type'] ?? '');
+    $project_year = sanitize($_POST['project_year'] ?? '');
+    $project_duration = sanitize($_POST['project_duration'] ?? '');
+    $github_url = sanitize($_POST['github_url'] ?? '');
+    $figma_url = sanitize($_POST['figma_url'] ?? '');
+    $demo_url = sanitize($_POST['demo_url'] ?? '');
+    $video_url = sanitize($_POST['video_url'] ?? '');
     $skills_input = $_POST['skills'] ?? [];
 
     // Certificate fields
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $certificate_credential_url = !empty($_POST['certificate_credential_url']) ? sanitize($_POST['certificate_credential_url']) : null;
     $certificate_issue_date = !empty($_POST['certificate_issue_date']) ? sanitize($_POST['certificate_issue_date']) : null;
     $certificate_expiry_date = !empty($_POST['certificate_expiry_date']) ? sanitize($_POST['certificate_expiry_date']) : null;
-    $certificate_description = !empty($_POST['certificate_description']) ? sanitize($_POST['certificate_description']) : null; 
+    $certificate_description = !empty($_POST['certificate_description']) ? sanitize($_POST['certificate_description']) : null;
 
     // Validation
     if (empty($title) || empty($description)) {
@@ -168,7 +168,20 @@ while ($skill = $categorized_result->fetch_assoc()) {
 }
 $categorized_skills_stmt->close();
 
-// File upload handler function
+$categories = [];
+$categories_stmt = $conn->prepare("SELECT id, value, name, icon FROM project_categories ORDER BY CASE WHEN value = 'other' THEN 1 ELSE 0 END, name ASC");
+if ($categories_stmt) {
+    $categories_stmt->execute();
+    $categories_result = $categories_stmt->get_result();
+    while ($category = $categories_result->fetch_assoc()) {
+        $categories[] = $category;
+    }
+    $categories_stmt->close();
+} else {
+    // Fallback jika query error
+    error_log("Error fetching categories: " . $conn->error);
+}
+
 function handleFileUpload($file, $user_id) {
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     $max_size = 5 * 1024 * 1024;
@@ -198,7 +211,6 @@ function handleFileUpload($file, $user_id) {
     }
 }
 
-// Certificate upload handler function
 function handleCertificateUpload($file, $user_id) {
     $allowed_types = ['application/pdf', 'image/jpeg', 'image/png'];
     $max_size = 5 * 1024 * 1024;
@@ -384,50 +396,54 @@ function handleCertificateUpload($file, $user_id) {
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Project Category -->
+                    <!-- Project Category - Custom Dropdown -->
                     <div class="relative" id="category-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Proyek *</label>
                         
                         <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:tag-outline" data-width="20" data-selected-icon></span>
-                                <span data-selected-text>Pilih Kategori</span>
+                                <?php 
+                                // UNTUK ADD-PROJECT: Default values karena tidak ada $project
+                                $current_category_value = $_POST['category'] ?? ''; 
+                                $current_icon = 'mdi:tag-outline';
+                                $current_category_name = 'Pilih Kategori';
+                                
+                                // Cari category yang sesuai
+                                foreach ($categories as $cat) {
+                                    if ($cat['value'] == $current_category_value) {
+                                        $current_icon = $cat['icon'];
+                                        $current_category_name = $cat['name'];
+                                        break;
+                                    }
+                                }
+                                ?>
+                                <span class="iconify" data-icon="<?php echo htmlspecialchars($current_icon); ?>" data-width="20" data-selected-icon></span>
+                                <span data-selected-text><?php echo htmlspecialchars($current_category_name); ?></span>
                             </div>
                             <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
                         </div>
                         
-                        <input type="hidden" name="category" id="category-value" required>
+                        <input type="hidden" name="category" id="category-value" value="<?php echo htmlspecialchars($current_category_value); ?>" required>
                         
                         <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
                             <div class="p-2 space-y-1">
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="web" data-icon="mdi:web">
-                                    <span class="iconify" data-icon="mdi:web" data-width="20"></span>
-                                    <span>Web Development</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="mobile" data-icon="mdi:cellphone">
-                                    <span class="iconify" data-icon="mdi:cellphone" data-width="20"></span>
-                                    <span>Mobile Development</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="data-science" data-icon="mdi:chart-bar">
-                                    <span class="iconify" data-icon="mdi:chart-bar" data-width="20"></span>
-                                    <span>Data Science & AI</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="design" data-icon="mdi:palette">
-                                    <span class="iconify" data-icon="mdi:palette" data-width="20"></span>
-                                    <span>UI/UX Design</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="iot" data-icon="mdi:chip">
-                                    <span class="iconify" data-icon="mdi:chip" data-width="20"></span>
-                                    <span>IoT & Embedded Systems</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="game" data-icon="mdi:gamepad-variant">
-                                    <span class="iconify" data-icon="mdi:gamepad-variant" data-width="20"></span>
-                                    <span>Game Development</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="other" data-icon="mdi:dots-horizontal">
-                                    <span class="iconify" data-icon="mdi:dots-horizontal" data-width="20"></span>
-                                    <span>Lainnya</span>
-                                </div>
+                                <?php if (!empty($categories)): ?>
+                                    <?php foreach ($categories as $category): ?>
+                                        <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $current_category_value == $category['value'] ? 'bg-green-50 text-green-700' : ''; ?>" 
+                                            data-option 
+                                            data-value="<?php echo htmlspecialchars($category['value']); ?>" 
+                                            data-icon="<?php echo htmlspecialchars($category['icon']); ?>"
+                                            data-display-name="<?php echo htmlspecialchars($category['name']); ?>">
+                                            <span class="iconify" data-icon="<?php echo htmlspecialchars($category['icon']); ?>" data-width="20"></span>
+                                            <span><?php echo htmlspecialchars($category['name']); ?></span>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="p-3 text-gray-500 text-sm text-center">
+                                        <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
+                                        Tidak ada kategori tersedia
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

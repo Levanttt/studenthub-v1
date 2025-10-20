@@ -11,7 +11,6 @@ $user_id = $_SESSION['user_id'];
 $success = '';
 $error = '';
 
-// Handle add new skill
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_skill'])) {
     $skill_name = sanitize($_POST['skill_name']);
     $skill_type = sanitize($_POST['skill_type']);
@@ -19,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_skill'])) {
     if (empty($skill_name)) {
         $error = "Nama skill tidak boleh kosong!";
     } else {
-        // Check if skill already exists
         $check_stmt = $conn->prepare("SELECT id FROM skills WHERE name = ?");
         $check_stmt->bind_param("s", $skill_name);
         $check_stmt->execute();
@@ -42,11 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_skill'])) {
     }
 }
 
-// Handle delete skill
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
     
-    // Check if skill is being used in any project
     $check_usage = $conn->prepare("SELECT ps.id FROM project_skills ps WHERE ps.skill_id = ? LIMIT 1");
     $check_usage->bind_param("i", $delete_id);
     $check_usage->execute();
@@ -68,7 +64,6 @@ if (isset($_GET['delete_id'])) {
     $check_usage->close();
 }
 
-// Handle edit skill
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
     $skill_id = intval($_POST['skill_id']);
     $skill_name = sanitize($_POST['edit_skill_name']);
@@ -77,7 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
     if (empty($skill_name)) {
         $error = "Nama skill tidak boleh kosong!";
     } else {
-        // Check if skill name already exists (excluding current skill)
         $check_stmt = $conn->prepare("SELECT id FROM skills WHERE name = ? AND id != ?");
         $check_stmt->bind_param("si", $skill_name, $skill_id);
         $check_stmt->execute();
@@ -100,14 +94,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
     }
 }
 
-// Get all skills categorized by usage frequency
 $skills_by_category = [
     'technical' => [],
     'soft' => [],
     'tool' => []
 ];
 
-// Query untuk mengambil skill diurutkan berdasarkan usage count
 $skills_stmt = $conn->prepare("
     SELECT s.id, s.name, s.skill_type, COUNT(ps.project_id) as usage_count 
     FROM skills s 
@@ -125,7 +117,6 @@ while ($skill = $skills_result->fetch_assoc()) {
 $total_skills = $skills_result->num_rows;
 $skills_stmt->close();
 
-// Get skill usage statistics (untuk kompatibilitas dengan kode existing)
 $skill_usage = [];
 foreach ($skills_by_category as $category => $skills) {
     foreach ($skills as $skill) {
@@ -150,7 +141,6 @@ foreach ($skills_by_category as $category => $skills) {
 .soft-badge { background-color: #dcfce7; color: #166534; }
 .tool-badge { background-color: #f3e8ff; color: #7e22ce; }
 
-/* Tab Styles */
 .tab-button.active {
     border-bottom-color: #3b82f6;
     color: #1e40af;
@@ -244,7 +234,6 @@ foreach ($skills_by_category as $category => $skills) {
         </div>
     </div>
 
-    <!-- Alerts -->
     <?php if ($success): ?>
         <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
             <span class="iconify" data-icon="mdi:check-circle" data-width="20"></span>
@@ -275,8 +264,7 @@ foreach ($skills_by_category as $category => $skills) {
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
                             placeholder="Contoh: React, Leadership, Figma" required>
                     </div>
-                    
-                    <!-- Custom Dropdown untuk Kategori Skill -->
+        
                     <div class="relative" id="skill-type-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Skill *</label>
                         
@@ -338,9 +326,7 @@ foreach ($skills_by_category as $category => $skills) {
             </div>
         </div>
 
-        <!-- Ganti bagian Skills List dengan system tab -->
-
-        <!-- Skills List dengan Tabs -->
+        <!-- Skills List -->
         <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <!-- Tabs Navigation -->

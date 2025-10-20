@@ -208,10 +208,32 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                         
                         <!-- Category Badge di pojok kiri atas -->
                         <div class="absolute top-3 left-3">
-                            <span class="bg-white/90 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
-                                <?php echo formatText($project['category'] ?? 'Project'); ?>
-                            </span>
-                        </div>
+                        <?php
+                        // Mapping LENGKAP antara value singkat dan nama kategori dari tabel
+                        $category_mapping = [
+                            'web' => 'Web Development',
+                            'mobile' => 'Mobile Development',
+                            'data' => 'Data Science & AI', // Asumsi value singkatnya 'data'
+                            'design' => 'UI/UX & Graphic Design',
+                            'game' => 'Game Development',
+                            'digital_marketing' => 'Digital Marketing & E-commerce', // Asumsi value singkatnya 'digital_marketing'
+                            'finance' => 'Finance & Investment Analysis',
+                            'business' => 'Business Strategy & Management', // Asumsi value singkatnya 'business'
+                            'communication' => 'Communication & Public Relations',
+                            'content' => 'Content Creation',
+                            'branding' => 'Branding & Visual Identity', // Asumsi value singkatnya 'branding'
+                            'iot' => 'IoT & Embedded Systems',
+                            'other' => 'Lainnya' // Asumsi value singkatnya 'other'
+                        ];
+
+                        $enum_category = $project['category']; // Ambil value singkat dari database proyek
+                        // Cari nama lengkap di mapping, jika tidak ada, gunakan formatText() sebagai fallback
+                        $category_name = $category_mapping[$enum_category] ?? formatText($enum_category);
+                        ?>
+                        <span class="bg-white/90 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                            <?php echo htmlspecialchars($category_name); ?>
+                        </span>
+                    </div>
                     </div>
                     
                     <!-- Content -->

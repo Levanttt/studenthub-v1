@@ -4,19 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudentHub v1.0</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Iconify CDN -->
     <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
-    <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Custom animations */
         .hover-lift:hover {
             transform: translateY(-2px);
         }
         
-        /* Dropdown animation */
         .dropdown-menu {
             opacity: 0;
             visibility: hidden;
@@ -37,7 +32,7 @@
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <!-- Logo yang bisa diklik -->
             <a href="/studenthub/dashboard/<?php echo $_SESSION['role'] ?? ''; ?>/index.php" 
-               class="text-xl font-bold text-blue-900 flex items-center gap-2 hover:text-blue-700 transition-colors">
+                class="text-xl font-bold text-blue-900 flex items-center gap-2 hover:text-blue-700 transition-colors">
                 <span class="iconify" data-icon="mdi:school" data-width="28"></span>
                 StudentHub
             </a>
@@ -51,8 +46,8 @@
                         <button id="profile-toggle" class="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
                             <?php if(!empty($_SESSION['profile_picture'])): ?>
                                 <img src="<?php echo htmlspecialchars($_SESSION['profile_picture']); ?>" 
-                                     alt="Profile" 
-                                     class="w-8 h-8 rounded-full object-cover border-2 border-cyan-200 shadow-sm">
+                                        alt="Profile" 
+                                        class="w-8 h-8 rounded-full object-cover border-2 border-cyan-200 shadow-sm">
                             <?php else: ?>
                                 <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center shadow-sm">
                                     <span class="iconify text-white" data-icon="mdi:account" data-width="18"></span>
@@ -67,7 +62,7 @@
                         <!-- Dropdown Menu -->
                         <div class="dropdown-menu absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                             <a href="/studenthub/dashboard/<?php echo $_SESSION['role']; ?>/profile.php" 
-                               class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                                 <span class="iconify" data-icon="mdi:account-cog" data-width="16"></span>
                                 Profile
                             </a>
@@ -83,12 +78,12 @@
                     <!-- Guest Menu -->
                     <div class="flex items-center space-x-3">
                         <a href="/studenthub/register.php" 
-                           class="text-gray-600 hover:text-blue-600 transition-colors text-sm flex items-center gap-1">
+                            class="text-gray-600 hover:text-blue-600 transition-colors text-sm flex items-center gap-1">
                             <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
                             Daftar
                         </a>
                         <a href="/studenthub/login.php" 
-                           class="bg-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-cyan-600 transition-colors shadow-sm flex items-center gap-2 text-sm">
+                            class="bg-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-cyan-600 transition-colors shadow-sm flex items-center gap-2 text-sm">
                             <span class="iconify" data-icon="mdi:login" data-width="16"></span>
                             Login
                         </a>
@@ -98,11 +93,9 @@
         </div>
     </nav>
     <main>
-        <!-- Konten utama aplikasi -->
     </main>
 
 <script>
-// Toggle dropdown menu
 document.addEventListener('DOMContentLoaded', function() {
     const profileToggle = document.getElementById('profile-toggle');
     const dropdownMenu = document.querySelector('.dropdown-menu');
@@ -113,12 +106,10 @@ document.addEventListener('DOMContentLoaded', function() {
             dropdownMenu.classList.toggle('show');
         });
         
-        // Tutup dropdown saat klik di luar
         document.addEventListener('click', function() {
             dropdownMenu.classList.remove('show');
         });
         
-        // Mencegah dropdown tertutup saat klik di dalam dropdown
         dropdownMenu.addEventListener('click', function(e) {
             e.stopPropagation();
         });
@@ -127,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Konfirmasi Logout
 function confirmLogout() {
-    // Cek jika SweetAlert tersedia
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             title: 'Yakin ingin logout?',
@@ -145,7 +135,6 @@ function confirmLogout() {
             }
         });
     } else {
-        // Fallback ke confirm native
         if (confirm('Yakin ingin logout?')) {
             window.location.href = '/studenthub/logout.php';
         }

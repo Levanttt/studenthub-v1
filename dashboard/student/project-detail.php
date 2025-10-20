@@ -7,7 +7,6 @@ if (!isLoggedIn() || getUserRole() != 'student') {
     exit();
 }
 
-// Check if project ID is provided
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: projects.php");
     exit();
@@ -16,7 +15,6 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $project_id = intval($_GET['id']);
 $user_id = $_SESSION['user_id'];
 
-// Get project data
 $stmt = $conn->prepare("SELECT * FROM projects WHERE id = ? AND student_id = ?");
 $stmt->bind_param("ii", $project_id, $user_id);
 $stmt->execute();
@@ -30,20 +28,17 @@ if ($result->num_rows === 0) {
 $project = $result->fetch_assoc();
 $stmt->close();
 
-// Get project images from project_images table
 $images_stmt = $conn->prepare("SELECT image_path, is_primary FROM project_images WHERE project_id = ? ORDER BY is_primary DESC, id ASC");
 $images_stmt->bind_param("i", $project_id);
 $images_stmt->execute();
 $images_result = $images_stmt->get_result();
 $project_images = [];
 
-// Jika ada gambar di project_images, gunakan itu
 while ($image = $images_result->fetch_assoc()) {
     $project_images[] = $image;
 }
 $images_stmt->close();
 
-// Jika tidak ada gambar di project_images, gunakan image_path dari projects sebagai fallback
 if (empty($project_images) && !empty($project['image_path'])) {
     $project_images[] = [
         'image_path' => $project['image_path'],
@@ -51,7 +46,6 @@ if (empty($project_images) && !empty($project['image_path'])) {
     ];
 }
 
-// Get skills for this project dengan kategori
 $skills_stmt = $conn->prepare("
     SELECT s.name, s.skill_type 
     FROM skills s 
@@ -74,7 +68,6 @@ $skills_stmt->close();
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Navigation & Header -->
         <div class="flex justify-between items-center mb-6">
-            <!-- Breadcrumb -->
             <nav class="flex items-center gap-2 text-sm text-gray-600">
                 <a href="index.php" class="hover:text-cyan-600 transition-colors">Dashboard</a>
                 <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
@@ -91,9 +84,9 @@ $skills_stmt->close();
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- Main Content - Lebih Luas -->
+            <!-- Main Content -->
             <div class="lg:col-span-3 space-y-6">
-            <!-- Project Header dengan Deskripsi -->
+            <!-- Project Header -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
                     <div class="flex-1">
@@ -170,8 +163,8 @@ $skills_stmt->close();
                 <div class="flex flex-wrap gap-4">
                     <?php if (!empty($project['github_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['github_url']); ?>" 
-                       target="_blank"
-                       class="bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-900 transition-colors duration-300 flex items-center gap-2 shadow-md">
+                        target="_blank"
+                        class="bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-900 transition-colors duration-300 flex items-center gap-2 shadow-md">
                         <span class="iconify" data-icon="mdi:github" data-width="20"></span>
                         Lihat Kode di GitHub
                     </a>
@@ -179,8 +172,8 @@ $skills_stmt->close();
                     
                     <?php if (!empty($project['demo_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['demo_url']); ?>" 
-                       target="_blank"
-                       class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
+                        target="_blank"
+                        class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
                         <span class="iconify" data-icon="mdi:web" data-width="20"></span>
                         Lihat Demo Live
                     </a>
@@ -188,8 +181,8 @@ $skills_stmt->close();
                     
                     <?php if (!empty($project['figma_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['figma_url']); ?>" 
-                       target="_blank"
-                       class="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
+                        target="_blank"
+                        class="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
                         <span class="iconify" data-icon="mdi:palette" data-width="20"></span>
                         Lihat Desain Figma
                     </a>
@@ -197,8 +190,8 @@ $skills_stmt->close();
                     
                     <?php if (!empty($project['video_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['video_url']); ?>" 
-                       target="_blank"
-                       class="bg-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
+                        target="_blank"
+                        class="bg-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
                         <span class="iconify" data-icon="mdi:video" data-width="20"></span>
                         Lihat Video
                     </a>
@@ -206,7 +199,7 @@ $skills_stmt->close();
                 </div>
             </div>
 
-            <!-- Certificate Section - Compact Version -->
+            <!-- Certificate Section -->
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
             <h2 class="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
@@ -274,9 +267,9 @@ $skills_stmt->close();
                     <?php foreach ($project_images as $index => $image): ?>
                         <div class="bg-gray-50 rounded-xl overflow-hidden border border-gray-300 shadow-sm">
                             <img src="<?php echo htmlspecialchars($image['image_path']); ?>" 
-                                 alt="<?php echo htmlspecialchars($project['title']); ?> - Gambar <?php echo $index + 1; ?>" 
-                                 class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-zoom-in"
-                                 onclick="openImageModal('<?php echo htmlspecialchars($image['image_path']); ?>')">
+                                alt="<?php echo htmlspecialchars($project['title']); ?> - Gambar <?php echo $index + 1; ?>" 
+                                class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-zoom-in"
+                                onclick="openImageModal('<?php echo htmlspecialchars($image['image_path']); ?>')">
                             <div class="p-4 bg-white border-t border-gray-300">
                                 <p class="text-sm text-gray-600 text-center font-medium">
                                     <?php echo $image['is_primary'] ? 'Gambar utama proyek' : 'Gambar ' . ($index + 1); ?>
@@ -287,7 +280,7 @@ $skills_stmt->close();
                 </div>
             </div>
             <?php else: ?>
-            <!-- Placeholder jika tidak ada gambar -->
+            <!-- Placeholder -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                 <h2 class="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:image-multiple" data-width="24"></span>
@@ -308,7 +301,7 @@ $skills_stmt->close();
             <?php endif; ?>
         </div>
 
-        <!-- Sidebar - Lebih Sempit dan Simple -->
+        <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Project Details Sidebar -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
@@ -384,7 +377,6 @@ $skills_stmt->close();
 </div>
 
 <script>
-// Image Modal Functions
 function openImageModal(imageSrc) {
     document.getElementById('modalImage').src = imageSrc;
     document.getElementById('imageModal').classList.remove('hidden');
@@ -394,7 +386,6 @@ function closeImageModal() {
     document.getElementById('imageModal').classList.add('hidden');
 }
 
-// Close modal when clicking outside
 document.getElementById('imageModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeImageModal();
@@ -421,7 +412,6 @@ function confirmDelete(projectId, projectTitle) {
     });
 }
 
-// Fallback jika SweetAlert tidak tersedia
 if (typeof Swal === 'undefined') {
     function confirmDelete(projectId, projectTitle) {
         if (confirm(`Hapus proyek "${projectTitle}"?`)) {
@@ -430,7 +420,6 @@ if (typeof Swal === 'undefined') {
     }
 }
 
-// Close modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeImageModal();

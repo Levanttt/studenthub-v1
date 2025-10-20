@@ -27,34 +27,28 @@ try {
     error_log("Error fetching specializations: " . $e->getMessage());
 }
 
-// Handle file upload untuk profile picture
 function handleProfilePictureUpload($file, $user_id) {
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    $max_size = 2 * 1024 * 1024; // 2MB
+    $max_size = 2 * 1024 * 1024; 
     
-    // Check file size
     if ($file['size'] > $max_size) {
         return ['success' => false, 'error' => 'Ukuran file maksimal 2MB'];
     }
     
-    // Check MIME type
     $file_info = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
     if (!in_array($file_info, $allowed_types)) {
         return ['success' => false, 'error' => 'Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan'];
     }
     
-    // Create upload directory
     $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/profiles/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
     
-    // Generate unique filename
     $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'profile_' . time() . '_' . uniqid() . '.' . $file_ext;
     $file_path = $upload_dir . $filename;
     
-    // Move uploaded file
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
         return ['success' => true, 'file_path' => '/studenthub/uploads/profiles/' . $user_id . '/' . $filename];
     } else {
@@ -62,34 +56,28 @@ function handleProfilePictureUpload($file, $user_id) {
     }
 }
 
-// Handle file upload untuk CV
 function handleCVUpload($file, $user_id) {
     $allowed_types = ['application/pdf'];
-    $max_size = 2 * 1024 * 1024; // 2MB
+    $max_size = 2 * 1024 * 1024; 
     
-    // Check file size
     if ($file['size'] > $max_size) {
         return ['success' => false, 'error' => 'Ukuran file CV maksimal 2MB'];
     }
     
-    // Check MIME type
     $file_info = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
     if (!in_array($file_info, $allowed_types)) {
         return ['success' => false, 'error' => 'Hanya file PDF yang diizinkan untuk CV'];
     }
     
-    // Create upload directory
     $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/cvs/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
     
-    // Generate unique filename
     $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'cv_' . time() . '_' . uniqid() . '.' . $file_ext;
     $file_path = $upload_dir . $filename;
     
-    // Move uploaded file
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
         return ['success' => true, 'file_path' => '/studenthub/uploads/cvs/' . $user_id . '/' . $filename];
     } else {
@@ -97,7 +85,6 @@ function handleCVUpload($file, $user_id) {
     }
 }
 
-// Ambil data user terlebih dahulu
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 if ($stmt) {
     $stmt->bind_param("i", $user_id);

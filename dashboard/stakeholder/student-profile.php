@@ -682,7 +682,7 @@ usort($certificates, function($a, $b) {
                         <!-- Certificates Horizontal Scroll -->
                         <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" id="certificates-scroll">
                             <?php foreach ($certificates as $cert): ?>
-                                <div class="flex-shrink-0 w-80 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 group relative certificate-card">
+                                <div class="flex-shrink-0 w-80 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 group relative certificate-card flex flex-col">
                                     
                                     <!-- Compact Badge dengan Tooltip di pojok kanan atas -->
                                     <div class="absolute top-3 right-3">
@@ -726,40 +726,26 @@ usort($certificates, function($a, $b) {
                                     </div>
 
                                     <!-- Certificate Details -->
-                                    <div class="space-y-2 text-xs text-gray-600">
-                                        <?php if (!empty($cert['issue_date'])): ?>
-                                            <div class="flex items-center gap-2">
-                                                <span class="iconify" data-icon="mdi:calendar" data-width="12"></span>
-                                                <span>Diterbitkan: <?php echo date('M Y', strtotime($cert['issue_date'])); ?></span>
-                                            </div>
-                                        <?php endif; ?>
+                                    <div class="space-y-2 text-xs text-gray-600 mb-4">
+                                        <div class="flex items-center gap-2">
+                                            <span class="iconify" data-icon="mdi:calendar" data-width="12"></span>
+                                            <span>Diterbitkan: <?php echo !empty($cert['issue_date']) ? date('M Y', strtotime($cert['issue_date'])) : '-'; ?></span>
+                                        </div>
                                         
-                                        <?php if (!empty($cert['expiry_date'])): ?>
-                                            <div class="flex items-center gap-2 <?php echo strtotime($cert['expiry_date']) < time() ? 'text-red-600' : ''; ?>">
-                                                <span class="iconify" data-icon="mdi:clock" data-width="12"></span>
-                                                <span>Berlaku hingga: <?php echo date('M Y', strtotime($cert['expiry_date'])); ?></span>
-                                            </div>
-                                        <?php endif; ?>
+                                        <div class="flex items-center gap-2 <?php echo (!empty($cert['expiry_date']) && strtotime($cert['expiry_date']) < time()) ? 'text-red-600' : ''; ?>">
+                                            <span class="iconify" data-icon="mdi:clock" data-width="12"></span>
+                                            <span>Berlaku hingga: <?php echo !empty($cert['expiry_date']) ? date('M Y', strtotime($cert['expiry_date'])) : '-'; ?></span>
+                                        </div>
                                         
-                                        <?php if (!empty($cert['credential_id'])): ?>
-                                            <div class="flex items-center gap-2">
-                                                <span class="iconify" data-icon="mdi:identifier" data-width="12"></span>
-                                                <span>ID: <?php echo htmlspecialchars($cert['credential_id']); ?></span>
-                                            </div>
-                                        <?php endif; ?>
-                                        
-                                        <!-- Tampilkan credential URL jika ada -->
-                                        <?php if (!empty($cert['credential_url'])): ?>
-                                            <div class="flex items-center gap-2">
-                                                <span class="iconify" data-icon="mdi:link" data-width="12"></span>
-                                                <span class="truncate">URL: <a href="<?php echo htmlspecialchars($cert['credential_url']); ?>" target="_blank" class="text-amber-600 hover:text-amber-700">Verifikasi</a></span>
-                                            </div>
-                                        <?php endif; ?>
+                                        <div class="flex items-center gap-2">
+                                            <span class="iconify" data-icon="mdi:identifier" data-width="12"></span>
+                                            <span>ID Credentials: <?php echo !empty($cert['credential_id']) ? htmlspecialchars($cert['credential_id']) : '-'; ?></span>
+                                        </div>
                                     </div>
 
                                     <!-- Certificate Description -->
                                     <?php if (!empty($cert['description'])): ?>
-                                        <div class="mt-3">
+                                        <div class="mb-4">
                                             <h4 class="font-semibold text-gray-700 text-xs mb-1">Deskripsi:</h4>
                                             <p class="text-xs text-gray-600 line-clamp-3">
                                                 <?php echo htmlspecialchars($cert['description']); ?>
@@ -767,41 +753,43 @@ usort($certificates, function($a, $b) {
                                         </div>
                                     <?php endif; ?>
 
-                                    <!-- Action Buttons -->
-                                    <div class="flex gap-2 mt-4">
-                                        <?php if (!empty($cert['image_path'])): ?>
-                                            <?php
-                                            // Cek tipe file
-                                            $file_extension = strtolower(pathinfo($cert['image_path'], PATHINFO_EXTENSION));
-                                            $is_pdf = $file_extension === 'pdf';
-                                            ?>
-                                            
-                                            <?php if ($is_pdf): ?>
-                                                <!-- Untuk PDF, buka di tab baru -->
-                                                <a href="<?php echo htmlspecialchars($cert['image_path']); ?>" 
-                                                target="_blank"
-                                                class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
-                                                    <span class="iconify" data-icon="mdi:file-pdf-box" data-width="12"></span>
-                                                    Lihat PDF
-                                                </a>
-                                            <?php else: ?>
-                                                <!-- Untuk images, buka di modal -->
-                                                <button onclick="openImageModal('<?php echo htmlspecialchars($cert['image_path']); ?>')"
-                                                        class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
-                                                    <span class="iconify" data-icon="mdi:eye" data-width="12"></span>
-                                                    Lihat
-                                                </button>
+                                    <!-- Action Buttons - SELALU DI BAWAH -->
+                                    <div class="mt-auto pt-4">
+                                        <div class="flex gap-2">
+                                            <?php if (!empty($cert['image_path'])): ?>
+                                                <?php
+                                                // Cek tipe file
+                                                $file_extension = strtolower(pathinfo($cert['image_path'], PATHINFO_EXTENSION));
+                                                $is_pdf = $file_extension === 'pdf';
+                                                ?>
+                                                
+                                                <?php if ($is_pdf): ?>
+                                                    <!-- Untuk PDF, buka di tab baru -->
+                                                    <a href="<?php echo htmlspecialchars($cert['image_path']); ?>" 
+                                                    target="_blank"
+                                                    class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
+                                                        <span class="iconify" data-icon="mdi:eye" data-width="14"></span>
+                                                        Lihat
+                                                    </a>
+                                                <?php else: ?>
+                                                    <!-- Untuk images, buka di modal -->
+                                                    <button onclick="openImageModal('<?php echo htmlspecialchars($cert['image_path']); ?>')"
+                                                            class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
+                                                        <span class="iconify" data-icon="mdi:eye" data-width="14"></span>
+                                                        Lihat
+                                                    </button>
+                                                <?php endif; ?>
                                             <?php endif; ?>
-                                        <?php endif; ?>
-                                        
-                                        <?php if (!empty($cert['credential_url'])): ?>
-                                            <a href="<?php echo htmlspecialchars($cert['credential_url']); ?>" 
-                                            target="_blank"
-                                            class="flex-1 bg-white text-amber-700 py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-50 transition-colors flex items-center justify-center gap-1 border border-amber-300">
-                                                <span class="iconify" data-icon="mdi:shield-check" data-width="12"></span>
-                                                Verify
-                                            </a>
-                                        <?php endif; ?>
+                                            
+                                            <?php if (!empty($cert['credential_url'])): ?>
+                                                <a href="<?php echo htmlspecialchars($cert['credential_url']); ?>" 
+                                                target="_blank"
+                                                class="flex-1 bg-white text-amber-700 py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-50 transition-colors flex items-center justify-center gap-1 border border-amber-300">
+                                                    <span class="iconify" data-icon="mdi:shield-check" data-width="12"></span>
+                                                    Verify
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
