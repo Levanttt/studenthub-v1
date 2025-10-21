@@ -2,7 +2,6 @@
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-// 1. Autentikasi: Pastikan hanya stakeholder yang bisa mengakses
 if (!isLoggedIn() || getUserRole() != 'stakeholder') {
     header("Location: ../../login.php");
     exit();
@@ -11,19 +10,15 @@ if (!isLoggedIn() || getUserRole() != 'stakeholder') {
 $student_id = $_GET['id'] ?? 0;
 $viewer_id = $_SESSION['user_id'];
 
-// Record profile view
 recordProfileView($student_id, $viewer_id, 'stakeholder');
 
-// 2. Ambil parameter filter
 $query_filter = isset($_GET['q']) ? sanitize($_GET['q']) : '';
 $specialization_filter = isset($_GET['specialization']) ? sanitize($_GET['specialization']) : '';
 $skill_filter = isset($_GET['skill']) ? sanitize($_GET['skill']) : '';
 $show_all = isset($_GET['show_all']) && $_GET['show_all'] == '1';
 
-// 3. Ambil daftar spesialisasi unik DARI TABEL 'specializations'
 $all_specializations = [];
 try {
-    // Query langsung ke tabel specializations
     $specializations_query = "SELECT name FROM specializations ORDER BY name ASC";
     $specializations_result = $conn->query($specializations_query);
     if ($specializations_result) {
@@ -32,13 +27,11 @@ try {
         }
     }
 } catch (Exception $e) {
-     error_log("Error fetching specializations list: " . $e->getMessage()); // Log error jika terjadi
+    error_log("Error fetching specializations list: " . $e->getMessage()); 
 }
 
-// 4. Ambil daftar skill unik untuk filter - FIXED
 $all_skills = [];
 try {
-    // Query langsung ke tabel skills tanpa join yang restriktif
     $skills_query = "
         SELECT DISTINCT name, skill_type 
         FROM skills 
@@ -59,7 +52,6 @@ try {
     error_log("Exception fetching skills for filter: " . $e->getMessage());
 }
 
-// 5. Ambil data untuk search suggestions
 $search_suggestions = [
     'skills' => [],
     'universities' => [],
@@ -67,7 +59,6 @@ $search_suggestions = [
 ];
 
 try {
-    // Skills suggestions
     $skills_suggest_query = "SELECT DISTINCT name FROM skills ORDER BY name LIMIT 10";
     $skills_suggest_result = $conn->query($skills_suggest_query);
     if ($skills_suggest_result) {
@@ -76,7 +67,6 @@ try {
         }
     }
     
-    // University suggestions
     $uni_suggest_query = "SELECT DISTINCT university FROM users WHERE role = 'student' AND university IS NOT NULL AND university != '' ORDER BY university LIMIT 8";
     $uni_suggest_result = $conn->query($uni_suggest_query);
     if ($uni_suggest_result) {
@@ -85,7 +75,6 @@ try {
         }
     }
     
-    // Major suggestions
     $major_suggest_query = "SELECT DISTINCT major FROM users WHERE role = 'student' AND major IS NOT NULL AND major != '' ORDER BY major LIMIT 8";
     $major_suggest_result = $conn->query($major_suggest_query);
     if ($major_suggest_result) {
@@ -95,11 +84,9 @@ try {
     }
 } catch (Exception $e) {}
 
-// 6. Query data siswa - SELALU query ketika show_all atau ada filter
 $total_students = 0;
 $students = [];
 
-// SELALU query data, baik untuk show_all maupun filter
 $query = "
     SELECT DISTINCT u.id, u.name, u.profile_picture, u.university, u.major, u.specializations, u.bio 
     FROM users u
@@ -112,7 +99,6 @@ $query = "
 $params = [];
 $types = "";
 
-// Filter pencarian
 if (!empty($query_filter)) {
     $query .= " AND (
         u.name LIKE ? 
@@ -126,14 +112,12 @@ if (!empty($query_filter)) {
     $types .= "sssss";
 }
 
-// Filter spesialisasi
 if (!empty($specialization_filter)) {
     $query .= " AND u.specializations LIKE ?";
     $params[] = "%" . $specialization_filter . "%";
     $types .= "s";
 }
 
-// Filter skill
 if (!empty($skill_filter)) {
     $query .= " AND s.name = ?";
     $params[] = $skill_filter;
@@ -142,7 +126,6 @@ if (!empty($skill_filter)) {
 
 $query .= " GROUP BY u.id ORDER BY u.name ASC";
 
-// Eksekusi query
 $stmt = $conn->prepare($query);
 if ($stmt) {
     if (!empty($params)) $stmt->bind_param($types, ...$params);
@@ -154,7 +137,6 @@ if ($stmt) {
     $stmt->close();
 }
 
-// 7. Fungsi untuk memendekkan nama
 function shortenName($full_name, $max_length = 20) {
     if (strlen($full_name) <= $max_length) {
         return $full_name;
@@ -177,14 +159,13 @@ function shortenName($full_name, $max_length = 20) {
     return $shortened;
 }
 
-// 8. Tentukan apakah sedang dalam mode "show all" atau filter
 $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_filter) && empty($skill_filter));
 ?>
 
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero Section dengan Cara Kerja -->
+    <!-- Hero Section dengan HIW -->
     <div class="bg-gradient-to-r from-blue-800 to-blue-600 text-white rounded-2xl p-8 mb-8 shadow-lg">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
             <div class="flex-1">
@@ -240,12 +221,12 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                         <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
                     </span>
                     <input type="text" 
-                           name="q" 
-                           value="<?php echo htmlspecialchars($query_filter); ?>" 
-                           class="w-full pl-10 pr-3 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-base" 
-                           placeholder="Ketik nama, skill (React, Python), universitas, atau jurusan..."
-                           id="main-search"
-                           autocomplete="off">
+                        name="q" 
+                        value="<?php echo htmlspecialchars($query_filter); ?>" 
+                        class="w-full pl-10 pr-3 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors text-base" 
+                        placeholder="Ketik nama, skill (React, Python), universitas, atau jurusan..."
+                        id="main-search"
+                        autocomplete="off">
                 </div>
                 
                 <!-- Search Suggestions -->
@@ -441,7 +422,6 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                         }
                     } catch (Exception $e) {}
                     
-                    // Shorten name if too long
                     $display_name = shortenName($student['name'], 22);
                     ?>
                     
