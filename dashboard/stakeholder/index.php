@@ -8,6 +8,12 @@ if (!isLoggedIn() || getUserRole() != 'stakeholder') {
     exit();
 }
 
+$student_id = $_GET['id'] ?? 0;
+$viewer_id = $_SESSION['user_id'];
+
+// Record profile view
+recordProfileView($student_id, $viewer_id, 'stakeholder');
+
 // 2. Ambil parameter filter
 $query_filter = isset($_GET['q']) ? sanitize($_GET['q']) : '';
 $specialization_filter = isset($_GET['specialization']) ? sanitize($_GET['specialization']) : '';

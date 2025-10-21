@@ -374,7 +374,7 @@ try {
                                 onclick="openImageModal('<?php echo htmlspecialchars($image['image_path']); ?>')">
                             <div class="p-4 bg-white border-t border-gray-300">
                                 <p class="text-sm text-gray-600 text-center font-medium">
-                                    <?php echo $image['is_primary'] ? '🖼️ Gambar utama proyek' : '📷 Gambar ' . ($index + 1); ?>
+                                    <?php echo $image['is_primary'] ? '🖼️ Gambar utama proyek' : ' Gambar ' . ($index + 1); ?>
                                 </p>
                             </div>
                         </div>
@@ -386,14 +386,14 @@ try {
 
         <!-- Sidebar -->
         <div class="space-y-6">
-            <!-- Project Details Sidebar - COMPACT VERSION -->
+            <!-- Project Details Sidebar -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
                 <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:clipboard-text" data-width="20"></span>
                     Detail Proyek
                 </h3>
                 
-                <!-- Compact Grid Layout -->
+                <!-- Grid Layout -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-xs text-gray-500 mb-1">Tipe Proyek</p>

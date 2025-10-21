@@ -15,6 +15,9 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 }
 
 $student_id = intval($_GET['id']);
+$viewer_id = $_SESSION['user_id'];
+
+recordProfileView($student_id, $viewer_id, 'stakeholder');
 
 // 3. Ambil data student
 $student = [];

@@ -23,11 +23,20 @@ $project_stmt->execute();
 $project_result = $project_stmt->get_result();
 $project_count = $project_result->fetch_assoc()['total_projects'];
 
-// Get profile views (placeholder - implement later)
-$total_views = 0;
+// Get total profile views
+$total_views = getProfileViewsCount($user_id);
 
-// Get total likes (placeholder - implement later)
-$total_likes = 0;
+// Get total likes from project_likes table
+$likes_stmt = $conn->prepare("
+    SELECT COUNT(*) as total_likes 
+    FROM project_likes pl 
+    JOIN projects p ON pl.project_id = p.id 
+    WHERE p.student_id = ?
+");
+$likes_stmt->bind_param("i", $user_id);
+$likes_stmt->execute();
+$likes_result = $likes_stmt->get_result();
+$total_likes = $likes_result->fetch_assoc()['total_likes'];
 
 // Get recent projects with skills data
 $recent_projects_stmt = $conn->prepare("

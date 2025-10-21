@@ -47,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             
             // Insert into users table with stakeholder fields
-            $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, company_name, position, company_website) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssss", $email, $hashed_password, $role, $name, $company_name, $position, $company_website);
+            $stmt = $conn->prepare("UPDATE users SET name = ?, company_name = ?, position = ?, bio = ?, linkedin = ?, phone = ?, profile_picture = ? WHERE id = ?");
+            $stmt->bind_param("sssssssi", $name, $company, $position, $bio, $linkedin, $phone, $profile_picture_path, $user_id);
             
             if ($stmt->execute()) {
                 $success = "Registrasi berhasil! Silakan login.";

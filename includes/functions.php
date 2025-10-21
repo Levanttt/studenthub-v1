@@ -18,4 +18,73 @@ function getStatusBadge($status) {
     
     return '<span class="font-semibold text-white px-2 py-1 rounded-full text-xs ' . $color . '">' . $formattedStatus . '</span>';
 }
+
+// di functions.php - perbaiki fungsi
+function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other') {
+    global $conn;
+    
+    // Validasi input
+    if (!$student_id) {
+        error_log("Error: student_id is required");
+        return false;
+    }
+    
+    // Cek apakah viewer adalah stakeholder
+    if ($viewer_id) {
+        $role_stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+        $role_stmt->bind_param("i", $viewer_id);
+        $role_stmt->execute();
+        $role_result = $role_stmt->get_result();
+        if ($role_result->num_rows > 0) {
+            $user_role = $role_result->fetch_assoc()['role'];
+            if ($user_role === 'stakeholder') {
+                $viewer_role = 'stakeholder';
+            }
+        }
+    }
+    
+    // Hindari duplicate views dalam 24 jam dari IP yang sama
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $check_stmt = $conn->prepare("
+        SELECT id FROM profile_views 
+        WHERE student_id = ? AND viewer_ip = ? AND viewed_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+        LIMIT 1
+    ");
+    $check_stmt->bind_param("is", $student_id, $ip);
+    $check_stmt->execute();
+    
+    if ($check_stmt->get_result()->num_rows == 0) {
+        // Insert new view
+        $insert_stmt = $conn->prepare("
+            INSERT INTO profile_views (student_id, viewer_id, viewer_role, viewer_ip, user_agent) 
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        $insert_stmt->bind_param("iisss", $student_id, $viewer_id, $viewer_role, $ip, $_SERVER['HTTP_USER_AGENT']);
+        
+        if ($insert_stmt->execute()) {
+            error_log("✅ NEW profile view recorded - Student: $student_id, Viewer: $viewer_id, Role: $viewer_role");
+            return true;
+        } else {
+            error_log("❌ FAILED to record profile view: " . $insert_stmt->error);
+            return false;
+        }
+    } else {
+        error_log("⏩ DUPLICATE profile view skipped - Student: $student_id, IP: $ip");
+        return false; // Duplicate, tidak dihitung
+    }
+}
+
+function getProfileViewsCount($student_id) {
+    global $conn;
+    
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as total_views 
+        FROM profile_views 
+        WHERE student_id = ?
+    ");
+    $stmt->bind_param("i", $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc()['total_views'];
+}
 ?>
