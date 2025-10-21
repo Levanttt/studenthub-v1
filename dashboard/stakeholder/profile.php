@@ -202,13 +202,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <div>
-                <h1 class="text-3xl font-bold text-blue-900 flex items-center gap-3">
+                <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:account-tie" data-width="32"></span>
                     Kelola Profil Stakeholder
                 </h1>
                 <p class="text-gray-600 mt-2">Lengkapi informasi profil perusahaan Anda untuk meningkatkan kredibilitas</p>
             </div>
-            <a href="index.php" class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                 Kembali ke Dashboard
             </a>
@@ -234,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- Profile Form -->
         <div class="lg:col-span-3">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h2 class="text-2xl font-bold text-blue-900 mb-8 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-8 flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:account-edit" data-width="28"></span>
                     Informasi Profil
                 </h2>
@@ -253,13 +253,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <?php if (!empty($user['profile_picture'])): ?>
                                         <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" 
                                             alt="Profile Picture" 
-                                            class="w-36 h-36 rounded-full object-cover border-4 border-blue-100 shadow-lg">
+                                            class="w-36 h-36 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg">
                                     <?php else: ?>
-                                        <div class="w-36 h-36 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center border-4 border-blue-100 shadow-lg">
+                                        <div class="w-36 h-36 rounded-full bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex items-center justify-center border-4 border-[#E0F7FF] shadow-lg">
                                             <span class="iconify text-white" data-icon="mdi:account-tie" data-width="48"></span>
                                         </div>
                                     <?php endif; ?>
-                                    <div class="absolute -bottom-2 -right-2 bg-blue-500 rounded-full p-2 shadow-lg">
+                                    <div class="absolute -bottom-2 -right-2 bg-[#51A3B9] rounded-full p-2 shadow-lg">
                                         <span class="iconify text-white" data-icon="mdi:camera" data-width="18"></span>
                                     </div>
                                 </div>
@@ -268,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <!-- Upload Controls -->
                             <div class="flex-1 space-y-4">
                                 <!-- Upload Button -->
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-300 bg-gray-50/50">
+                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
                                     <div class="flex flex-col items-center justify-center mb-3">
                                         <div class="text-gray-400 mb-2">
                                             <span class="iconify" data-icon="mdi:cloud-upload" data-width="48"></span>
@@ -278,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </div>
                                     
                                     <label class="cursor-pointer inline-block">
-                                        <span class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 inline-flex items-center gap-2">
+                                        <span class="bg-[#51A3B9] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
                                             <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
                                             Pilih File
                                         </span>
@@ -289,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <p class="text-xs text-gray-500 mt-3">Max. 2MB (JPG, PNG, GIF, WebP)</p>
                                     
                                     <!-- File name display -->
-                                    <div id="profile-picture-name" class="text-sm text-blue-600 mt-2 hidden"></div>
+                                    <div id="profile-picture-name" class="text-sm text-[#2A8FA9] mt-2 hidden"></div>
                                 </div>
                                 
                                 <?php if (!empty($user['profile_picture'])): ?>
@@ -316,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:account" data-width="20"></span>
                                     </span>
                                     <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" 
-                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                            required maxlength="100">
                                 </div>
                             </div>
@@ -328,7 +328,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:briefcase" data-width="20"></span>
                                     </span>
                                     <input type="text" name="position" value="<?php echo htmlspecialchars($user['position'] ?? ''); ?>" 
-                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                            placeholder="HR Manager, Recruiter, dll" maxlength="100">
                                 </div>
                             </div>
@@ -342,7 +342,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:office-building" data-width="20"></span>
                                     </span>
                                     <input type="text" name="company" value="<?php echo htmlspecialchars($user['company_name'] ?? ''); ?>" 
-                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                            placeholder="Nama perusahaan" maxlength="100">
                                 </div>
                             </div>
@@ -354,7 +354,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:phone" data-width="20"></span>
                                     </span>
                                     <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" 
-                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                            placeholder="+62" 
                                            pattern="^[0-9+\-\s()]{10,20}$"
                                            title="Format: +62xxx atau 08xxx"
@@ -370,7 +370,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="iconify" data-icon="mdi:linkedin" data-width="20"></span>
                                 </span>
                                 <input type="url" name="linkedin" value="<?php echo htmlspecialchars($user['linkedin'] ?? ''); ?>" 
-                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                        placeholder="https://linkedin.com/in/username" 
                                        pattern="^(https?:\/\/)?(www\.)?linkedin\.com\/.+\/?$"
                                        title="Masukkan URL LinkedIn yang valid"
@@ -390,7 +390,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="iconify" data-icon="mdi:text" data-width="20"></span>
                                 </span>
                                 <textarea name="bio" rows="5" 
-                                          class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none" 
+                                          class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none" 
                                           placeholder="Ceritakan tentang diri Anda, perusahaan, atau bidang yang Anda tekuni..." 
                                           maxlength="500"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
                             </div>
@@ -403,7 +403,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                        <button type="submit" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md" id="submitBtn">
+                        <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#2A8FA9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md" id="submitBtn">
                             <span class="iconify" data-icon="mdi:content-save" data-width="20"></span>
                             Simpan Perubahan
                         </button>
@@ -420,7 +420,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="space-y-6">
             <!-- Profile Summary -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:account-box" data-width="20"></span>
                     Ringkasan Profil
                 </h3>
@@ -556,11 +556,11 @@ function initializeProfilePictureDragDrop() {
     }
     
     function highlight() {
-        dropZone.classList.add('border-blue-400', 'bg-blue-50');
+        dropZone.classList.add('border-[#51A3B9]', 'bg-[#E0F7FF]');
     }
     
     function unhighlight() {
-        dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+        dropZone.classList.remove('border-[#51A3B9]', 'bg-[#E0F7FF]');
     }
     
     function handleDrop(e) {
@@ -612,7 +612,7 @@ function initializeProfilePictureDragDrop() {
                         profilePic = document.createElement('img');
                         profilePic.src = e.target.result;
                         profilePic.alt = 'Profile Picture';
-                        profilePic.className = 'w-36 h-36 rounded-full object-cover border-4 border-blue-100 shadow-lg';
+                        profilePic.className = 'w-36 h-36 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg';
                         defaultIcon.parentNode.replaceChild(profilePic, defaultIcon);
                     }
                 } else {
