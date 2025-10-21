@@ -231,13 +231,6 @@ $skills_stmt->close();
                             <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
                             Lihat
                         </a>
-                        
-                        <a href="<?php echo htmlspecialchars($project['certificate_path']); ?>" 
-                        download
-                        class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 text-sm">
-                            <span class="iconify" data-icon="mdi:download" data-width="16"></span>
-                            Download
-                        </a>
                     </div>
                 </div>
             </div>

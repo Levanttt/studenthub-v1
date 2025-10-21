@@ -198,8 +198,8 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                     <div class="h-48 bg-gradient-to-br from-cyan-500 to-blue-600 relative overflow-hidden">
                         <?php if (!empty($project['image_path'])): ?>
                             <img src="<?php echo htmlspecialchars($project['image_path']); ?>" 
-                                 alt="<?php echo htmlspecialchars($project['title']); ?>" 
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    alt="<?php echo htmlspecialchars($project['title']); ?>" 
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                         <?php else: ?>
                             <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                                 <span class="iconify text-gray-400" data-icon="mdi:image-off" data-width="48"></span>
@@ -209,21 +209,20 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                         <!-- Category Badge di pojok kiri atas -->
                         <div class="absolute top-3 left-3">
                         <?php
-                        // Mapping LENGKAP antara value singkat dan nama kategori dari tabel
                         $category_mapping = [
                             'web' => 'Web Development',
                             'mobile' => 'Mobile Development',
-                            'data' => 'Data Science & AI', // Asumsi value singkatnya 'data'
+                            'data' => 'Data Science & AI', 
                             'design' => 'UI/UX & Graphic Design',
                             'game' => 'Game Development',
-                            'digital_marketing' => 'Digital Marketing & E-commerce', // Asumsi value singkatnya 'digital_marketing'
+                            'digital_marketing' => 'Digital Marketing & E-commerce', 
                             'finance' => 'Finance & Investment Analysis',
-                            'business' => 'Business Strategy & Management', // Asumsi value singkatnya 'business'
+                            'business' => 'Business Strategy & Management', 
                             'communication' => 'Communication & Public Relations',
                             'content' => 'Content Creation',
-                            'branding' => 'Branding & Visual Identity', // Asumsi value singkatnya 'branding'
+                            'branding' => 'Branding & Visual Identity', 
                             'iot' => 'IoT & Embedded Systems',
-                            'other' => 'Lainnya' // Asumsi value singkatnya 'other'
+                            'other' => 'Lainnya'
                         ];
 
                         $enum_category = $project['category']; // Ambil value singkat dari database proyek
