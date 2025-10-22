@@ -168,14 +168,14 @@ foreach ($skills_by_category as $category => $skills) {
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <div>
-                <h1 class="text-3xl font-bold text-blue-900 flex items-center gap-3">
+                <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="32"></span>
                     Kelola Skill & Tag
                 </h1>
                 <p class="text-gray-600 mt-2">Kelola keterampilan dan tools untuk portfolio proyek Anda</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-3">
-                <a href="index.php" class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+                <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                     Kembali ke Dashboard
                 </a>
@@ -184,50 +184,50 @@ foreach ($skills_by_category as $category => $skills) {
         
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+            <div class="bg-gradient-to-r from-[#2A8FA9]/5 to-[#409BB2]/10 rounded-2xl p-6 border border-[#2A8FA9]/30">
                 <div class="flex items-center gap-4">
-                    <div class="bg-blue-100 p-3 rounded-xl">
-                        <span class="iconify text-blue-600" data-icon="mdi:tag" data-width="24"></span>
+                    <div class="bg-[#2A8FA9] p-3 rounded-xl">
+                        <span class="iconify text-white" data-icon="mdi:tag" data-width="24"></span>
                     </div>
                     <div>
-                        <h3 class="text-blue-900 font-bold text-2xl"><?php echo $total_skills; ?></h3>
-                        <p class="text-blue-700 text-sm">Total Skill</p>
+                        <h3 class="text-[#2A8FA9] font-bold text-2xl"><?php echo $total_skills; ?></h3>
+                        <p class="text-[#2A8FA9] text-sm">Total Skill</p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-green-50 rounded-2xl p-6 border border-green-100">
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-2xl p-6 border border-blue-200">
                 <div class="flex items-center gap-4">
-                    <div class="bg-green-100 p-3 rounded-xl">
-                        <span class="iconify text-green-600" data-icon="mdi:code-braces" data-width="24"></span>
+                    <div class="bg-blue-600 p-3 rounded-xl">
+                        <span class="iconify text-white" data-icon="mdi:code-braces" data-width="24"></span>
                     </div>
                     <div>
-                        <h3 class="text-green-900 font-bold text-2xl"><?php echo count($skills_by_category['technical']); ?></h3>
-                        <p class="text-green-700 text-sm">Technical Skills</p>
+                        <h3 class="text-blue-900 font-bold text-2xl"><?php echo count($skills_by_category['technical']); ?></h3>
+                        <p class="text-blue-700 text-sm">Technical Skills</p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-purple-50 rounded-2xl p-6 border border-purple-100">
+            <div class="bg-gradient-to-r from-green-50 to-green-100/50 rounded-2xl p-6 border border-green-200">
                 <div class="flex items-center gap-4">
-                    <div class="bg-purple-100 p-3 rounded-xl">
-                        <span class="iconify text-purple-600" data-icon="mdi:account-group" data-width="24"></span>
+                    <div class="bg-green-600 p-3 rounded-xl">
+                        <span class="iconify text-white" data-icon="mdi:account-group" data-width="24"></span>
                     </div>
                     <div>
-                        <h3 class="text-purple-900 font-bold text-2xl"><?php echo count($skills_by_category['soft']); ?></h3>
-                        <p class="text-purple-700 text-sm">Soft Skills</p>
+                        <h3 class="text-green-900 font-bold text-2xl"><?php echo count($skills_by_category['soft']); ?></h3>
+                        <p class="text-green-700 text-sm">Soft Skills</p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100">
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100/50 rounded-2xl p-6 border border-purple-200">
                 <div class="flex items-center gap-4">
-                    <div class="bg-amber-100 p-3 rounded-xl">
-                        <span class="iconify text-amber-600" data-icon="mdi:tools" data-width="24"></span>
+                    <div class="bg-purple-600 p-3 rounded-xl">
+                        <span class="iconify text-white" data-icon="mdi:tools" data-width="24"></span>
                     </div>
                     <div>
-                        <h3 class="text-amber-900 font-bold text-2xl"><?php echo count($skills_by_category['tool']); ?></h3>
-                        <p class="text-amber-700 text-sm">Tools & Software</p>
+                        <h3 class="text-purple-900 font-bold text-2xl"><?php echo count($skills_by_category['tool']); ?></h3>
+                        <p class="text-purple-700 text-sm">Tools & Software</p>
                     </div>
                 </div>
             </div>
@@ -252,7 +252,7 @@ foreach ($skills_by_category as $category => $skills) {
         <!-- Add Skill Form -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-6">
-                <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <h2 class="text-xl font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:plus-circle" data-width="24"></span>
                     Tambah Skill Baru
                 </h2>
@@ -261,14 +261,14 @@ foreach ($skills_by_category as $category => $skills) {
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Nama Skill *</label>
                         <input type="text" name="skill_name" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
                             placeholder="Contoh: React, Leadership, Figma" required>
                     </div>
         
                     <div class="relative" id="skill-type-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Skill *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
                                 <span class="iconify" data-icon="mdi:tag-outline" data-width="20" data-selected-icon></span>
                                 <span data-selected-text>Pilih Kategori</span>
@@ -297,7 +297,7 @@ foreach ($skills_by_category as $category => $skills) {
                     </div>
                     
                     <button type="submit" name="add_skill" 
-                            class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
+                            class="w-full bg-gradient-to-r from-[#2A8FA9] to-[#409BB2] text-white py-3 px-4 rounded-lg font-semibold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
                         <span class="iconify" data-icon="mdi:plus" data-width="20"></span>
                         Tambah Skill
                     </button>
@@ -382,7 +382,7 @@ foreach ($skills_by_category as $category => $skills) {
                                     </div>
                                     <div class="flex gap-2">
                                         <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', 'technical')" 
-                                                class="text-gray-400 hover:text-blue-600 transition-colors p-1"
+                                                class="text-gray-400 hover:text-[#2A8FA9] transition-colors p-1"
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                         </button>
@@ -418,13 +418,15 @@ foreach ($skills_by_category as $category => $skills) {
                                         <span class="soft-badge px-3 py-1 rounded-lg text-sm font-medium">
                                             <?php echo htmlspecialchars($skill['name']); ?>
                                         </span>
-                                        <span class="text-xs <?php echo $skill['usage_count'] > 0 ? 'text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded' : 'text-gray-500 bg-gray-100'; ?> px-2 py-1 rounded">
-                                            <?php echo $skill['usage_count']; ?> proyek
-                                        </span>
+                                        <?php if (isset($skill_usage[$skill['id']]) && $skill_usage[$skill['id']] > 0): ?>
+                                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                                                <?php echo $skill_usage[$skill['id']]; ?> proyek
+                                            </span>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="flex gap-2">
                                         <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', 'soft')" 
-                                                class="text-gray-400 hover:text-blue-600 transition-colors p-1"
+                                                class="text-gray-400 hover:text-[#2A8FA9] transition-colors p-1"
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                         </button>
@@ -468,7 +470,7 @@ foreach ($skills_by_category as $category => $skills) {
                                     </div>
                                     <div class="flex gap-2">
                                         <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', 'tool')" 
-                                                class="text-gray-400 hover:text-blue-600 transition-colors p-1"
+                                                class="text-gray-400 hover:text-[#2A8FA9] transition-colors p-1"
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                         </button>
@@ -497,7 +499,7 @@ foreach ($skills_by_category as $category => $skills) {
 <!-- Edit Skill Modal -->
 <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
-        <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+        <h3 class="text-xl font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
             <span class="iconify" data-icon="mdi:pencil" data-width="24"></span>
             Edit Skill
         </h3>
@@ -510,7 +512,7 @@ foreach ($skills_by_category as $category => $skills) {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nama Skill</label>
                     <input type="text" name="edit_skill_name" id="edit_skill_name" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
                            required>
                 </div>
                 
@@ -518,7 +520,7 @@ foreach ($skills_by_category as $category => $skills) {
                 <div class="relative" id="edit-skill-type-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Skill</label>
                     
-                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                         <div class="flex items-center gap-3">
                             <span class="iconify" data-icon="mdi:tag-outline" data-width="20" data-selected-icon></span>
                             <span data-selected-text>Pilih Kategori</span>
@@ -553,7 +555,7 @@ foreach ($skills_by_category as $category => $skills) {
                     Batal
                 </button>
                 <button type="submit" 
-                        class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all duration-300">
+                        class="flex-1 bg-gradient-to-r from-[#2A8FA9] to-[#409BB2] text-white py-3 px-4 rounded-lg font-semibold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300">
                     Simpan Perubahan
                 </button>
             </div>

@@ -214,13 +214,13 @@ usort($certificates, function($a, $b) {
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <div>
-                <h1 class="text-3xl font-bold text-blue-900 flex items-center gap-3">
+                <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:account-circle" data-width="32"></span>
                     Profil Talenta
                 </h1>
                 <p class="text-gray-600 mt-2">Lihat detail lengkap talenta dan portofolio project mereka</p>
             </div>
-            <a href="index.php" class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                 Kembali ke Pencarian
             </a>
@@ -234,16 +234,16 @@ usort($certificates, function($a, $b) {
                 <!-- Profile Photo & Basic Info -->
                 <div class="text-center mb-6">
                     <?php if (!empty($student['profile_picture'])): ?>
-                        <img class="h-32 w-32 rounded-full object-cover border-4 border-cyan-100 mx-auto mb-4 shadow-lg" 
+                        <img class="h-32 w-32 rounded-full object-cover border-4 border-[#E0F7FF] mx-auto mb-4 shadow-lg" 
                             src="<?php echo htmlspecialchars($student['profile_picture']); ?>" 
                             alt="<?php echo htmlspecialchars($student['name']); ?>">
                     <?php else: ?>
-                        <div class="h-32 w-32 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center border-4 border-cyan-100 mx-auto mb-4 shadow-lg">
+                        <div class="h-32 w-32 rounded-full bg-gradient-to-br from-[#409BB2] to-[#2A8FA9] flex items-center justify-center border-4 border-[#E0F7FF] mx-auto mb-4 shadow-lg">
                             <span class="iconify text-white" data-icon="mdi:account" data-width="48"></span>
                         </div>
                     <?php endif; ?>
                     
-                    <h1 class="text-2xl font-bold text-blue-900 mb-2"><?php echo htmlspecialchars($student['name']); ?></h1>
+                    <h1 class="text-2xl font-bold text-[#2A8FA9] mb-2"><?php echo htmlspecialchars($student['name']); ?></h1>
                     
                     <?php if (!empty($student['major'])): ?>
                         <p class="text-gray-600 font-medium mb-1"><?php echo htmlspecialchars($student['major']); ?></p>
@@ -262,7 +262,7 @@ usort($certificates, function($a, $b) {
                                 $spec = trim($spec);
                                 if (!empty($spec)):
                             ?>
-                                <span class="bg-indigo-100 text-indigo-800 px-3 py-1.5 rounded-full text-xs font-medium my-1">
+                                <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1.5 rounded-full text-xs font-medium my-1">
                                     <?php echo htmlspecialchars($spec); ?>
                                 </span>
                             <?php 
@@ -277,10 +277,10 @@ usort($certificates, function($a, $b) {
                 <div class="space-y-3 mb-6">
                     <?php if (!empty($student['cv_file_path'])): ?>
                         <a href="<?php echo htmlspecialchars($student['cv_file_path']); ?>" 
-                           download="<?php echo htmlspecialchars($student['name'] . '_CV.pdf'); ?>"
-                           class="w-full bg-cyan-500 text-white py-3 px-4 rounded-xl font-bold hover:bg-cyan-600 transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
-                            <span class="iconify" data-icon="mdi:file-download" data-width="18"></span>
-                            Download CV
+                        target="_blank"
+                        class="w-full bg-[#2A8FA9] text-white py-3 px-4 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
+                            <span class="iconify" data-icon="mdi:file-eye" data-width="18"></span>
+                            Lihat CV
                         </a>
                     <?php endif; ?>
                     
@@ -296,7 +296,7 @@ usort($certificates, function($a, $b) {
 
                 <!-- Contact Info -->
                 <div class="border-t border-gray-200 pt-6">
-                    <h3 class="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-[#2A8FA9] mb-4 flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:contact-mail" data-width="20"></span>
                         Kontak
                     </h3>
@@ -304,13 +304,13 @@ usort($certificates, function($a, $b) {
                     <div class="space-y-3">
                         <!-- Email -->
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="iconify text-cyan-600" data-icon="mdi:email" data-width="18"></span>
+                            <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:email" data-width="18"></span>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm text-gray-600">Email</p>
                                 <a href="mailto:<?php echo htmlspecialchars($student['email']); ?>" 
-                                   class="text-cyan-600 hover:text-cyan-700 font-medium text-sm truncate block">
+                                   class="text-[#2A8FA9] hover:text-[#409BB2] font-medium text-sm truncate block">
                                     <?php echo htmlspecialchars($student['email']); ?>
                                 </a>
                             </div>
@@ -319,8 +319,8 @@ usort($certificates, function($a, $b) {
                         <!-- University -->
                         <?php if (!empty($student['university'])): ?>
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="iconify text-green-600" data-icon="mdi:school" data-width="18"></span>
+                            <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:school" data-width="18"></span>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm text-gray-600">Universitas</p>
@@ -331,8 +331,8 @@ usort($certificates, function($a, $b) {
                         
                         <!-- Member Since -->
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="iconify text-purple-600" data-icon="mdi:calendar" data-width="18"></span>
+                            <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:calendar" data-width="18"></span>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm text-gray-600">Bergabung</p>
@@ -346,7 +346,7 @@ usort($certificates, function($a, $b) {
 
                 <!-- Skills Summary -->
                 <div class="border-t border-gray-200 pt-6">
-                    <h3 class="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+                    <h3 class="text-lg font-semibold text-[#2A8FA9] mb-4 flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
                         Ringkasan Skills
                     </h3>
@@ -419,11 +419,11 @@ usort($certificates, function($a, $b) {
             </div>
         </div>
 
-                <!-- Main Content -->
+        <!-- Main Content -->
         <div class="lg:col-span-3">
             <!-- Bio Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
-                <h2 class="text-2xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:account-circle" data-width="24"></span>
                     Tentang Saya
                 </h2>
@@ -440,11 +440,11 @@ usort($certificates, function($a, $b) {
             <!-- Projects Portfolio -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                    <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:folder-multiple" data-width="24"></span>
                         Portofolio Project
                     </h2>
-                    <span class="bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full text-sm font-semibold">
+                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1 rounded-full text-sm font-semibold">
                         <?php echo $total_projects; ?> Project
                     </span>
                 </div>
@@ -460,26 +460,26 @@ usort($certificates, function($a, $b) {
                                 <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
                                     <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                                         <div class="flex-1">
-                                            <h3 class="text-xl font-bold text-blue-900 mb-2"><?php echo htmlspecialchars($project['title']); ?></h3>
+                                            <h3 class="text-xl font-bold text-[#2A8FA9] mb-2"><?php echo htmlspecialchars($project['title']); ?></h3>
                                             
                                             <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
                                                 <?php if (!empty($project['project_year'])): ?>
                                                     <span class="flex items-center gap-1">
-                                                        <span class="iconify" data-icon="mdi:calendar" data-width="14"></span>
+                                                        <span class="iconify text-[#51A3B9]" data-icon="mdi:calendar" data-width="14"></span>
                                                         <?php echo htmlspecialchars($project['project_year']); ?>
                                                     </span>
                                                 <?php endif; ?>
                                                 
                                                 <?php if (!empty($project['project_type'])): ?>
                                                     <span class="flex items-center gap-1">
-                                                        <span class="iconify" data-icon="mdi:tag" data-width="14"></span>
+                                                        <span class="iconify text-[#409BB2]" data-icon="mdi:tag" data-width="14"></span>
                                                         <?php echo htmlspecialchars($project['project_type']); ?>
                                                     </span>
                                                 <?php endif; ?>
                                                 
                                                 <?php if (!empty($project['category'])): ?>
                                                     <span class="flex items-center gap-1">
-                                                        <span class="iconify" data-icon="mdi:folder" data-width="14"></span>
+                                                        <span class="iconify text-[#489EB7]" data-icon="mdi:folder" data-width="14"></span>
                                                         <?php echo htmlspecialchars($project['category']); ?>
                                                     </span>
                                                 <?php endif; ?>
@@ -651,7 +651,7 @@ usort($certificates, function($a, $b) {
                     <?php if ($total_projects > 2): ?>
                     <div class="text-center mt-8 pt-6 border-t border-gray-200">
                         <a href="student-all-projects.php?id=<?php echo $student_id; ?>" 
-                           class="bg-blue-500/10 text-blue-700 px-8 py-3 rounded-xl font-bold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 inline-flex items-center gap-2">
+                           class="bg-[#E0F7FF] text-[#2A8FA9] px-8 py-3 rounded-xl font-bold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 inline-flex items-center gap-2">
                             <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
                             Lihat Semua Project (<?php echo $total_projects; ?>)
                         </a>
@@ -670,11 +670,11 @@ usort($certificates, function($a, $b) {
             <!-- Certificates Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mt-8">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                    <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
                         Sertifikat & Sertifikasi
                     </h2>
-                    <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-semibold">
+                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1 rounded-full text-sm font-semibold">
                         <?php echo count($certificates); ?> Sertifikat
                     </span>
                 </div>
@@ -694,9 +694,9 @@ usort($certificates, function($a, $b) {
                                                 <span class="inline-flex items-center justify-center w-7 h-7 bg-green-100 text-green-800 rounded-full text-xs font-medium transition-colors group-hover/badge:bg-green-200">
                                                     <span class="iconify" data-icon="mdi:folder" data-width="14"></span>
                                                 </span>
-                                                <div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                                                <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
                                                     Dari Project
-                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
                                                 </div>
                                             </div>
                                         <?php else: ?>
@@ -704,9 +704,9 @@ usort($certificates, function($a, $b) {
                                                 <span class="inline-flex items-center justify-center w-7 h-7 bg-blue-100 text-blue-800 rounded-full text-xs font-medium transition-colors group-hover/badge:bg-blue-200">
                                                     <span class="iconify" data-icon="mdi:star" data-width="14"></span>
                                                 </span>
-                                                <div class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                                                <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
                                                     Standalone
-                                                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
                                                 </div>
                                             </div>
                                         <?php endif; ?>
@@ -800,11 +800,11 @@ usort($certificates, function($a, $b) {
 
                         <!-- Navigation Arrows dengan transparansi -->
                         <?php if (count($certificates) > 2): ?>
-                        <button onclick="scrollCertificates(-320)" 
+                        <button onclick="scrollCertificates('left')" 
                                 class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white/70 border border-gray-300/50 rounded-full p-2 shadow-lg hover:bg-white hover:border-gray-300 transition-all duration-300 z-10 hidden md:flex items-center justify-center backdrop-blur-sm">
                             <span class="iconify text-gray-600/70 hover:text-gray-600 transition-colors" data-icon="mdi:chevron-left" data-width="20"></span>
                         </button>
-                        <button onclick="scrollCertificates(320)" 
+                        <button onclick="scrollCertificates('right')" 
                                 class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-white/70 border border-gray-300/50 rounded-full p-2 shadow-lg hover:bg-white hover:border-gray-300 transition-all duration-300 z-10 hidden md:flex items-center justify-center backdrop-blur-sm">
                             <span class="iconify text-gray-600/70 hover:text-gray-600 transition-colors" data-icon="mdi:chevron-right" data-width="20"></span>
                         </button>
@@ -835,77 +835,15 @@ usort($certificates, function($a, $b) {
 </div>
 
 <!-- Image Modal -->
-<div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-    <div class="relative max-w-4xl max-h-full">
-        <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
+    <div class="relative max-w-4xl max-h-full mx-4">
+        <button onclick="closeImageModal()" 
+                class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
             <span class="iconify" data-icon="mdi:close" data-width="32"></span>
         </button>
-        <img id="modalImage" src="" alt="Project Image" class="max-w-full max-h-full object-contain">
+        <img id="modalImage" src="" alt="Full size image" class="max-w-full max-h-screen object-contain rounded-lg">
     </div>
 </div>
-
-<style>
-.prose {
-    line-height: 1.6;
-}
-
-.project-card {
-    transition: all 0.3s ease;
-}
-
-.project-card:hover {
-    transform: translateY(-4px);
-}
-
-.thumbnail-active {
-    border-color: #06b6d4 !important;
-    transform: scale(1.05);
-}
-
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.certificate-card {
-    min-height: 280px;
-    display: flex;
-    flex-direction: column;
-}
-
-.certificate-card .certificate-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.certificate-card .certificate-actions {
-    margin-top: auto;
-}
-
-.scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari and Opera */
-}
-
-/* Smooth scrolling for certificates */
-#certificates-scroll {
-    scroll-behavior: smooth;
-}
-</style>
 
 <script>
 // Gallery Navigation Functions
@@ -949,10 +887,10 @@ function updateThumbnailBorders(projectId, activeIndex) {
     thumbnails.forEach((thumb, index) => {
         if (index === activeIndex) {
             thumb.classList.remove('border-gray-300');
-            thumb.classList.add('border-cyan-500');
+            thumb.classList.add('border-[#2A8FA9]');
             thumb.classList.add('thumbnail-active');
         } else {
-            thumb.classList.remove('border-cyan-500');
+            thumb.classList.remove('border-[#2A8FA9]');
             thumb.classList.remove('thumbnail-active');
             thumb.classList.add('border-gray-300');
         }
@@ -995,12 +933,22 @@ document.getElementById('imageModal').addEventListener('click', function(e) {
     }
 });
 
-// Certificates Horizontal Scroll
-function scrollCertificates(scrollAmount) {
+// Certificates Horizontal Scroll - FIXED
+function scrollCertificates(direction) {
     const container = document.getElementById('certificates-scroll');
-    if (container) {
-        container.scrollBy({
-            left: scrollAmount,
+    if (!container) return;
+    
+    const scrollAmount = 320; // Sesuaikan dengan lebar card + gap
+    const currentScroll = container.scrollLeft;
+    
+    if (direction === 'left') {
+        container.scrollTo({
+            left: currentScroll - scrollAmount,
+            behavior: 'smooth'
+        });
+    } else if (direction === 'right') {
+        container.scrollTo({
+            left: currentScroll + scrollAmount,
             behavior: 'smooth'
         });
     }
@@ -1042,5 +990,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<style>
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.project-card {
+    transition: all 0.3s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+}
+
+.certificate-card {
+    transition: all 0.3s ease;
+}
+
+.certificate-card:hover {
+    transform: translateY(-2px);
+}
+</style>
 
 <?php include '../../includes/footer.php'; ?>

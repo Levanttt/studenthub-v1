@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudentHub - Universitas Cakrawala</title>
+    <title>CDC Connect - Universitas Cakrawala</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -61,7 +61,7 @@
                 class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala"
                      class="h-6">
-                <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">StudentHub</span>
+                <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">CDC Connect</span>
             </a>
 
             <div class="flex items-center space-x-4">
