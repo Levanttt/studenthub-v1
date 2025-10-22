@@ -91,66 +91,66 @@ $from_projects = count($project_certificates);
 $standalone = count($standalone_certificates);
 ?>
 
-<!-- HTML code tetap sama seperti sebelumnya -->
+<!-- HTML code dengan perubahan warna -->
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header dengan tombol kembali -->
     <div class="flex justify-between items-center w-full mb-8">
         <div class="flex-1">
-            <h1 class="text-3xl font-bold text-blue-900 flex items-center gap-3">
+            <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                 <span class="iconify" data-icon="mdi:certificate" data-width="32"></span>
                 Semua Sertifikat
             </h1>
             <p class="text-gray-600 mt-2">Kelola semua sertifikat dari proyek dan pencapaian lainnya</p>
         </div>
         <div class="flex items-center gap-4">
-            <a href="index.php" 
-                class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
-                <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                Kembali
-            </a>
-            <a href="add-certificate.php" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2">
+            <a href="add-certificate.php" class="bg-[#2A8FA9] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:certificate-plus" data-width="20"></span>
                 Tambah Sertifikat
+            </a>
+            <a href="index.php" 
+                class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
+                <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
+                Kembali
             </a>
         </div>
     </div>
 
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-200">
+        <div class="bg-gradient-to-r from-[#2A8FA9]/10 to-[#409BB2]/10 rounded-xl p-4 border border-[#2A8FA9]/30">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-[#2A8FA9] rounded-xl flex items-center justify-center">
                     <span class="iconify text-white" data-icon="mdi:certificate" data-width="24"></span>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-blue-900"><?php echo $total_certificates; ?></div>
-                    <div class="text-sm text-blue-700">Total Sertifikat</div>
+                    <div class="text-2xl font-bold text-[#2A8FA9]"><?php echo $total_certificates; ?></div>
+                    <div class="text-sm text-[#2A8FA9]">Total Sertifikat</div>
                 </div>
             </div>
         </div>
         
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+        <div class="bg-gradient-to-r from-[#2A8FA9]/10 to-[#489EB7]/10 rounded-xl p-4 border border-[#2A8FA9]/30">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-[#489EB7] rounded-xl flex items-center justify-center">
                     <span class="iconify text-white" data-icon="mdi:folder" data-width="24"></span>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-blue-900"><?php echo $from_projects; ?></div>
-                    <div class="text-sm text-blue-700">Dari Proyek</div>
+                    <div class="text-2xl font-bold text-[#489EB7]"><?php echo $from_projects; ?></div>
+                    <div class="text-sm text-[#489EB7]">Dari Proyek</div>
                 </div>
             </div>
         </div>
         
-        <div class="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl p-4 border border-cyan-200">
+        <div class="bg-gradient-to-r from-[#409BB2]/10 to-[#51A3B9]/10 rounded-xl p-4 border border-[#409BB2]/30">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-cyan-600 rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-[#51A3B9] rounded-xl flex items-center justify-center">
                     <span class="iconify text-white" data-icon="mdi:star" data-width="24"></span>
                 </div>
                 <div>
-                    <div class="text-2xl font-bold text-cyan-900"><?php echo $standalone; ?></div>
-                    <div class="text-sm text-cyan-700">Standalone</div>
+                    <div class="text-2xl font-bold text-[#51A3B9]"><?php echo $standalone; ?></div>
+                    <div class="text-sm text-[#51A3B9]">Standalone</div>
                 </div>
             </div>
         </div>
@@ -161,17 +161,17 @@ $standalone = count($standalone_certificates);
         <?php if (empty($all_certificates)): ?>
             <!-- Empty State -->
             <div class="text-center py-12">
-                <div class="text-blue-500 mb-4 flex justify-center">
+                <div class="text-[#2A8FA9] mb-4 flex justify-center">
                     <span class="iconify" data-icon="mdi:certificate-off" data-width="80"></span>
                 </div>
-                <h3 class="text-blue-900 font-bold text-xl mb-2">Belum Ada Sertifikat</h3>
+                <h3 class="text-[#2A8FA9] font-bold text-xl mb-2">Belum Ada Sertifikat</h3>
                 <p class="text-gray-600 mb-6">Tambahkan sertifikat pertama Anda untuk melengkapi portofolio</p>
                 <div class="flex gap-4 justify-center">
-                    <a href="add-certificate.php" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors duration-300 inline-flex items-center gap-2">
+                    <a href="add-certificate.php" class="bg-[#2A8FA9] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:certificate-plus" data-width="20"></span>
                         Tambah Sertifikat
                     </a>
-                    <a href="projects.php" class="bg-blue-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-600 transition-colors duration-300 inline-flex items-center gap-2">
+                    <a href="projects.php" class="bg-[#489EB7] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#51A3B9] transition-colors duration-300 inline-flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
                         Lihat Proyek
                     </a>
@@ -181,11 +181,11 @@ $standalone = count($standalone_certificates);
             <div class="grid grid-cols-1 gap-6">
                 <?php foreach ($all_certificates as $certificate): ?>
                 <!-- Certificate Card -->
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6 hover:shadow-lg transition-all duration-300 group hover:border-blue-300">
+                <div class="bg-gradient-to-r from-[#2A8FA9]/5 to-[#409BB2]/5 rounded-xl border-2 border-[#2A8FA9]/20 p-6 hover:shadow-lg transition-all duration-300 group hover:border-[#2A8FA9]/40">
                     <div class="flex flex-col md:flex-row gap-6">
                         <!-- Certificate Thumbnail/Icon -->
                         <div class="flex-shrink-0">
-                            <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <div class="w-20 h-20 bg-[#2A8FA9] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                 <span class="iconify text-white" data-icon="mdi:certificate" data-width="40"></span>
                             </div>
                         </div>
@@ -195,17 +195,17 @@ $standalone = count($standalone_certificates);
                             <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-3">
                                 <div class="flex-1">
                                     <div class="flex items-center gap-3 mb-2">
-                                        <h3 class="font-bold text-blue-900 text-xl group-hover:text-blue-600 transition-colors line-clamp-1">
+                                        <h3 class="font-bold text-[#2A8FA9] text-xl group-hover:text-[#409BB2] transition-colors line-clamp-1">
                                             <?php echo htmlspecialchars($certificate['certificate_title']); ?>
                                         </h3>
                                         <!-- Source Badge -->
                                         <?php if ($certificate['source_type'] == 'project'): ?>
-                                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold border border-green-200 flex items-center gap-1">
+                                        <span class="bg-blue-50 text-[#489EB7] px-3 py-1 rounded-full text-xs font-semibold border border-[#489EB7]/30 flex items-center gap-1">
                                             <span class="iconify" data-icon="mdi:folder" data-width="12"></span>
                                             Dari Proyek
                                         </span>
                                         <?php else: ?>
-                                        <span class="bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full text-xs font-semibold border border-cyan-200 flex items-center gap-1">
+                                        <span class="bg-cyan-50 text-[#51A3B9] px-3 py-1 rounded-full text-xs font-semibold border border-[#51A3B9]/30 flex items-center gap-1">
                                             <span class="iconify" data-icon="mdi:star" data-width="12"></span>
                                             Standalone
                                         </span>
@@ -217,7 +217,7 @@ $standalone = count($standalone_certificates);
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <!-- Issue Date -->
-                                    <span class="text-gray-500 text-sm bg-white px-4 py-2 rounded-lg border border-blue-200 whitespace-nowrap min-w-24 text-center">
+                                    <span class="text-gray-500 text-sm bg-white px-4 py-2 rounded-lg border border-[#2A8FA9]/20 whitespace-nowrap min-w-24 text-center">
                                         <span class="iconify inline-block mr-1" data-icon="mdi:calendar" data-width="14"></span>
                                         <?php echo date('M Y', strtotime($certificate['issue_date'])); ?>
                                     </span>
@@ -244,7 +244,7 @@ $standalone = count($standalone_certificates);
                                 <?php if (!empty($certificate['file_path'])): ?>
                                 <a href="<?php echo htmlspecialchars($certificate['file_path']); ?>" 
                                    target="_blank"
-                                   class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex items-center gap-2">
+                                   class="bg-[#2A8FA9] text-white px-4 py-2 rounded-lg hover:bg-[#409BB2] transition-colors font-medium text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
                                     Lihat Sertifikat
                                 </a>
@@ -253,7 +253,7 @@ $standalone = count($standalone_certificates);
                                 <?php if (!empty($certificate['certificate_url'])): ?>
                                 <a href="<?php echo htmlspecialchars($certificate['certificate_url']); ?>" 
                                    target="_blank"
-                                   class="bg-white text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm flex items-center gap-2 border border-blue-300">
+                                   class="bg-white text-[#2A8FA9] px-4 py-2 rounded-lg hover:bg-[#2A8FA9]/10 transition-colors font-medium text-sm flex items-center gap-2 border border-[#2A8FA9]/30">
                                     <span class="iconify" data-icon="mdi:link" data-width="16"></span>
                                     Lihat Online
                                 </a>
@@ -262,13 +262,13 @@ $standalone = count($standalone_certificates);
                                 <!-- Edit Action -->
                                 <?php if ($certificate['source_type'] == 'project'): ?>
                                 <a href="edit-project.php?id=<?php echo $certificate['project_id']; ?>" 
-                                   class="bg-green-100 text-green-700 px-4 py-2 rounded-lg hover:bg-green-200 transition-colors font-medium text-sm flex items-center gap-2">
+                                   class="bg-[#489EB7]/10 text-[#489EB7] px-4 py-2 rounded-lg hover:bg-[#489EB7]/20 transition-colors font-medium text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                     Edit di Proyek
                                 </a>
                                 <?php else: ?>
                                 <a href="edit-certificate.php?id=<?php echo $certificate['id']; ?>" 
-                                   class="bg-cyan-100 text-cyan-700 px-4 py-2 rounded-lg hover:bg-cyan-200 transition-colors font-medium text-sm flex items-center gap-2">
+                                   class="bg-[#51A3B9]/10 text-[#51A3B9] px-4 py-2 rounded-lg hover:bg-[#51A3B9]/20 transition-colors font-medium text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                     Edit
                                 </a>
