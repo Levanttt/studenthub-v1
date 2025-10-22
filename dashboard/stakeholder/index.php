@@ -453,7 +453,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                                 </div>
                             </div>
 
-                            <div class="mb-2">
+                            <div class="mb-1">
                                 <p class="text-gray-700 text-sm line-clamp-4 leading-relaxed">
                                     <?php echo htmlspecialchars($display_bio); ?>
                                 </p>

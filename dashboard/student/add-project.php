@@ -335,14 +335,14 @@ function handleCertificateUpload($file, $user_id) {
     <!-- Header -->
     <div class="flex justify-between items-center w-full mb-8">
         <div class="flex-1">
-            <h1 class="text-3xl font-bold text-blue-900 flex items-center gap-3">
+            <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                 <span class="iconify" data-icon="mdi:plus-box" data-width="32"></span>
                 Tambah Proyek Baru
             </h1>
             <p class="text-gray-600 mt-2">Tunjukkan kemampuan nyata kamu melalui bukti kerja proyek</p>
         </div>
         <a href="projects.php" 
-            class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+            class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
             <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
             Kembali
         </a>
@@ -367,7 +367,7 @@ function handleCertificateUpload($file, $user_id) {
         <form method="POST" action="" enctype="multipart/form-data" class="space-y-8">
             <!-- Basic Information -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:information" data-width="24"></span>
                     Informasi Dasar Proyek
                 </h2>
@@ -375,14 +375,14 @@ function handleCertificateUpload($file, $user_id) {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Judul Proyek *</label>
                     <input type="text" name="title" value="<?php echo isset($_POST['title']) ? htmlspecialchars($_POST['title']) : ''; ?>" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                             placeholder="Contoh: Aplikasi E-Commerce dengan Laravel" required maxlength="255">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Proyek *</label>
                     <textarea name="description" rows="6"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none"
                     placeholder="Jelaskan proyek menggunakan metode STAR (Situasi, Task, Aksi, Result). Tulis sebagai satu paragraf."
                     required><?php echo htmlspecialchars($project['description'] ?? ''); ?></textarea>
                 </div>
@@ -390,7 +390,7 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Project Details -->                      
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:clipboard-list" data-width="24"></span>
                     Detail Proyek
                 </h2>
@@ -400,7 +400,7 @@ function handleCertificateUpload($file, $user_id) {
                     <div class="relative" id="category-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Proyek *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
                                 <?php 
                                 // UNTUK ADD-PROJECT: Default values karena tidak ada $project
@@ -429,7 +429,7 @@ function handleCertificateUpload($file, $user_id) {
                             <div class="p-2 space-y-1">
                                 <?php if (!empty($categories)): ?>
                                     <?php foreach ($categories as $category): ?>
-                                        <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $current_category_value == $category['value'] ? 'bg-green-50 text-green-700' : ''; ?>" 
+                                        <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer <?php echo $current_category_value == $category['value'] ? 'bg-[#E0F7FF] text-[#2A8FA9]' : ''; ?>" 
                                             data-option 
                                             data-value="<?php echo htmlspecialchars($category['value']); ?>" 
                                             data-icon="<?php echo htmlspecialchars($category['icon']); ?>"
@@ -452,7 +452,7 @@ function handleCertificateUpload($file, $user_id) {
                     <div class="relative" id="status-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status Proyek *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
                                 <span class="iconify" data-icon="mdi:progress-clock" data-width="20" data-selected-icon></span>
                                 <span data-selected-text>Pilih Status</span>
@@ -484,7 +484,7 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Project Timeline & Credibility -->
             <div class="space-y-4">
-                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:calendar-clock" data-width="24"></span>
                     Timeline & Kredibilitas Proyek
                 </h2>
@@ -504,7 +504,7 @@ function handleCertificateUpload($file, $user_id) {
                     <div class="relative" id="year-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tahun Proyek *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
                                 <span class="iconify" data-icon="mdi:calendar" data-width="20" data-selected-icon></span>
                                 <span data-selected-text>Pilih Tahun</span>
@@ -533,7 +533,7 @@ function handleCertificateUpload($file, $user_id) {
                     <div class="relative" id="duration-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Durasi Pengerjaan</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
                                 <span class="iconify" data-icon="mdi:clock-outline" data-width="20" data-selected-icon></span>
                                 <span data-selected-text>Pilih Durasi</span>
@@ -579,7 +579,7 @@ function handleCertificateUpload($file, $user_id) {
                     <div class="relative" id="project-type-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tipe Proyek *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
                                 <span class="iconify" data-icon="mdi:folder-outline" data-width="20" data-selected-icon></span>
                                 <span data-selected-text>Pilih Tipe Proyek</span>
@@ -619,7 +619,7 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Skills Section dengan Searchable Dropdown -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="24"></span>
                     Keterampilan yang Digunakan *
                 </h2>
@@ -774,7 +774,7 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Media & Links -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:link" data-width="24"></span>
                     Media & Tautan
                 </h2>
@@ -783,7 +783,7 @@ function handleCertificateUpload($file, $user_id) {
                     <!-- Main Project Image -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-3">Gambar Utama Proyek</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-cyan-400 transition-colors duration-300 bg-gray-50/50">
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
                             <div class="flex flex-col items-center justify-center mb-4">
                                 <div class="text-gray-400 mb-3">
                                     <span class="iconify" data-icon="mdi:image" data-width="64"></span>
@@ -793,7 +793,7 @@ function handleCertificateUpload($file, $user_id) {
                             </div>
                             
                             <label class="cursor-pointer inline-block">
-                                <span class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-300 inline-flex items-center gap-2">
+                                <span class="bg-[#51A3B9] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
                                     Pilih File
                                 </span>
@@ -810,7 +810,7 @@ function handleCertificateUpload($file, $user_id) {
                     <!-- Gallery Images -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-3">Gallery Proyek (Multiple)</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-cyan-400 transition-colors duration-300 bg-gray-50/50">
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
                             <div class="flex flex-col items-center justify-center mb-4">
                                 <div class="text-gray-400 mb-3">
                                     <span class="iconify" data-icon="mdi:image-multiple" data-width="64"></span>
@@ -820,7 +820,7 @@ function handleCertificateUpload($file, $user_id) {
                             </div>
                             
                             <label class="cursor-pointer inline-block">
-                                <span class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors duration-300 inline-flex items-center gap-2">
+                                <span class="bg-[#409BB2] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#2A8FA9] transition-colors duration-300 inline-flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:folder-multiple-image" data-width="20"></span>
                                     Pilih File
                                 </span>
@@ -844,7 +844,7 @@ function handleCertificateUpload($file, $user_id) {
                                 <span class="iconify" data-icon="mdi:github" data-width="20"></span>
                             </span>
                             <input type="url" name="github_url" value="<?php echo isset($_POST['github_url']) ? htmlspecialchars($_POST['github_url']) : ''; ?>" 
-                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                     placeholder="https://github.com/username/repo">
                         </div>
                     </div>
@@ -857,7 +857,7 @@ function handleCertificateUpload($file, $user_id) {
                                 <span class="iconify" data-icon="mdi:palette" data-width="20"></span>
                             </span>
                             <input type="url" name="figma_url" value="<?php echo isset($_POST['figma_url']) ? htmlspecialchars($_POST['figma_url']) : ''; ?>" 
-                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                     placeholder="https://figma.com/file/...">
                         </div>
                     </div>
@@ -870,7 +870,7 @@ function handleCertificateUpload($file, $user_id) {
                                 <span class="iconify" data-icon="mdi:link" data-width="20"></span>
                             </span>
                             <input type="url" name="demo_url" value="<?php echo isset($_POST['demo_url']) ? htmlspecialchars($_POST['demo_url']) : ''; ?>" 
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                 placeholder="https://your-project-link.com">
                         </div>
                     </div>
@@ -884,7 +884,7 @@ function handleCertificateUpload($file, $user_id) {
                             <span class="iconify" data-icon="mdi:video" data-width="20"></span>
                         </span>
                         <input type="url" name="video_url" value="<?php echo isset($_POST['video_url']) ? htmlspecialchars($_POST['video_url']) : ''; ?>" 
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors" 
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                 placeholder="https://youtube.com/watch?v=...">
                     </div>
                 </div>
@@ -892,17 +892,17 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Certificate Upload -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
                     Sertifikat (Opsional)
                 </h2>
 
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p class="text-sm text-blue-800 flex items-center gap-2 mb-2">
+                <div class="bg-[#E0F7FF] border border-[#51A3B9] border-opacity-30 rounded-lg p-4">
+                    <p class="text-sm text-[#2A8FA9] flex items-center gap-2 mb-2">
                         <span class="iconify" data-icon="mdi:information" data-width="16"></span>
                         <strong>Tambahkan Sertifikat</strong>
                     </p>
-                    <p class="text-xs text-blue-700">
+                    <p class="text-xs text-[#409BB2]">
                         Upload sertifikat jika proyek ini terkait dengan kompetisi, sertifikasi, atau program tertentu.
                         Informasi kredensial akan muncul setelah upload file.
                     </p>
@@ -910,7 +910,7 @@ function handleCertificateUpload($file, $user_id) {
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">Upload Sertifikat</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-cyan-400 transition-colors duration-300 bg-gray-50/50">
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
                         <div class="flex flex-col items-center justify-center mb-4">
                             <div class="text-gray-400 mb-3">
                                 <span class="iconify" data-icon="mdi:certificate-outline" data-width="64"></span>
@@ -920,7 +920,7 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                         
                         <label class="cursor-pointer inline-block">
-                            <span class="bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors duration-300 inline-flex items-center gap-2">
+                            <span class="bg-[#489EB7] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
                                 <span class="iconify" data-icon="mdi:certificate" data-width="20"></span>
                                 Pilih Sertifikat
                             </span>
@@ -935,7 +935,7 @@ function handleCertificateUpload($file, $user_id) {
 
                 <!-- Certificate Information Form (HIDDEN BY DEFAULT) -->
                 <div id="certificate-info-form" class="hidden space-y-6 pt-6 border-t border-gray-200">
-                    <h3 class="text-xl font-bold text-blue-900 flex items-center gap-3">
+                    <h3 class="text-xl font-bold text-[#2A8FA9] flex items-center gap-3">
                         <span class="iconify" data-icon="mdi:certificate-edit" data-width="20"></span>
                         Informasi Sertifikat
                     </h3>
@@ -955,7 +955,7 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">ID Kredensial Sertifikat</label>
                             <input type="text" name="certificate_credential_id" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                 placeholder="Contoh: ABC123XYZ, 123-456-789">
                             <p class="text-xs text-gray-500 mt-1">ID unik untuk verifikasi sertifikat</p>
                         </div>
@@ -963,7 +963,7 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Link Verifikasi Sertifikat</label>
                             <input type="url" name="certificate_credential_url" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                 placeholder="https://credential.net/verify/12345">
                             <p class="text-xs text-gray-500 mt-1">Link untuk verifikasi online sertifikat</p>
                         </div>
@@ -974,14 +974,14 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Diterbitkan</label>
                             <input type="date" name="certificate_issue_date" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors">
                             <p class="text-xs text-gray-500 mt-1">Tanggal sertifikat diterbitkan</p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kadaluarsa</label>
                             <input type="date" name="certificate_expiry_date" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors">
                             <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada masa berlaku</p>
                         </div>
                     </div>
@@ -990,7 +990,7 @@ function handleCertificateUpload($file, $user_id) {
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Sertifikat</label>
                         <textarea name="certificate_description" rows="3"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none"
                                 placeholder="Jelaskan tentang sertifikat ini, misalnya: 'Sertifikat lulus bootcamp dengan project..'"></textarea>
                         <p class="text-xs text-gray-500 mt-1">Deskripsi singkat tentang sertifikat dan pencapaiannya</p>
                     </div>
@@ -1009,7 +1009,7 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Submit Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200">
-                <button type="submit" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md flex-1">
+                <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#51A3B9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md flex-1">
                     <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>
                     Publikasikan Proyek
                 </button>
@@ -1057,9 +1057,9 @@ class CustomDropdown {
                 this.selectedIcon.setAttribute('data-icon', icon);
                 
                 this.options.querySelectorAll('[data-option]').forEach(opt => {
-                    opt.classList.remove('bg-blue-50', 'text-blue-700');
+                    opt.classList.remove('bg-[#E0F7FF]', 'text-[#2A8FA9]');
                 });
-                option.classList.add('bg-blue-50', 'text-blue-700');
+                option.classList.add('bg-[#E0F7FF]', 'text-[#2A8FA9]');
                 
                 this.options.classList.add('hidden');
             });
@@ -1302,17 +1302,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupDragAndDrop(uploadArea, fileInput, fileNamesDisplay, maxFiles = 1) {
         uploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();
-            this.classList.add('border-cyan-400', 'bg-cyan-50');
+            this.classList.add('border-[#51A3B9]', 'bg-[#E0F7FF]');
         });
 
         uploadArea.addEventListener('dragleave', function(e) {
             e.preventDefault();
-            this.classList.remove('border-cyan-400', 'bg-cyan-50');
+            this.classList.remove('border-[#51A3B9]', 'bg-[#E0F7FF]');
         });
 
         uploadArea.addEventListener('drop', function(e) {
             e.preventDefault();
-            this.classList.remove('border-cyan-400', 'bg-cyan-50');
+            this.classList.remove('border-[#51A3B9]', 'bg-[#E0F7FF]');
             
             if (e.dataTransfer.files.length > 0) {
                 if (maxFiles > 1) {

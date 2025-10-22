@@ -69,15 +69,15 @@ $skills_stmt->close();
     <!-- Navigation & Header -->
         <div class="flex justify-between items-center mb-6">
             <nav class="flex items-center gap-2 text-sm text-gray-600">
-                <a href="index.php" class="hover:text-cyan-600 transition-colors">Dashboard</a>
+                <a href="index.php" class="hover:text-[#2A8FA9] transition-colors">Dashboard</a>
                 <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
-                <a href="projects.php" class="hover:text-cyan-600 transition-colors">Proyek</a>
+                <a href="projects.php" class="hover:text-[#2A8FA9] transition-colors">Proyek</a>
                 <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
                 <span class="text-gray-900 font-medium"><?php echo htmlspecialchars($project['title']); ?></span>
             </nav>
             
             <a href="projects.php?id=<?php echo $project_id; ?>" 
-                class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+                class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                 Kembali
             </a>
@@ -90,27 +90,27 @@ $skills_stmt->close();
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
                     <div class="flex-1">
-                        <h1 class="text-3xl font-bold text-blue-900 mb-4"><?php echo htmlspecialchars($project['title']); ?></h1>
+                        <h1 class="text-3xl font-bold text-[#2A8FA9] mb-4"><?php echo htmlspecialchars($project['title']); ?></h1>
                         
                         <!-- Project Meta -->
                         <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
                             <span class="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-                                <span class="iconify text-cyan-600" data-icon="mdi:calendar" data-width="16"></span>
+                                <span class="iconify text-[#51A3B9]" data-icon="mdi:calendar" data-width="16"></span>
                                 <span class="font-medium">Dibuat: <?php echo date('d M Y', strtotime($project['created_at'])); ?></span>
                             </span>
                             <span class="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-                                <span class="iconify text-blue-600" data-icon="mdi:tag" data-width="16"></span>
+                                <span class="iconify text-[#409BB2]" data-icon="mdi:tag" data-width="16"></span>
                                 <span class="font-medium">Kategori: <?php echo formatText($project['category']); ?></span>
                             </span>
                             <span class="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-                                <span class="iconify text-green-600" data-icon="mdi:clock-outline" data-width="16"></span>
+                                <span class="iconify text-[#489EB7]" data-icon="mdi:clock-outline" data-width="16"></span>
                                 <span class="font-medium">Status: <?php echo formatText($project['status']); ?></span>
                             </span>
                         </div>
 
                         <!-- Project Description -->
                         <div class="mb-6">
-                            <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                            <h2 class="text-xl font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                                 <span class="iconify" data-icon="mdi:text-box-edit" data-width="20"></span>
                                 Deskripsi Proyek
                             </h2>
@@ -124,7 +124,7 @@ $skills_stmt->close();
                                         echo '<span class="iconify inline-block mb-2" data-icon="mdi:text-box-remove" data-width="48"></span>';
                                         echo '<p class="text-lg font-semibold">Belum ada deskripsi</p>';
                                         echo '<p class="text-sm mt-2">Tambahkan deskripsi proyek untuk menjelaskan detail karya Anda</p>';
-                                        echo '<a href="edit-project.php?id=' . $project['id'] . '" class="inline-block mt-4 bg-cyan-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-cyan-600 transition-colors duration-300 shadow-md">';
+                                        echo '<a href="edit-project.php?id=' . $project['id'] . '" class="inline-block mt-4 bg-[#2A8FA9] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 shadow-md">';
                                         echo 'Tambahkan Deskripsi';
                                         echo '</a>';
                                         echo '</div>';
@@ -173,7 +173,7 @@ $skills_stmt->close();
                     <?php if (!empty($project['demo_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['demo_url']); ?>" 
                         target="_blank"
-                        class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
+                        class="bg-[#2A8FA9] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#409BB2] transition-colors duration-300 flex items-center gap-2 shadow-md">
                         <span class="iconify" data-icon="mdi:web" data-width="20"></span>
                         Lihat Demo Live
                     </a>
@@ -201,7 +201,7 @@ $skills_stmt->close();
 
             <!-- Certificate Section -->
         <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <h2 class="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+            <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
                 Sertifikat Terkait
             </h2>
@@ -251,7 +251,7 @@ $skills_stmt->close();
             <!-- Project Gallery -->
             <?php if (!empty($project_images)): ?>
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-                <h2 class="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:image-multiple" data-width="24"></span>
                     Gallery Proyek
                 </h2>
@@ -275,7 +275,7 @@ $skills_stmt->close();
             <?php else: ?>
             <!-- Placeholder -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-                <h2 class="text-2xl font-bold text-blue-900 mb-6 flex items-center gap-2">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:image-multiple" data-width="24"></span>
                     Gallery Proyek
                 </h2>
@@ -286,7 +286,7 @@ $skills_stmt->close();
                     </div>
                     <h3 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Gambar</h3>
                     <p class="text-gray-500 text-sm">Edit proyek untuk menambahkan screenshot atau mockup</p>
-                    <a href="edit-project.php?id=<?php echo $project['id']; ?>" class="inline-block mt-4 bg-cyan-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-cyan-600 transition-colors duration-300 shadow-md">
+                    <a href="edit-project.php?id=<?php echo $project['id']; ?>" class="inline-block mt-4 bg-[#2A8FA9] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 shadow-md">
                         Tambah Gambar
                     </a>
                 </div>
@@ -298,7 +298,7 @@ $skills_stmt->close();
         <div class="space-y-6">
             <!-- Project Details Sidebar -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:clipboard-text" data-width="20"></span>
                     Detail Proyek
                 </h3>
@@ -330,13 +330,13 @@ $skills_stmt->close();
 
             <!-- Action Buttons -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                <h3 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+                <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:cog" data-width="20"></span>
                     Aksi
                 </h3>
                 <div class="space-y-3">
                     <a href="edit-project.php?id=<?php echo $project['id']; ?>" 
-                    class="w-full bg-cyan-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-cyan-600 transition-colors duration-300 flex items-center justify-center gap-2 shadow-md">
+                    class="w-full bg-[#2A8FA9] text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 flex items-center justify-center gap-2 shadow-md">
                         <span class="iconify" data-icon="mdi:pencil" data-width="18"></span>
                         Edit Proyek
                     </a>

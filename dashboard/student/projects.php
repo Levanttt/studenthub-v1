@@ -80,18 +80,18 @@ $student = $student_result->fetch_assoc();
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <div>
-                <h1 class="text-3xl font-bold text-blue-900 flex items-center gap-3">
+                <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:folder-multiple" data-width="32"></span>
                     Kelola Proyek
                 </h1>
                 <p class="text-gray-600 mt-2">Kelola semua proyek portofolio kamu di StudentHub</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-3">
-                <a href="add-project.php" class="bg-cyan-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-cyan-600 transition-colors duration-300 flex items-center gap-2 shadow-md">
+                <a href="add-project.php" class="bg-[#2A8FA9] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 flex items-center gap-2 shadow-md">
                     <span class="iconify" data-icon="mdi:plus-circle" data-width="20"></span>
                     Tambah Proyek Baru
                 </a>
-                <a href="index.php" class="bg-blue-500/10 text-blue-700 px-6 py-3 rounded-xl font-semibold hover:bg-blue-500/20 transition-colors duration-300 border border-blue-200 flex items-center gap-2">
+                <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                     Kembali
                 </a>
@@ -99,15 +99,15 @@ $student = $student_result->fetch_assoc();
         </div>
         
         <!-- Stats -->
-        <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+        <div class="bg-[#E0F7FF] rounded-2xl p-6 border border-[#51A3B9] border-opacity-30">
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-4">
-                    <div class="bg-blue-100 p-3 rounded-xl">
-                        <span class="iconify text-blue-600" data-icon="mdi:folder-star" data-width="32"></span>
+                    <div class="bg-[#51A3B9] p-3 rounded-xl">
+                        <span class="iconify text-white" data-icon="mdi:folder-star" data-width="32"></span>
                     </div>
                     <div>
-                        <h3 class="text-blue-900 font-bold text-2xl"><?php echo $total_projects; ?> Proyek</h3>
-                        <p class="text-blue-700">Total proyek yang telah kamu upload</p>
+                        <h3 class="text-[#2A8FA9] font-bold text-2xl"><?php echo $total_projects; ?> Proyek</h3>
+                        <p class="text-[#409BB2]">Total proyek yang telah kamu upload</p>
                     </div>
                 </div>
                 <?php if ($total_projects > 0): ?>
@@ -134,14 +134,14 @@ $student = $student_result->fetch_assoc();
     <?php if ($total_projects == 0): ?>
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
             <div class="max-w-md mx-auto">
-                <div class="text-cyan-500 mb-6 flex justify-center">
+                <div class="text-[#51A3B9] mb-6 flex justify-center">
                     <span class="iconify" data-icon="mdi:folder-open-outline" data-width="80"></span>
                 </div>
-                <h3 class="text-2xl font-bold text-blue-900 mb-3">Belum Ada Proyek</h3>
+                <h3 class="text-2xl font-bold text-[#2A8FA9] mb-3">Belum Ada Proyek</h3>
                 <p class="text-gray-600 mb-2">Mulai bangun portofolio impresif kamu dengan menambahkan proyek pertama</p>
                 <p class="text-gray-500 text-sm mb-8">Tunjukkan kemampuan nyata kepada recruiter dan stakeholder</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="add-project.php" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
+                    <a href="add-project.php" class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white px-8 py-4 rounded-xl font-bold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
                         <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>
                         Tambah Proyek Pertama
                     </a>
@@ -194,7 +194,7 @@ $student = $student_result->fetch_assoc();
                         // Cari nama lengkap di mapping, jika tidak ada, gunakan formatText() sebagai fallback
                         $category_name = $category_mapping[$enum_category] ?? formatText($enum_category);
                         ?>
-                        <span class="bg-white/90 text-blue-900 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                        <span class="bg-white/90 text-[#2A8FA9] px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
                             <?php echo htmlspecialchars($category_name); ?>
                         </span>
                     </div>
@@ -202,7 +202,7 @@ $student = $student_result->fetch_assoc();
                         <!-- Action Buttons Overlay -->
                         <div class="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             <a href="edit-project.php?id=<?php echo $project['id']; ?>" 
-                            class="bg-white/90 text-gray-700 p-2 rounded-lg hover:bg-white transition-colors"
+                            class="bg-white/90 text-gray-700 p-2 rounded-lg hover:bg-white hover:text-[#51A3B9] transition-colors"
                             title="Edit Proyek"
                             onclick="event.stopPropagation()">
                                 <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
@@ -219,7 +219,7 @@ $student = $student_result->fetch_assoc();
                     <div class="p-5">
                         <!-- Judul dan Tahun -->
                         <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-bold text-blue-900 text-lg group-hover:text-cyan-600 transition-colors line-clamp-1 flex-1 mr-2">
+                            <h3 class="font-bold text-[#2A8FA9] text-lg group-hover:text-[#51A3B9] transition-colors line-clamp-1 flex-1 mr-2">
                                 <?php echo htmlspecialchars($project['title']); ?>
                             </h3>
                             <span class="text-gray-500 text-sm font-medium bg-gray-100 px-2 py-1 rounded whitespace-nowrap">
@@ -296,7 +296,7 @@ $student = $student_result->fetch_assoc();
                 <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-5 py-4 flex-shrink-0">
                     <div class="flex items-center justify-between">
                         <a href="project-detail.php?id=<?php echo $project['id']; ?>" 
-                        class="text-cyan-600 hover:text-cyan-700 font-semibold flex items-center gap-2 group/link">
+                        class="text-[#2A8FA9] hover:text-[#51A3B9] font-semibold flex items-center gap-2 group/link">
                             View Details
                             <span class="iconify group-hover/link:translate-x-1 transition-transform" data-icon="mdi:arrow-right" data-width="16"></span>
                         </a>
@@ -314,7 +314,7 @@ $student = $student_result->fetch_assoc();
                             <?php if (!empty($project['demo_url'])): ?>
                             <a href="<?php echo htmlspecialchars($project['demo_url']); ?>" 
                             target="_blank"
-                            class="hover:text-blue-600 transition-colors"
+                            class="hover:text-[#2A8FA9] transition-colors"
                             title="Lihat Proyek">
                                 <span class="iconify" data-icon="mdi:web" data-width="18"></span>
                             </a>
@@ -330,10 +330,10 @@ $student = $student_result->fetch_assoc();
         <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-center sm:text-left">
-                    <h3 class="text-lg font-bold text-blue-900">Mau menambah proyek?</h3>
+                    <h3 class="text-lg font-bold text-[#2A8FA9]">Mau menambah proyek?</h3>
                     <p class="text-gray-600">Tingkatkan portofolio kamu dengan proyek-proyek terbaru</p>
                 </div>
-                <a href="add-project.php" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 flex items-center gap-2 shadow-md whitespace-nowrap">
+                <a href="add-project.php" class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300 flex items-center gap-2 shadow-md whitespace-nowrap">
                     <span class="iconify" data-icon="mdi:plus-circle" data-width="20"></span>
                     Tambah Proyek Baru
                 </a>
