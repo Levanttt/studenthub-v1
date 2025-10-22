@@ -3,8 +3,7 @@
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-// 1. Autentikasi: Pastikan hanya stakeholder yang bisa mengakses
-if (!isLoggedIn() || getUserRole() != 'stakeholder') {
+if (!isLoggedIn() || getUserRole() != 'mitra_industri') {
     header("Location: ../../login.php");
     exit();
 }
@@ -208,7 +207,7 @@ $total_projects = count($projects);
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <?php foreach ($projects as $project): ?>
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 group overflow-hidden project-card flex flex-col h-[480px] relative">
-                <a href="project-detail-stakeholder.php?id=<?php echo $project['id']; ?>&student_id=<?php echo $student_id; ?>" class="block cursor-pointer">
+                <a href="project-detail.php?id=<?php echo $project['id']; ?>&student_id=<?php echo $student_id; ?>" class="block cursor-pointer">
                     <!-- Project Thumbnail -->
                     <div class="relative overflow-hidden bg-gray-100">
                         <?php if (!empty($project['image_path'])): ?>
@@ -329,7 +328,7 @@ $total_projects = count($projects);
                 <!-- ACTION LINKS -->
                 <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-5 py-4 flex-shrink-0">
                     <div class="flex items-center justify-between">
-                        <a href="project-detail-stakeholder.php?id=<?php echo $project['id']; ?>&student_id=<?php echo $student_id; ?>" 
+                        <a href="project-detail.php?id=<?php echo $project['id']; ?>&student_id=<?php echo $student_id; ?>" 
                         class="text-[#2A8FA9] hover:text-[#51A3B9] font-semibold flex items-center gap-2 group/link">
                             View Details
                             <span class="iconify group-hover/link:translate-x-1 transition-transform" data-icon="mdi:arrow-right" data-width="16"></span>

@@ -1,10 +1,4 @@
 <?php
-// like-handler.php - FIXED SESSION VERSION
-
-// JANGAN panggil session_start() di sini karena sudah dipanggil di config.php
-// session_start(); // HAPUS BARIS INI
-
-// TURN OFF ALL ERRORS
 error_reporting(0);
 ini_set('display_errors', 0);
 
@@ -38,8 +32,8 @@ try {
         jsonResponse(['success' => false, 'error' => 'Not logged in']);
     }
 
-    if (getUserRole() != 'stakeholder') {
-        jsonResponse(['success' => false, 'error' => 'Not stakeholder']);
+    if (getUserRole() != 'mitra_industri') {
+        jsonResponse(['success' => false, 'error' => 'Not mitra_industri']);
     }
 
     $user_id = $_SESSION['user_id'];
@@ -53,7 +47,7 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get current state from database
-        $check_sql = "SELECT id FROM project_likes WHERE project_id = ? AND stakeholder_id = ?";
+        $check_sql = "SELECT id FROM project_likes WHERE project_id = ? AND mitra_industri_id = ?";
         $check_stmt = $conn->prepare($check_sql);
         $check_stmt->bind_param("ii", $project_id, $user_id);
         $check_stmt->execute();
@@ -63,7 +57,7 @@ try {
         if ($action === 'like') {
             if (!$current_state) {
                 // Insert like to database
-                $insert_sql = "INSERT INTO project_likes (project_id, stakeholder_id) VALUES (?, ?)";
+                $insert_sql = "INSERT INTO project_likes (project_id, mitra_industri_id) VALUES (?, ?)";
                 $insert_stmt = $conn->prepare($insert_sql);
                 $insert_stmt->bind_param("ii", $project_id, $user_id);
                 
@@ -82,7 +76,7 @@ try {
         } elseif ($action === 'unlike') {
             if ($current_state) {
                 // Delete like from database
-                $delete_sql = "DELETE FROM project_likes WHERE project_id = ? AND stakeholder_id = ?";
+                $delete_sql = "DELETE FROM project_likes WHERE project_id = ? AND mitra_industri_id = ?";
                 $delete_stmt = $conn->prepare($delete_sql);
                 $delete_stmt->bind_param("ii", $project_id, $user_id);
                 
@@ -102,7 +96,7 @@ try {
     }
 
     // GET request - return current state
-    $check_sql = "SELECT id FROM project_likes WHERE project_id = ? AND stakeholder_id = ?";
+    $check_sql = "SELECT id FROM project_likes WHERE project_id = ? AND mitra_industri_id = ?";
     $check_stmt = $conn->prepare($check_sql);
     $check_stmt->bind_param("ii", $project_id, $user_id);
     $check_stmt->execute();
@@ -132,7 +126,7 @@ if (isset($_GET['reset'])) {
     try {
         $user_id = $_SESSION['user_id'];
         // Clear database likes
-        $clear_sql = "DELETE FROM project_likes WHERE stakeholder_id = ?";
+        $clear_sql = "DELETE FROM project_likes WHERE mitra_industri_id = ?";
         $clear_stmt = $conn->prepare($clear_sql);
         $clear_stmt->bind_param("i", $user_id);
         $clear_stmt->execute();

@@ -1,15 +1,13 @@
 <?php
-// project-detail-stakeholder.php
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-// 1. Autentikasi: Pastikan hanya stakeholder yang bisa mengakses
 if (!isLoggedIn()) {
     header("Location: ../../login.php");
     exit();
 }
 
-if (getUserRole() != 'stakeholder') {
+if (getUserRole() != 'mitra_industri') {
     header("Location: ../../unauthorized.php");
     exit();
 }
@@ -109,8 +107,8 @@ try {
 // 6. Ambil state like dari database (HYBRID)
 $is_liked = false;
 try {
-    if (isLoggedIn() && getUserRole() == 'stakeholder') {
-        $like_check_query = "SELECT id FROM project_likes WHERE project_id = ? AND stakeholder_id = ?";
+    if (isLoggedIn() && getUserRole() == 'mitra_industri') {
+        $like_check_query = "SELECT id FROM project_likes WHERE project_id = ? AND mitra_industri_id = ?";
         $like_check_stmt = $conn->prepare($like_check_query);
         $like_check_stmt->bind_param("ii", $project_id, $_SESSION['user_id']);
         $like_check_stmt->execute();
@@ -349,10 +347,7 @@ try {
                         <span class="iconify" data-icon="mdi:certificate-off" data-width="48"></span>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Sertifikat</h3>
-                    <p class="text-gray-500 text-sm mb-4">Tambahkan sertifikat untuk meningkatkan kredibilitas proyek</p>
-                    <a href="edit-project.php?id=<?php echo $project['id']; ?>" class="inline-block bg-amber-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 shadow-md">
-                        Tambah Sertifikat
-                    </a>
+                    <p class="text-gray-500 text-sm mb-4">Mahasiswa tidak memiliki sertifikat terkait proyek ini</p>
                 </div>
                 <?php endif; ?>
             </div>

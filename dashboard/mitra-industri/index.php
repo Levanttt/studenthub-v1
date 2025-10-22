@@ -2,7 +2,7 @@
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-if (!isLoggedIn() || getUserRole() != 'stakeholder') {
+if (!isLoggedIn() || getUserRole() != 'mitra_industri') {
     header("Location: ../../login.php");
     exit();
 }
@@ -10,7 +10,7 @@ if (!isLoggedIn() || getUserRole() != 'stakeholder') {
 $student_id = $_GET['id'] ?? 0;
 $viewer_id = $_SESSION['user_id'];
 
-recordProfileView($student_id, $viewer_id, 'stakeholder');
+recordProfileView($student_id, $viewer_id, 'mitra-industri');
 
 $query_filter = isset($_GET['q']) ? sanitize($_GET['q']) : '';
 $specialization_filter = isset($_GET['specialization']) ? sanitize($_GET['specialization']) : '';

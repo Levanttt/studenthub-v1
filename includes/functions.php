@@ -37,13 +37,12 @@ function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other
         $role_result = $role_stmt->get_result();
         if ($role_result->num_rows > 0) {
             $user_role = $role_result->fetch_assoc()['role'];
-            if ($user_role === 'stakeholder') {
-                $viewer_role = 'stakeholder';
+            if ($user_role === 'mitra_industri') {
+                $viewer_role = 'mitra_industri';
             }
         }
     }
     
-    // Hindari duplicate views dalam 24 jam dari IP yang sama
     $ip = $_SERVER['REMOTE_ADDR'];
     $check_stmt = $conn->prepare("
         SELECT id FROM profile_views 

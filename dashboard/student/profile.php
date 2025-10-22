@@ -360,7 +360,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
@@ -371,7 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </h1>
                 <p class="text-gray-600 mt-2">Lengkapi informasi profil kamu untuk meningkatkan visibilitas di StudentHub</p>
             </div>
-            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] flex items-center gap-2">
+            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                 Kembali ke Dashboard
             </a>
@@ -880,7 +880,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Bergabung</p>
-                            <p class="font-semibold text-gray-900"><?php echo date('d M Y', strtotime($user['created_at'])); ?></p>
+                            <p class="font-semibold text-gray-900 text-sm"><?php echo date('d M Y', strtotime($user['created_at'])); ?></p>
                         </div>
                     </div>
                     
@@ -890,7 +890,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Role</p>
-                            <p class="font-semibold text-gray-900 capitalize"><?php echo $user['role']; ?></p>
+                            <p class="font-semibold text-gray-900 capitalize text-sm"><?php echo $user['role']; ?></p>
                         </div>
                     </div>
                     
@@ -911,7 +911,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">CV</p>
-                            <p class="font-semibold <?php echo !empty($user['cv_file_path']) ? 'text-green-600' : 'text-gray-500'; ?>">
+                            <p class="font-semibold <?php echo !empty($user['cv_file_path']) ? 'text-green-600 text-sm' : 'text-gray-500 text-sm'; ?>">
                                 <?php echo !empty($user['cv_file_path']) ? 'Tersedia' : 'Belum diupload'; ?>
                             </p>
                         </div>
@@ -924,7 +924,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Semester</p>
-                            <p class="font-semibold text-gray-900">
+                            <p class="font-semibold text-gray-900 text-sm">
                                 <?php 
                                 if (!empty($user['semester'])) {
                                     echo $semesterOptions[$user['semester']] ?? $user['semester'];

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CDC Connect - Universitas Cakrawala</title>
+    <title>Cakrawala Connect - Universitas Cakrawala</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -54,14 +54,27 @@
     </style>
 </head>
 <body class="bg-gray-100">
+    <?php
+    // Mapping folder dashboard berdasarkan role
+    $role_folder_map = [
+        'mitra_industri' => 'mitra-industri',
+        'student' => 'student', 
+        'admin' => 'admin'
+        // tambahkan role lainnya jika ada
+    ];
+
+    $current_role = $_SESSION['role'] ?? '';
+    $folder_name = $role_folder_map[$current_role] ?? $current_role;
+    ?>
+
     <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
 
-            <a href="/studenthub/dashboard/<?php echo $_SESSION['role'] ?? ''; ?>/index.php"
+            <a href="/studenthub/dashboard/<?php echo $folder_name; ?>/index.php"
                 class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala"
                      class="h-6">
-                <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">CDC Connect</span>
+                <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span>
             </a>
 
             <div class="flex items-center space-x-4">
@@ -84,7 +97,7 @@
                         </button>
 
                         <div class="dropdown-menu absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                            <a href="/studenthub/dashboard/<?php echo $_SESSION['role']; ?>/profile.php"
+                            <a href="/studenthub/dashboard/<?php echo $folder_name; ?>/profile.php"
                                 class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                                 <span class="iconify" data-icon="mdi:account-cog" data-width="16"></span>
                                 Profile

@@ -2,8 +2,7 @@
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-// 1. Autentikasi: Pastikan hanya stakeholder yang bisa mengakses
-if (!isLoggedIn() || getUserRole() != 'stakeholder') {
+if (!isLoggedIn() || getUserRole() != 'mitra_industri') {
     header("Location: ../../login.php");
     exit();
 }
@@ -17,7 +16,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $student_id = intval($_GET['id']);
 $viewer_id = $_SESSION['user_id'];
 
-recordProfileView($student_id, $viewer_id, 'stakeholder');
+recordProfileView($student_id, $viewer_id, 'mitra_industri');
 
 // 3. Ambil data student
 $student = [];

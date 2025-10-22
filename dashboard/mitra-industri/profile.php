@@ -2,7 +2,7 @@
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-if (!isLoggedIn() || getUserRole() != 'stakeholder') {
+if (!isLoggedIn() || getUserRole() != 'mitra_industri') {
     header("Location: ../../login.php");
     exit();
 }
@@ -15,7 +15,7 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Get stakeholder data
+// Get mitra_industri data
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 if ($stmt) {
     $stmt->bind_param("i", $user_id);
@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
 
                 if (empty($error)) {
-                    // Update query untuk stakeholder
+                    // Update query untuk mitra_industri
                     $stmt = $conn->prepare("UPDATE users SET name = ?, company_name = ?, position = ?, bio = ?, linkedin = ?, phone = ?, profile_picture = ? WHERE id = ?");
                     if ($stmt) {
                         $stmt->bind_param("sssssssi", $name, $company, $position, $bio, $linkedin, $phone, $profile_picture_path, $user_id);
@@ -197,18 +197,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <div>
                 <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:account-tie" data-width="32"></span>
-                    Kelola Profil Stakeholder
+                    Kelola Profil Mitra Industri
                 </h1>
                 <p class="text-gray-600 mt-2">Lengkapi informasi profil perusahaan Anda untuk meningkatkan kredibilitas</p>
             </div>
-            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] flex items-center gap-2">
+            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                 Kembali ke Dashboard
             </a>
@@ -431,7 +431,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Bergabung</p>
-                            <p class="font-semibold text-gray-900"><?php echo date('d M Y', strtotime($user['created_at'])); ?></p>
+                            <p class="font-semibold text-gray-900 text-sm"><?php echo date('d M Y', strtotime($user['created_at'])); ?></p>
                         </div>
                     </div>
                     
@@ -441,7 +441,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Role</p>
-                            <p class="font-semibold text-gray-900 capitalize"><?php echo $user['role']; ?></p>
+                            <p class="font-semibold text-gray-900 capitalize text-sm">
+                                <?php 
+                                $display_role = str_replace('_', ' ', $user['role']);
+                                echo htmlspecialchars(ucwords($display_role));
+                                ?>
+                            </p>
                         </div>
                     </div>
                     
@@ -463,7 +468,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Perusahaan</p>
-                            <p class="font-semibold text-gray-900"><?php echo htmlspecialchars($user['company_name']); ?></p>
+                            <p class="font-semibold text-gray-900 text-sm"><?php echo htmlspecialchars($user['company_name']); ?></p>
                         </div>
                     </div>
                     <?php endif; ?>
@@ -476,7 +481,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Posisi</p>
-                            <p class="font-semibold text-gray-900"><?php echo htmlspecialchars($user['position']); ?></p>
+                            <p class="font-semibold text-gray-900 text-sm"><?php echo htmlspecialchars($user['position']); ?></p>
                         </div>
                     </div>
                     <?php endif; ?>
