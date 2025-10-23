@@ -22,7 +22,7 @@ recordProfileView($student_id, $viewer_id, 'mitra_industri');
 $student = [];
 try {
     $student_query = "
-        SELECT id, name, email, profile_picture, university, major, bio, specializations, 
+        SELECT id, name, email, profile_picture, phone, major, bio, specializations, 
                cv_file_path, linkedin, created_at
         FROM users 
         WHERE id = ? AND role = 'student'
@@ -79,9 +79,9 @@ $projects = [];
 try {
     $projects_query = "
         SELECT p.*, 
-               GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ') as skill_names,
-               GROUP_CONCAT(DISTINCT s.skill_type ORDER BY s.skill_type SEPARATOR ', ') as skill_types,
-               GROUP_CONCAT(DISTINCT pi.image_path ORDER BY pi.id SEPARATOR '|||') as gallery_images
+                GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR ', ') as skill_names,
+                GROUP_CONCAT(DISTINCT s.skill_type ORDER BY s.skill_type SEPARATOR ', ') as skill_types,
+                GROUP_CONCAT(DISTINCT pi.image_path ORDER BY pi.id SEPARATOR '|||') as gallery_images
         FROM projects p
         LEFT JOIN project_skills ps ON p.id = ps.project_id
         LEFT JOIN skills s ON ps.skill_id = s.id
@@ -122,7 +122,7 @@ foreach ($projects as &$project) {
     
     $project['skills_detail'] = $project_skills;
 }
-unset($project); // Unset reference
+unset($project); 
 
 // 7. Hitung total projects
 $total_projects = count($projects);
@@ -131,7 +131,6 @@ $total_projects = count($projects);
 $certificates = [];
 
 try {
-    // Sertifikat dari tabel certificates (standalone) - DIPERBAIKI
     $standalone_certs_query = "
         SELECT 
             c.id,
@@ -165,7 +164,6 @@ try {
 }
 
 try {
-    // Sertifikat dari tabel projects (certificate_path) - DIPERBAIKI
     $project_certs_query = "
         SELECT 
             p.id as id,
@@ -200,7 +198,6 @@ try {
     error_log("Error fetching project certificates: " . $e->getMessage());
 }
 
-// Urutkan semua sertifikat berdasarkan tanggal issue
 usort($certificates, function($a, $b) {
     return strtotime($b['issue_date']) - strtotime($a['issue_date']);
 });
@@ -248,8 +245,8 @@ usort($certificates, function($a, $b) {
                         <p class="text-gray-600 font-medium mb-1"><?php echo htmlspecialchars($student['major']); ?></p>
                     <?php endif; ?>
                     
-                    <?php if (!empty($student['university'])): ?>
-                        <p class="text-gray-500 text-sm mb-4"><?php echo htmlspecialchars($student['university']); ?></p>
+                    <?php if (!empty($student['phone'])): ?>
+                        <p class="text-gray-500 text-sm mb-4"><?php echo htmlspecialchars($student['phone']); ?></p>
                     <?php endif; ?>
                     
                     <!-- Specializations -->
@@ -315,15 +312,15 @@ usort($certificates, function($a, $b) {
                             </div>
                         </div>
                         
-                        <!-- University -->
-                        <?php if (!empty($student['university'])): ?>
+                        <!-- Phone -->
+                        <?php if (!empty($student['phone'])): ?>
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                             <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
                                 <span class="iconify text-[#2A8FA9]" data-icon="mdi:school" data-width="18"></span>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="text-sm text-gray-600">Universitas</p>
-                                <p class="text-gray-900 font-medium text-sm"><?php echo htmlspecialchars($student['university']); ?></p>
+                                <p class="text-sm text-gray-600">Nomor Telepon</p>
+                                <p class="text-gray-900 font-medium text-sm"><?php echo htmlspecialchars($student['phone']); ?></p>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -344,7 +341,7 @@ usort($certificates, function($a, $b) {
                 </div>
 
                 <!-- Skills Summary -->
-                <div class="border-t border-gray-200 pt-6">
+                <div class="border-t border-gray-200 pt-6 mt-4">
                     <h3 class="text-lg font-semibold text-[#2A8FA9] mb-4 flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
                         Ringkasan Skills

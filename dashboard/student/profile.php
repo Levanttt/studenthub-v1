@@ -132,7 +132,6 @@ if ($skills_stmt) {
     if ($skills_stmt->execute()) {
         $skills_result = $skills_stmt->get_result();
         
-        // Debug: hitung total skills yang ditemukan
         $total_skills = 0;
         
         while ($skill = $skills_result->fetch_assoc()) {
@@ -140,7 +139,6 @@ if ($skills_stmt) {
             $skill_name = $skill['name'];
             
             if (isset($userSkills[$skill_type])) {
-                // Pastikan tidak ada duplikat
                 if (!in_array($skill_name, $userSkills[$skill_type])) {
                     $userSkills[$skill_type][] = $skill_name;
                     $total_skills++;
@@ -163,13 +161,10 @@ if ($skills_stmt) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Validasi CSRF token
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $error = "Token keamanan tidak valid";
     } else {
-        // Handle delete account
         if (isset($_POST['delete_account'])) {
-            // Hapus profile picture jika ada
             if (!empty($user['profile_picture'])) {
                 $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
                 if (file_exists($old_picture_path)) {
@@ -177,7 +172,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
             
-            // Hapus CV jika ada
             if (!empty($user['cv_file_path'])) {
                 $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
                 if (file_exists($old_cv_path)) {
@@ -185,7 +179,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
             
-            // Hapus akun
             $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
             if ($stmt) {
                 $stmt->bind_param("i", $user_id);
@@ -202,15 +195,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $error = "Error preparing delete query: " . $conn->error;
             }
         } else {
-            // Handle update profile
             $name = sanitize($_POST['name']);
             $semester = sanitize($_POST['semester'] ?? '');
             $major = sanitize($_POST['major'] ?? '');
             $bio = sanitize($_POST['bio'] ?? '');
             $linkedin = sanitize($_POST['linkedin'] ?? '');
             $specializations = sanitize($_POST['specializations'] ?? '');
+            $phone = sanitize($_POST['phone'] ?? '');
 
-            // Tambahkan validasi wajib diisi
             if (empty($name)) {
                 $error = "Nama lengkap wajib diisi";
             } elseif (empty($semester)) {
@@ -221,10 +213,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $error = "LinkedIn wajib diisi";
             } elseif (strlen($name) > 100) {
                 $error = "Nama terlalu panjang (maksimal 100 karakter)";
+            } elseif (empty($phone)) {
+                $error = "Nomor telepon wajib diisi";
             }
 
             if (empty($error)) {
-                // Validasi URL LinkedIn yang lebih ketat
                 if (!empty($linkedin)) {
                     if (!filter_var($linkedin, FILTER_VALIDATE_URL)) {
                         $error = "URL LinkedIn tidak valid";
@@ -235,19 +228,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
 
-                // Validasi panjang bio
                 if (strlen($bio) > 500) {
                     $error = "Bio terlalu panjang (maksimal 500 karakter)";
                 }
 
-                // Validasi spesialisasi
                 if (!empty($specializations)) {
                     $specs = explode(',', $specializations);
                     if (count($specs) > 3) {
                         $error = "Maksimal 3 spesialisasi yang dapat dipilih";
                     }
                     
-                    // Validasi pilihan spesialisasi
                     foreach ($specs as $spec) {
                         $spec = trim($spec);
                         if (!empty($spec) && !in_array($spec, $availableSpecializations)) {
@@ -259,13 +249,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             if (empty($error)) {
-                // Handle profile picture upload
-                $profile_picture_path = $user['profile_picture'] ?? ''; // Keep existing if no new upload
+                $profile_picture_path = $user['profile_picture'] ?? ''; 
                 
                 if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
                     $upload_result = handleProfilePictureUpload($_FILES['profile_picture'], $user_id);
                     if ($upload_result['success']) {
-                        // Delete old profile picture if exists
                         if (!empty($user['profile_picture'])) {
                             $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
                             if (file_exists($old_picture_path)) {
@@ -278,7 +266,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
 
-                // Handle remove profile picture
                 if (isset($_POST['remove_profile_picture'])) {
                     if (!empty($user['profile_picture'])) {
                         $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
@@ -289,13 +276,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $profile_picture_path = '';
                 }
 
-                // Handle CV upload
                 $cv_file_path = $user['cv_file_path'] ?? '';
                 
                 if (isset($_FILES['cv_file']) && $_FILES['cv_file']['error'] === UPLOAD_ERR_OK) {
                     $upload_result = handleCVUpload($_FILES['cv_file'], $user_id);
                     if ($upload_result['success']) {
-                        // Delete old CV if exists
                         if (!empty($user['cv_file_path'])) {
                             $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
                             if (file_exists($old_cv_path)) {
@@ -320,12 +305,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
 
                 if (empty($error)) {
-                    // Update query dengan tambahan specializations dan cv_file_path
-                    // Cek dulu struktur tabel dengan DESCRIBE query
-                    $stmt = $conn->prepare("UPDATE users SET name = ?, semester = ?, major = ?, bio = ?, linkedin = ?, profile_picture = ?, specializations = ?, cv_file_path = ? WHERE id = ?");
+                    $stmt = $conn->prepare("UPDATE users SET name = ?, semester = ?, major = ?, bio = ?, linkedin = ?, phone = ?, profile_picture = ?, specializations = ?, cv_file_path = ? WHERE id = ?");
                     
                     if ($stmt) {
-                        $stmt->bind_param("ssssssssi", $name, $semester, $major, $bio, $linkedin, $profile_picture_path, $specializations, $cv_file_path, $user_id);
+                        $stmt->bind_param("sssssssssi", $name, $semester, $major, $bio, $linkedin, $phone, $profile_picture_path, $specializations, $cv_file_path, $user_id);
                         
                         if ($stmt->execute()) {
                             $_SESSION['name'] = $name;
@@ -613,7 +596,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:book-education" data-width="20"></span>
                                     </span>
                                     <select name="major"
-                                            class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors appearance-none bg-white text-sm" {/* pl-10 dipertahankan karena ada ikon, pr-10 untuk arrow, text-sm ditambahkan */}
+                                            class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors appearance-none bg-white text-sm"
                                             required>
                                         <option value="">Pilih jurusan...</option>
 
@@ -653,22 +636,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                             </div>
                             
+                            <!-- Nomor Telepon -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn *</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon *</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <span class="iconify" data-icon="mdi:linkedin" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:phone" data-width="20"></span>
                                     </span>
-                                    <input type="url" name="linkedin" value="<?php echo htmlspecialchars($user['linkedin'] ?? ''); ?>" 
+                                    <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" 
+                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                            placeholder="Contoh: 081234567890" 
+                                            pattern="^[0-9+\-\s()]{10,20}$"
+                                            title="Format: +62xxx atau 08xxx"
+                                            maxlength="20">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn *</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                    <span class="iconify" data-icon="mdi:linkedin" data-width="20"></span>
+                                </span>
+                                <input type="url" name="linkedin" value="<?php echo htmlspecialchars($user['linkedin'] ?? ''); ?>" 
                                         class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
                                         placeholder="https://linkedin.com/in/username" 
-                                        pattern="^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[a-zA-Z0-9\-_]+\/?$"
-                                        title="Masukkan URL LinkedIn yang valid (contoh: https://linkedin.com/in/username)"
-                                        maxlength="200"
-                                        required>
-                                </div>
-                                <p class="text-gray-500 text-xs mt-1">Format: linkedin.com/in/username</p>
+                                        pattern="^(https?:\/\/)?(www\.)?linkedin\.com\/.+\/?$"
+                                        title="Masukkan URL LinkedIn yang valid"
+                                        maxlength="200">
                             </div>
+                            <p class="text-gray-500 text-xs mt-1">URL profil LinkedIn Anda</p>
                         </div>
                     </div>
 

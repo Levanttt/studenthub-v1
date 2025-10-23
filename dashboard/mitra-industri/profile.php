@@ -355,7 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </span>
                                     <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" 
                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
-                                           placeholder="+62" 
+                                           placeholder="Contoh: 081234567890" 
                                            pattern="^[0-9+\-\s()]{10,20}$"
                                            title="Format: +62xxx atau 08xxx"
                                            maxlength="20">

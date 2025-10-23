@@ -75,11 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Insert into users table
             $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, company_name, position, company_website) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            // Pastikan bind_param benar (7 string)
             $stmt->bind_param("sssssss", $email, $hashed_password, $role, $name, $company_name, $position, $company_website);
 
             if ($stmt->execute()) {
-                // REGISTRASI BERHASIL - REDIRECT KE LOGIN
                 $_SESSION['success_message'] = "Registrasi berhasil! Silakan login.";
                 header("Location: login.php");
                 exit();
@@ -100,14 +98,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* PALETTE WARNA DARI SEBELUMNYA */
         :root {
-            --cakrawala-primary: #2A8FA9; /* Blue Munsell */
+            --cakrawala-primary: #2A8FA9; 
             --cakrawala-primary-hover: #409BB2;
             --cakrawala-secondary: #4CA1B6;
             --cakrawala-secondary-light: #E0F2F7;
-            --cakrawala-cta: #F9A825; /* GANTI DENGAN ORANYE LOGO */
-            --cakrawala-cta-hover: #F57F17; /* GANTI DENGAN ORANYE LEBIH TUA */
+            --cakrawala-cta: #F9A825; 
+            --cakrawala-cta-hover: #F57F17;
             --cakrawala-light-gray: #F1F3F5;
             --cakrawala-medium-gray: #CED4DA;
             --cakrawala-dark-gray: #495057;
@@ -120,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .focus\:ring-cakrawala-primary:focus { --tw-ring-color: var(--cakrawala-primary); }
         .focus\:border-cakrawala-primary:focus { border-color: var(--cakrawala-primary); }
 
-        .auth-height { min-height: calc(100vh - 64px); } /* Sesuaikan tinggi navbar */
+        .auth-height { min-height: calc(100vh - 64px); } 
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
@@ -133,11 +130,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <a href="/studenthub/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-8"> <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> </a>
             <div class="flex items-center space-x-3">
-                <a href="/studenthub/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
+                <a href="/studenthub/register.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
                     <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
                     Daftar
                 </a>
-                <a href="/studenthub/login.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
+                <a href="/studenthub/login.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
                     <span class="iconify" data-icon="mdi:login" data-width="16"></span>
                     Login
                 </a>
