@@ -373,6 +373,7 @@ $skills_stmt->close();
 function openImageModal(imageSrc) {
     document.getElementById('modalImage').src = imageSrc;
     document.getElementById('imageModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeImageModal() {

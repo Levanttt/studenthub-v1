@@ -492,10 +492,10 @@ function handleCertificateUpload($file, $user_id) {
                 <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
                     <p class="text-sm text-amber-800 flex items-center gap-2 mb-2">
                         <span class="iconify" data-icon="mdi:alert-circle" data-width="16"></span>
-                        <strong>Transparansi untuk Stakeholder</strong>
+                        <strong>Transparansi untuk Industri</strong>
                     </p>
                     <p class="text-xs text-amber-700">
-                        Stakeholder akan menilai proyek berdasarkan bukti yang diberikan. Pastikan informasi akurat dan dapat diverifikasi.
+                        Industri akan menilai proyek berdasarkan bukti yang diberikan. Pastikan informasi akurat dan dapat diverifikasi.
                     </p>
                 </div>
 
@@ -816,7 +816,7 @@ function handleCertificateUpload($file, $user_id) {
                                     <span class="iconify" data-icon="mdi:image-multiple" data-width="64"></span>
                                 </div>
                                 <p class="text-lg font-medium text-gray-700 mb-1">Upload screenshot atau mockup</p>
-                                <p class="text-sm text-gray-500">Drag & drop file atau klik untuk memilih (max 5 files)</p>
+                                <p class="text-sm text-gray-500">Drag & drop file atau klik untuk memilih (max 6 files)</p>
                             </div>
                             
                             <label class="cursor-pointer inline-block">
@@ -828,7 +828,7 @@ function handleCertificateUpload($file, $user_id) {
                                     class="hidden" id="project-gallery-input" multiple>
                             </label>
                             
-                            <p class="text-xs text-gray-500 mt-4">Max. 5MB per file, maksimal 5 file (JPG, PNG, GIF, WebP)</p>
+                            <p class="text-xs text-gray-500 mt-4">Max. 5MB per file, maksimal 6 file (JPG, PNG, GIF, WebP)</p>
                             
                             <div id="gallery-file-names" class="text-sm text-gray-600 mt-3 hidden"></div>
                         </div>
@@ -838,7 +838,7 @@ function handleCertificateUpload($file, $user_id) {
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- GitHub -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Repository</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Repository (Opsional)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                 <span class="iconify" data-icon="mdi:github" data-width="20"></span>
@@ -849,9 +849,9 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     </div>
 
-                    <!-- Figma -->
+                    <!-- desain -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Figma Design</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Link Desain / Mockup (Opsional)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                 <span class="iconify" data-icon="mdi:palette" data-width="20"></span>
@@ -864,7 +864,7 @@ function handleCertificateUpload($file, $user_id) {
 
                     <!-- Demo -->
                     <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Project Link</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Project Link Terkait (Opsional)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                 <span class="iconify" data-icon="mdi:link" data-width="20"></span>
@@ -946,7 +946,7 @@ function handleCertificateUpload($file, $user_id) {
                             <strong>File sertifikat berhasil dipilih!</strong>
                         </p>
                         <p class="text-xs text-green-700 mt-1">
-                            Lengkapi informasi di bawah ini untuk verifikasi yang lebih baik oleh stakeholder.
+                            Lengkapi informasi di bawah ini untuk verifikasi yang lebih baik oleh industri.
                         </p>
                     </div>
 
@@ -1255,7 +1255,7 @@ document.addEventListener('DOMContentLoaded', function() {
     galleryFileInput.addEventListener('change', function(e) {
         if (this.files.length > 0) {
             let fileList = 'File terpilih:<br>';
-            const maxFiles = 5;
+            const maxFiles = 6;
             
             if (this.files.length > maxFiles) {
                 fileList = `Maksimal ${maxFiles} file!<br>`;

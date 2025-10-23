@@ -671,10 +671,10 @@ function handleCertificateUpload($file, $user_id) {
                 <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
                     <p class="text-sm text-amber-800 flex items-center gap-2 mb-2">
                         <span class="iconify" data-icon="mdi:alert-circle" data-width="16"></span>
-                        <strong>Transparansi untuk Stakeholder</strong>
+                        <strong>Transparansi untuk Industri</strong>
                     </p>
                     <p class="text-xs text-amber-700">
-                        Stakeholder akan menilai proyek berdasarkan bukti yang diberikan. Pastikan informasi akurat dan dapat diverifikasi.
+                        Industri akan menilai proyek berdasarkan bukti yang diberikan. Pastikan informasi akurat dan dapat diverifikasi.
                     </p>
                 </div>
 
@@ -944,28 +944,28 @@ function handleCertificateUpload($file, $user_id) {
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Repository URL</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Repository (Opsional)</label>
                         <input type="url" name="github_url" value="<?php echo htmlspecialchars($project['github_url'] ?? ''); ?>" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
                                placeholder="https://github.com/username/repository">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Figma Design URL</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Link Desain / Mockup (Opsional)</label>
                         <input type="url" name="figma_url" value="<?php echo htmlspecialchars($project['figma_url'] ?? ''); ?>" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
                                placeholder="https://figma.com/file/...">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Demo URL</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Project Link Terkait (Opsional)</label>
                         <input type="url" name="demo_url" value="<?php echo htmlspecialchars($project['demo_url'] ?? ''); ?>" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
                                placeholder="https://your-demo-site.com">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Video URL</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Video URL (YouTube, etc.)</label>
                         <input type="url" name="video_url" value="<?php echo htmlspecialchars($project['video_url'] ?? ''); ?>" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
                                placeholder="https://youtube.com/watch?v=...">
@@ -1053,7 +1053,7 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <p class="text-sm text-[#2A8FA9] font-medium mb-1">Sertifikat Proyek</p>
                             <p class="text-sm text-[#409BB2]">
-                                Sertifikat ini akan muncul di halaman "Semua Sertifikat" dan dapat dilihat oleh stakeholder.
+                                Sertifikat ini akan muncul di halaman "Semua Sertifikat" dan dapat dilihat oleh industri.
                                 Lengkapi informasi untuk verifikasi yang lebih baik.
                             </p>
                         </div>

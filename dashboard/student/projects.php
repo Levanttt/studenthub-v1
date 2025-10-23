@@ -84,7 +84,7 @@ $student = $student_result->fetch_assoc();
                     <span class="iconify" data-icon="mdi:folder-multiple" data-width="32"></span>
                     Kelola Proyek
                 </h1>
-                <p class="text-gray-600 mt-2">Kelola semua proyek portofolio kamu di StudentHub</p>
+                <p class="text-gray-600 mt-2">Kelola semua proyek portofolio kamu di Cakrawala Connect</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-3">
                 <a href="add-project.php" class="bg-[#2A8FA9] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 flex items-center gap-2 shadow-md">
@@ -139,7 +139,7 @@ $student = $student_result->fetch_assoc();
                 </div>
                 <h3 class="text-2xl font-bold text-[#2A8FA9] mb-3">Belum Ada Proyek</h3>
                 <p class="text-gray-600 mb-2">Mulai bangun portofolio impresif kamu dengan menambahkan proyek pertama</p>
-                <p class="text-gray-500 text-sm mb-8">Tunjukkan kemampuan nyata kepada recruiter dan stakeholder</p>
+                <p class="text-gray-500 text-sm mb-8">Tunjukkan kemampuan nyata kepada recruiter dan industri</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="add-project.php" class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white px-8 py-4 rounded-xl font-bold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
                         <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>

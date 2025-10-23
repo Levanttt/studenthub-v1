@@ -65,7 +65,7 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                     <span class="iconify" data-icon="mdi:hand-wave" data-width="40"></span>
                     Halo, <?php echo htmlspecialchars($student['name']); ?>!
                 </h1>
-                <p class="text-[#E0F7FF] text-lg opacity-90">Selamat datang di dashboard StudentHub - platform untuk menunjukkan kemampuan nyata kamu!</p>
+                <p class="text-[#E0F7FF] text-lg opacity-90">Selamat datang di dashboard Cakrawala Connect - platform untuk menunjukkan kemampuan nyata kamu!</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-3">
                 <a href="profile.php" class="bg-white/20 text-white px-6 py-3 rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300 font-semibold text-center flex items-center gap-2">
@@ -98,7 +98,7 @@ $recent_projects_result = $recent_projects_stmt->get_result();
             </div>
             <h3 class="text-[#2A8FA9] font-bold text-2xl mb-2"><?php echo $total_views; ?></h3>
             <p class="text-gray-600 font-medium">Profil Dilihat</p>
-            <p class="text-gray-500 text-sm mt-1">Oleh stakeholder</p>
+            <p class="text-gray-500 text-sm mt-1">Oleh Mitra Industri</p>
         </div>
         
         <!-- Total Likes -->

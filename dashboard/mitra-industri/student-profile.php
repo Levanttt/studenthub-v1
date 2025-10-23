@@ -18,12 +18,12 @@ $viewer_id = $_SESSION['user_id'];
 
 recordProfileView($student_id, $viewer_id, 'mitra_industri');
 
-// 3. Ambil data student
+// 3. Ambil data student - TAMBAH KOLOM SEMESTER
 $student = [];
 try {
     $student_query = "
         SELECT id, name, email, profile_picture, phone, major, bio, specializations, 
-               cv_file_path, linkedin, created_at
+               cv_file_path, linkedin, created_at, semester  -- TAMBAH semester DI SINI
         FROM users 
         WHERE id = ? AND role = 'student'
     ";
@@ -174,7 +174,7 @@ try {
             p.certificate_credential_id as credential_id,
             p.certificate_credential_url as credential_url,
             p.certificate_path as image_path,
-            p.certificate_description as description,  -- TAMBAH INI
+            p.certificate_description as description,
             p.id as project_id,
             'project' as source_type
         FROM projects p
@@ -245,8 +245,8 @@ usort($certificates, function($a, $b) {
                         <p class="text-gray-600 font-medium mb-1"><?php echo htmlspecialchars($student['major']); ?></p>
                     <?php endif; ?>
                     
-                    <?php if (!empty($student['phone'])): ?>
-                        <p class="text-gray-500 text-sm mb-4"><?php echo htmlspecialchars($student['phone']); ?></p>
+                    <?php if (!empty($student['semester'])): ?>
+                        <p class="text-gray-500 text-sm mb-4">Semester <?php echo htmlspecialchars($student['semester']); ?></p>
                     <?php endif; ?>
                     
                     <!-- Specializations -->
@@ -258,7 +258,7 @@ usort($certificates, function($a, $b) {
                                 $spec = trim($spec);
                                 if (!empty($spec)):
                             ?>
-                                <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1.5 rounded-full text-xs font-medium my-1">
+                                <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1.5 rounded-full text-xs font-medium my-0.5">
                                     <?php echo htmlspecialchars($spec); ?>
                                 </span>
                             <?php 

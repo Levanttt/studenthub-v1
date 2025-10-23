@@ -362,14 +362,14 @@ try {
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <?php foreach ($project_images as $index => $image): ?>
-                        <div class="bg-gray-50 rounded-xl overflow-hidden border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="bg-gray-50 rounded-xl overflow-hidden border border-gray-300 shadow-sm">
                             <img src="<?php echo htmlspecialchars($image['image_path']); ?>" 
                                 alt="<?php echo htmlspecialchars($project['title']); ?> - Gambar <?php echo $index + 1; ?>" 
                                 class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-zoom-in"
                                 onclick="openImageModal('<?php echo htmlspecialchars($image['image_path']); ?>')">
                             <div class="p-4 bg-white border-t border-gray-300">
                                 <p class="text-sm text-gray-600 text-center font-medium">
-                                    <?php echo $image['is_primary'] ? '🖼️ Gambar utama proyek' : ' Gambar ' . ($index + 1); ?>
+                                    <?php echo $image['is_primary'] ? 'Gambar utama proyek' : 'Gambar ' . ($index + 1); ?>
                                 </p>
                             </div>
                         </div>
@@ -455,13 +455,18 @@ try {
 </div>
 
 <!-- Image Modal -->
-<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
     <div class="max-w-4xl max-h-full p-4">
-        <div class="relative">
-            <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
-                <span class="iconify" data-icon="mdi:close" data-width="32"></span>
-            </button>
-            <img id="modalImage" src="" alt="" class="max-w-full max-h-[80vh] object-contain rounded-lg">
+        <div class="bg-white rounded-lg overflow-hidden shadow-2xl">
+            <div class="flex justify-between items-center p-4 border-b border-gray-300">
+                <h3 class="text-lg font-semibold text-gray-800">Preview Gambar</h3>
+                <button onclick="closeImageModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <span class="iconify" data-icon="mdi:close" data-width="24"></span>
+                </button>
+            </div>
+            <div class="p-4">
+                <img id="modalImage" src="" alt="" class="max-w-full max-h-96 object-contain">
+            </div>
         </div>
     </div>
 </div>

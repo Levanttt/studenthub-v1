@@ -197,7 +197,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                             <span class="iconify text-white" data-icon="mdi:account-multiple" data-width="24"></span>
                         </div>
                         <h3 class="text-xl font-bold mb-2">Jelajahi Talenta</h3>
-                        <p class="text-[#E0F7FF] text-sm">Cari berdasarkan skill, spesialisasi, atau universitas</p>
+                        <p class="text-[#E0F7FF] text-sm">Cari berdasarkan skill, spesialisasi, atau jurusan</p>
                     </div>
                     
                     <div class="bg-white/10 rounded-xl p-6 border border-white/20">
@@ -350,10 +350,10 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
         
         <!-- Results Info -->
         <div class="mb-6 flex justify-between items-center">
-            <p class="text-gray-600 text-lg">
+            <p class="text-gray-600 text-sm">
                 Menampilkan <span class="font-bold text-[#2A8FA9]"><?php echo $total_students; ?></span> talenta
                 <?php if ($is_show_all_mode && empty($query_filter) && empty($specialization_filter) && empty($skill_filter)): ?>
-                    (Semua Talent)
+                    (Semua Mahasiswa Eligible)
                 <?php elseif (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
                     berdasarkan filter yang dipilih
                 <?php endif; ?>
@@ -516,12 +516,12 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                 <p class="text-gray-600 text-lg mb-8 max-w-md mx-auto">Coba ubah filter pencarian Anda atau lihat semua talenta tanpa filter.</p>
                 <a href="index.php?show_all=1" class="bg-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:refresh" data-width="20"></span>
-                    Tampilkan Semua Talenta
+                    Tampilkan Semua Mahasiswa Eligible
                 </a>
             </div>
         <?php endif; ?>
     <?php else: ?>
-        <!-- Empty State - No Search Yet -->
+        <!-- Empty State -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
             <div class="mx-auto w-24 h-24 bg-[#E0F7FF] rounded-full flex items-center justify-center mb-6">
                 <span class="iconify text-[#51A3B9]" data-icon="mdi:magnify" data-width="48"></span>

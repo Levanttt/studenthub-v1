@@ -20,13 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $credential_url = !empty($_POST['credential_url']) ? sanitize($_POST['credential_url']) : null;
     $description = sanitize($_POST['description']);
 
-    // Validation
     if (empty($certificate_title) || empty($organization) || empty($issue_date)) {
         $error = "Nama sertifikat, organisasi, dan tanggal terbit wajib diisi!";
     } else {
         $file_path = null;
         
-        // Handle file upload
         if (isset($_FILES['certificate_file']) && $_FILES['certificate_file']['error'] === UPLOAD_ERR_OK) {
             $upload_result = handleCertificateUpload($_FILES['certificate_file'], $user_id);
             if ($upload_result['success']) {
@@ -48,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 if ($stmt->execute()) {
                     $success = "Sertifikat berhasil ditambahkan!";
-                    // Clear form
                     $certificate_title = $organization = $issue_date = $expiry_date = $credential_id = $credential_url = $description = '';
                 } else {
                     $error = "Gagal menambahkan sertifikat: " . $conn->error;
@@ -104,7 +101,7 @@ function handleCertificateUpload($file, $user_id) {
             <p class="text-gray-600 mt-2">Tambahkan sertifikat standalone untuk melengkapi portofolio Anda</p>
         </div>
         <a href="certificates.php" 
-           class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
+            class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
             <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
             Kembali
         </a>

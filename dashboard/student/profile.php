@@ -352,7 +352,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <span class="iconify" data-icon="mdi:account-cog" data-width="32"></span>
                     Kelola Profil
                 </h1>
-                <p class="text-gray-600 mt-2">Lengkapi informasi profil kamu untuk meningkatkan visibilitas di StudentHub</p>
+                <p class="text-gray-600 mt-2">Lengkapi informasi profil kamu untuk meningkatkan visibilitas bagi industri</p>
             </div>
             <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
@@ -378,7 +378,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Database Structure Warning -->
     <?php 
-    // Cek apakah kolom yang diperlukan ada
     $check_columns = $conn->query("SHOW COLUMNS FROM users LIKE 'specializations'");
     $has_specializations = $check_columns->num_rows > 0;
     
@@ -949,7 +948,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     $spec = trim($spec);
                                     if (!empty($spec)):
                                 ?>
-                                    <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs whitespace-nowrap">
+                                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1.5 rounded-full text-xs font-medium my-0.5">
                                         <?php echo htmlspecialchars($spec); ?>
                                     </span>
                                 <?php
