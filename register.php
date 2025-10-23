@@ -1,12 +1,9 @@
 <?php
 include 'includes/config.php';
-// --- PERBAIKI INCLUDE functions.php JIKA DIPERLUKAN ---
-// include 'includes/functions.php'; // Pastikan path ini benar jika file ada
 
 // --- FUNGSI sanitize() jika belum ada di config.php ---
 if (!function_exists('sanitize')) {
     function sanitize($input) {
-        // Implementasi sanitasi sederhana, sesuaikan jika perlu
         return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
     }
 }
@@ -26,8 +23,7 @@ if (isLoggedIn()) {
     $role = getUserRole();
     if ($role == 'student') {
         header("Location: dashboard/student/index.php");
-    } elseif ($role == 'mitra_industri') { // <-- Ganti ke mitra_industri
-        // Arahkan ke folder yang benar (meskipun namanya mungkin masih stakeholder)
+    } elseif ($role == 'mitra_industri') {
         header("Location: dashboard/mitra-industri/index.php");
     } elseif ($role == 'admin') {
         header("Location: dashboard/admin/index.php");
@@ -44,6 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm_password = $_POST['confirm_password'];
     $role = sanitize($_POST['role']);
     $name = sanitize($_POST['name']);
+    $phone = sanitize($_POST['phone']);
+
+    // Student fields
+    $major = isset($_POST['major']) ? sanitize($_POST['major']) : '';
+    $semester = isset($_POST['semester']) ? sanitize($_POST['semester']) : '';
 
     // Mitra Industri fields
     $company_name = isset($_POST['company_name']) ? sanitize($_POST['company_name']) : '';
@@ -51,14 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $company_website = isset($_POST['company_website']) ? sanitize($_POST['company_website']) : '';
 
     // Basic validation
-    if (empty($email) || empty($password) || empty($name) || empty($role)) {
+    if (empty($email) || empty($password) || empty($name) || empty($role) || empty($phone)) {
         $error = "Semua field wajib diisi!";
     } elseif ($password !== $confirm_password) {
         $error = "Password tidak cocok!";
     } elseif (strlen($password) < 6) {
         $error = "Password minimal 6 karakter!";
+    } elseif (!preg_match('/^[0-9+\-\s()]{10,20}$/', $phone)) {
+        $error = "Format nomor telepon tidak valid!";
     }
-    // --- GANTI PENGECEKAN ROLE ---
+    // Validasi untuk student
+    elseif ($role == 'student' && (empty($major) || empty($semester))) {
+        $error = "Untuk Mahasiswa, jurusan dan semester wajib diisi!";
+    }
+    // Validasi untuk mitra industri
     elseif ($role == 'mitra_industri' && (empty($company_name) || empty($position))) {
         $error = "Untuk Mitra Industri, nama perusahaan dan jabatan wajib diisi!";
     } else {
@@ -73,9 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-            // Insert into users table
-            $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, company_name, position, company_website) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssss", $email, $hashed_password, $role, $name, $company_name, $position, $company_website);
+            // Insert into users table - tambahkan phone, major, dan semester
+            $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, phone, company_name, position, company_website, major, semester) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssssssss", $email, $hashed_password, $role, $name, $phone, $company_name, $position, $company_website, $major, $semester);
 
             if ($stmt->execute()) {
                 $_SESSION['success_message'] = "Registrasi berhasil! Silakan login.";
@@ -87,13 +94,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
+
+// Semester options (sama seperti di profile.php)
+$semesterOptions = [
+    '1' => 'Semester 1',
+    '2' => 'Semester 2', 
+    '3' => 'Semester 3',
+    '4' => 'Semester 4',
+    '5' => 'Semester 5',
+    '6' => 'Semester 6',
+    '7' => 'Semester 7',
+    '8' => 'Semester 8',
+    'fresh_graduate' => 'Fresh Graduate',
+    'graduated' => 'Sudah Lulus'
+];
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar - Cakrawala Connect</title> <script src="https://cdn.tailwindcss.com"></script>
+    <title>Daftar - Cakrawala Connect</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -123,12 +145,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Style untuk dropdown yang compact */
+        .compact-select {
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
-<body class="bg-cakrawala-light-gray"> <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
+<body class="bg-cakrawala-light-gray"> 
+    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/studenthub/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
-                <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-8"> <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> </a>
+                <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-8"> 
+                <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> 
+            </a>
             <div class="flex items-center space-x-3">
                 <a href="/studenthub/register.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
                     <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
@@ -149,7 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-white/20 mb-3">
                         <span class="iconify text-white" data-icon="mdi:account-plus" data-width="24"></span>
                     </div>
-                    <h2 class="text-2xl font-bold">Daftar Cakrawala Connect</h2> <p class="mt-1 text-blue-100">Bergabung dengan platform karir Universitas Cakrawala</p>
+                    <h2 class="text-2xl font-bold">Daftar Cakrawala Connect</h2> 
+                    <p class="mt-1 text-blue-100">Bergabung dengan platform karir Universitas Cakrawala</p>
                 </div>
 
                 <div class="p-6">
@@ -193,6 +225,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
 
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                    <span class="iconify" data-icon="mdi:phone" data-width="18"></span>
+                                </span>
+                                <input type="tel" name="phone" value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>"
+                                       class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                       placeholder="Contoh: 081234567890" 
+                                       pattern="^[0-9+\-\s()]{10,20}$"
+                                       title="Format: +62xxx atau 08xxx"
+                                       maxlength="20" required>
+                            </div>
+                        </div>
+
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Daftar Sebagai *</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -209,7 +256,83 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
 
-                        <div id="mitraFields" class="fade-in hidden space-y-4"> <div class="bg-cakrawala-secondary-light border border-[#ABD0D8] rounded-lg p-4"> <h3 class="text-sm font-semibold text-cakrawala-primary mb-3 flex items-center gap-2">
+                        <!-- Form untuk Mahasiswa -->
+                        <div id="studentFields" class="fade-in hidden space-y-4">
+                            <div class="bg-cakrawala-secondary-light border border-[#ABD0D8] rounded-lg p-4">
+                                <h3 class="text-sm font-semibold text-cakrawala-primary mb-3 flex items-center gap-2">
+                                    <span class="iconify" data-icon="mdi:school" data-width="16"></span>
+                                    Informasi Akademik
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Jurusan <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                                <span class="iconify" data-icon="mdi:book-education" data-width="18"></span>
+                                            </span>
+                                            <select name="major" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm appearance-none bg-white compact-select" required>
+                                                <option value="">Pilih jurusan...</option>
+                                                <optgroup label="Fakultas Ekonomi dan Bisnis">
+                                                    <option value="Bisnis Digital" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Bisnis Digital') ? 'selected' : ''; ?>>Bisnis Digital</option>
+                                                    <option value="Keuangan dan Investasi" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Keuangan dan Investasi') ? 'selected' : ''; ?>>Keuangan dan Investasi</option>
+                                                    <option value="Manajemen" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Manajemen') ? 'selected' : ''; ?>>Manajemen</option>
+                                                    <option value="Akuntansi" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Akuntansi') ? 'selected' : ''; ?>>Akuntansi</option>
+                                                </optgroup>
+                                                <optgroup label="Fakultas Teknik dan Ilmu Komputer">
+                                                    <option value="AI dan Ilmu Komputer" <?php echo (isset($_POST['major']) && $_POST['major'] == 'AI dan Ilmu Komputer') ? 'selected' : ''; ?>>AI dan Ilmu Komputer</option>
+                                                    <option value="Sains Data" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Sains Data') ? 'selected' : ''; ?>>Sains Data</option>
+                                                    <option value="Sistem Informasi dan Teknologi" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Sistem Informasi dan Teknologi') ? 'selected' : ''; ?>>Sistem Informasi dan Teknologi</option>
+                                                    <option value="Teknik Elektro" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Teknik Elektro') ? 'selected' : ''; ?>>Teknik Elektro</option>
+                                                    <option value="Teknik Industri" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Teknik Industri') ? 'selected' : ''; ?>>Teknik Industri</option>
+                                                </optgroup>
+                                                <optgroup label="Fakultas Komunikasi dan Desain">
+                                                    <option value="Ilmu Komunikasi" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Ilmu Komunikasi') ? 'selected' : ''; ?>>Ilmu Komunikasi</option>
+                                                    <option value="Desain Komunikasi Visual" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Desain Komunikasi Visual') ? 'selected' : ''; ?>>Desain Komunikasi Visual</option>
+                                                </optgroup>
+                                                <optgroup label="Fakultas Psikologi dan Pendidikan">
+                                                    <option value="Psikologi" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Psikologi') ? 'selected' : ''; ?>>Psikologi</option>
+                                                    <option value="PGSD" <?php echo (isset($_POST['major']) && $_POST['major'] == 'PGSD') ? 'selected' : ''; ?>>PGSD</option>
+                                                </optgroup>
+                                                <optgroup label="Fakultas Hukum">
+                                                    <option value="Ilmu Hukum" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Ilmu Hukum') ? 'selected' : ''; ?>>Ilmu Hukum</option>
+                                                </optgroup>
+                                            </select>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                                                <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Semester / Status <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                                <span class="iconify" data-icon="mdi:school" data-width="18"></span>
+                                            </span>
+                                            <select name="semester" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm appearance-none bg-white compact-select" required>
+                                                <option value="">Pilih semester atau status...</option>
+                                                <?php foreach ($semesterOptions as $value => $label): ?>
+                                                    <option value="<?php echo $value; ?>" <?php echo (isset($_POST['semester']) && $_POST['semester'] == $value) ? 'selected' : ''; ?>>
+                                                        <?php echo $label; ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                                                <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form untuk Mitra Industri -->
+                        <div id="mitraFields" class="fade-in hidden space-y-4">
+                            <div class="bg-cakrawala-secondary-light border border-[#ABD0D8] rounded-lg p-4">
+                                <h3 class="text-sm font-semibold text-cakrawala-primary mb-3 flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:office-building" data-width="16"></span>
                                     Informasi Profesional Mitra
                                 </h3>
@@ -307,37 +430,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const roleSelect = document.getElementById('roleSelect');
-        const mitraFields = document.getElementById('mitraFields'); 
+        const studentFields = document.getElementById('studentFields');
+        const mitraFields = document.getElementById('mitraFields');
 
-        function toggleMitraFields() { 
-            if (roleSelect.value === 'mitra_industri') {
+        function toggleRoleFields() {
+            // Sembunyikan semua fields terlebih dahulu
+            studentFields.classList.add('hidden');
+            mitraFields.classList.add('hidden');
+
+            // Hapus required attribute dari semua fields
+            const studentInputs = studentFields.querySelectorAll('input, select');
+            const mitraInputs = mitraFields.querySelectorAll('input, select');
+            
+            studentInputs.forEach(input => input.required = false);
+            mitraInputs.forEach(input => input.required = false);
+
+            // Tampilkan fields sesuai role yang dipilih
+            if (roleSelect.value === 'student') {
+                studentFields.classList.remove('hidden');
+                studentInputs.forEach(input => input.required = true);
+            } else if (roleSelect.value === 'mitra_industri') {
                 mitraFields.classList.remove('hidden');
-
-                // Add required attribute
-                const companyName = document.querySelector('input[name="company_name"]');
-                const position = document.querySelector('input[name="position"]');
-
-                if (companyName) companyName.required = true;
-                if (position) position.required = true;
-            } else {
-                mitraFields.classList.add('hidden');
-
-                // Remove required attribute
-                const companyName = document.querySelector('input[name="company_name"]');
-                const position = document.querySelector('input[name="position"]');
-                const companyWebsite = document.querySelector('input[name="company_website"]');
-
-                if (companyName) companyName.required = false;
-                if (position) position.required = false;
-                if (companyWebsite) companyWebsite.required = false; 
+                mitraInputs.forEach(input => input.required = true);
             }
         }
 
         // Initial check
-        toggleMitraFields(); // Ganti Nama Fungsi
+        toggleRoleFields();
 
         // Add event listener
-        roleSelect.addEventListener('change', toggleMitraFields); // Ganti Nama Fungsi
+        roleSelect.addEventListener('change', toggleRoleFields);
     });
     </script>
 </body>

@@ -209,8 +209,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $error = "Semester/status wajib diisi";
             } elseif (empty($major)) {
                 $error = "Jurusan wajib diisi";
-            } elseif (empty($linkedin)) {
-                $error = "LinkedIn wajib diisi";
             } elseif (strlen($name) > 100) {
                 $error = "Nama terlalu panjang (maksimal 100 karakter)";
             } elseif (empty($phone)) {
@@ -601,7 +599,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                                         <optgroup label="Fakultas Ekonomi dan Bisnis">
                                             <option value="Bisnis Digital" <?php echo ($user['major'] ?? '') == 'Bisnis Digital' ? 'selected' : ''; ?>>Bisnis Digital</option>
-                                            <option value="Keuangan dan Investasi (S1)" <?php echo ($user['major'] ?? '') == 'Keuangan dan Investasi' ? 'selected' : ''; ?>>Keuangan dan Investasi</option>
+                                            <option value="Keuangan dan Investasi" <?php echo ($user['major'] ?? '') == 'Keuangan dan Investasi' ? 'selected' : ''; ?>>Keuangan dan Investasi</option>
                                             <option value="Manajemen" <?php echo ($user['major'] ?? '') == 'Manajemen' ? 'selected' : ''; ?>>Manajemen</option>
                                             <option value="Akuntansi" <?php echo ($user['major'] ?? '') == 'Akuntansi' ? 'selected' : ''; ?>>Akuntansi</option>
                                         </optgroup>
@@ -653,7 +651,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                     <span class="iconify" data-icon="mdi:linkedin" data-width="20"></span>

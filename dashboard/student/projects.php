@@ -138,16 +138,16 @@ $student = $student_result->fetch_assoc();
                     <span class="iconify" data-icon="mdi:folder-open-outline" data-width="80"></span>
                 </div>
                 <h3 class="text-2xl font-bold text-[#2A8FA9] mb-3">Belum Ada Proyek</h3>
-                <p class="text-gray-600 mb-2">Mulai bangun portofolio impresif kamu dengan menambahkan proyek pertama</p>
+                <p class="text-gray-600 mb-2">Mulai bangun portofolio impresif kamu dengan menambahkan proyek pertamamu</p>
                 <p class="text-gray-500 text-sm mb-8">Tunjukkan kemampuan nyata kepada recruiter dan industri</p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="add-project.php" class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white px-8 py-4 rounded-xl font-bold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
-                        <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>
-                        Tambah Proyek Pertama
+                <div class="flex gap-2">
+                    <a href="add-project.php" class="flex-1 bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white px-4 py-3 rounded-lg font-bold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300 flex items-center justify-center gap-2 shadow text-center whitespace-nowrap text-sm">
+                        <span class="iconify" data-icon="mdi:rocket-launch" data-width="18"></span>
+                        Tambah Proyek pertama
                     </a>
-                    <a href="index.php" class="bg-gray-100 text-gray-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2">
-                        <span class="iconify" data-icon="mdi:home" data-width="20"></span>
-                        Kembali ke Dashboard
+                    <a href="index.php" class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2 text-center whitespace-nowrap text-sm">
+                        <span class="iconify" data-icon="mdi:home" data-width="18"></span>
+                        Dashboard
                     </a>
                 </div>
             </div>

@@ -17,6 +17,11 @@ $specialization_filter = isset($_GET['specialization']) ? sanitize($_GET['specia
 $skill_filter = isset($_GET['skill']) ? sanitize($_GET['skill']) : '';
 $show_all = isset($_GET['show_all']) && $_GET['show_all'] == '1';
 
+// PAGINATION SETUP
+$current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$students_per_page = 8;
+$offset = ($current_page - 1) * $students_per_page;
+
 $all_specializations = [];
 try {
     $specializations_query = "SELECT name FROM specializations ORDER BY name ASC";
@@ -86,9 +91,19 @@ try {
 
 $total_students = 0;
 $students = [];
+$total_pages = 0;
 
 $query = "
     SELECT DISTINCT u.id, u.name, u.profile_picture, u.university, u.major, u.semester, u.specializations, u.bio 
+    FROM users u
+    LEFT JOIN projects p ON u.id = p.student_id
+    LEFT JOIN project_skills ps ON p.id = ps.project_id
+    LEFT JOIN skills s ON ps.skill_id = s.id
+    WHERE u.role = 'student'
+";
+
+$count_query = "
+    SELECT COUNT(DISTINCT u.id) as total
     FROM users u
     LEFT JOIN projects p ON u.id = p.student_id
     LEFT JOIN project_skills ps ON p.id = ps.project_id
@@ -107,6 +122,13 @@ if (!empty($query_filter)) {
         OR u.specializations LIKE ? 
         OR s.name LIKE ?
     )";
+    $count_query .= " AND (
+        u.name LIKE ? 
+        OR u.university LIKE ? 
+        OR u.major LIKE ? 
+        OR u.specializations LIKE ? 
+        OR s.name LIKE ?
+    )";
     $search_term = "%" . $query_filter . "%";
     array_push($params, $search_term, $search_term, $search_term, $search_term, $search_term);
     $types .= "sssss";
@@ -114,24 +136,55 @@ if (!empty($query_filter)) {
 
 if (!empty($specialization_filter)) {
     $query .= " AND u.specializations LIKE ?";
+    $count_query .= " AND u.specializations LIKE ?";
     $params[] = "%" . $specialization_filter . "%";
     $types .= "s";
 }
 
 if (!empty($skill_filter)) {
     $query .= " AND s.name = ?";
+    $count_query .= " AND s.name = ?";
     $params[] = $skill_filter;
     $types .= "s";
 }
 
 $query .= " GROUP BY u.id ORDER BY u.name ASC";
 
+// Hanya tambahkan LIMIT jika tidak ada filter aktif
+$is_filter_active = !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || $show_all;
+if (!$is_filter_active) {
+    $query .= " LIMIT ? OFFSET ?";
+    $params[] = $students_per_page;
+    $params[] = $offset;
+    $types .= "ii";
+}
+
+// Hitung total students
+$count_stmt = $conn->prepare($count_query);
+if ($count_stmt) {
+    if (!empty($params)) {
+        // Hapus parameter LIMIT dan OFFSET untuk count query
+        $count_params = array_slice($params, 0, count($params) - (!$is_filter_active ? 2 : 0));
+        $count_types = $is_filter_active ? $types : substr($types, 0, -2);
+        if (!empty($count_params)) {
+            $count_stmt->bind_param($count_types, ...$count_params);
+        }
+    }
+    if ($count_stmt->execute()) {
+        $count_result = $count_stmt->get_result();
+        $total_row = $count_result->fetch_assoc();
+        $total_students = $total_row['total'];
+        $total_pages = ceil($total_students / $students_per_page);
+    }
+    $count_stmt->close();
+}
+
+// Ambil data students
 $stmt = $conn->prepare($query);
 if ($stmt) {
     if (!empty($params)) $stmt->bind_param($types, ...$params);
     if ($stmt->execute()) {
         $result = $stmt->get_result();
-        $total_students = $result->num_rows;
         $students = $result->fetch_all(MYSQLI_ASSOC);
     }
     $stmt->close();
@@ -160,6 +213,16 @@ function shortenName($full_name, $max_length = 20) {
 }
 
 function shortenBio($bio, $max_length = 180) {
+    // Handle bio yang kosong, null, atau hanya whitespace
+    if (empty($bio) || trim($bio) === '') {
+        return 'Mahasiswa ini belum menambahkan bio.';
+    }
+    
+    // Handle case dimana bio sudah ada pesan default
+    if (trim($bio) === 'Mahasiswa ini belum menambahkan bio.') {
+        return $bio;
+    }
+    
     if (strlen($bio) <= $max_length) {
         return $bio;
     }
@@ -346,16 +409,18 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
     </div>
 
     <!-- Results Section -->
-    <?php if ($is_show_all_mode || !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
+    <?php if ($is_show_all_mode || !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || $total_students > 0): ?>
         
         <!-- Results Info -->
         <div class="mb-6 flex justify-between items-center">
             <p class="text-gray-600 text-sm">
-                Menampilkan <span class="font-bold text-[#2A8FA9]"><?php echo $total_students; ?></span> talenta
+                Menampilkan <span class="font-bold text-[#2A8FA9]"><?php echo count($students); ?></span> dari <span class="font-bold text-[#2A8FA9]"><?php echo $total_students; ?></span> talenta
                 <?php if ($is_show_all_mode && empty($query_filter) && empty($specialization_filter) && empty($skill_filter)): ?>
                     (Semua Mahasiswa Eligible)
                 <?php elseif (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
                     berdasarkan filter yang dipilih
+                <?php elseif (!$is_filter_active): ?>
+                    (Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?>)
                 <?php endif; ?>
             </p>
             
@@ -393,8 +458,8 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
         </div>
 
         <!-- Talent Grid -->
-        <?php if ($total_students > 0): ?>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <?php if (count($students) > 0): ?>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                 <?php foreach ($students as $student): ?>
                     <?php
                     $skills_with_count = [];
@@ -422,7 +487,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                     } catch (Exception $e) {}
                     
                     $display_name = shortenName($student['name'], 22);
-                    $display_bio = shortenBio($student['bio'] ?? 'Mahasiswa ini belum menambahkan bio.');
+                    $display_bio = shortenBio($student['bio'] ?? '');
                     ?>
                     
                     <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group talent-card h-full flex flex-col">
@@ -462,8 +527,8 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
 
                         <!-- Skills Section dengan Arrow Scroll -->
                         <?php if (!empty($skills_with_count)): ?>
-                        <div class="px-5 pb-2">
-                            <div class="flex items-center gap-2">
+                        <div class="px-0 pb-1">
+                            <div class="flex items-center gap-0">
                                 <!-- Left Scroll Button -->
                                 <button class="skill-scroll-btn flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-[#51A3B9] rounded-full p-1 transition-all duration-200"
                                         onclick="scrollSkills(this, -120)">
@@ -506,6 +571,31 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                     </div>
                 <?php endforeach; ?>
             </div>
+
+            <!-- Pagination Navigation -->
+            <?php if (!$is_filter_active && $total_pages > 1): ?>
+            <div class="flex justify-center items-center space-x-4 mt-8">
+                <!-- Previous Button -->
+                <a href="?page=<?php echo max(1, $current_page - 1); ?>" 
+                   class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == 1 ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                    <span class="iconify" data-icon="mdi:chevron-left" data-width="20"></span>
+                    Sebelumnya
+                </a>
+
+                <!-- Page Info -->
+                <div class="flex items-center gap-2 bg-[#E0F7FF] rounded-xl px-6 py-3">
+                    <span class="text-[#2A8FA9] font-bold">Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?></span>
+                </div>
+
+                <!-- Next Button -->
+                <a href="?page=<?php echo min($total_pages, $current_page + 1); ?>" 
+                   class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == $total_pages ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                    Selanjutnya
+                    <span class="iconify" data-icon="mdi:chevron-right" data-width="20"></span>
+                </a>
+            </div>
+            <?php endif; ?>
+
         <?php else: ?>
             <!-- Empty Search Results -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
@@ -588,8 +678,40 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
 }
 
 .talent-card {
-    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
 }
+
+.talent-card > a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.talent-card .line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 96px;
+    line-height: 1.5;
+    margin-bottom: -8px; 
+}
+
+
+.talent-card .px-5.pb-2 {
+    margin-top: auto;
+    margin-top: 4px; 
+}
+
+.talent-card > a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 8px;
+}
+
 .talent-card:hover {
     transform: translateY(-4px);
 }
