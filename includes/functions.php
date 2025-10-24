@@ -19,6 +19,41 @@ function getStatusBadge($status) {
     return '<span class="font-semibold text-white px-2 py-1 rounded-full text-xs ' . $color . '">' . $formattedStatus . '</span>';
 }
 
+// Di functions.php
+function getEligibilityBadge($status) {
+    $statusLower = strtolower($status);
+    
+    $statusConfig = [
+        'eligible' => [
+            'color' => 'bg-[#E0F7FF] text-[#2A8FA9] border-[#51A3B9] border-opacity-30',
+            'icon' => 'mdi:check-circle',
+            'iconColor' => 'text-[#2A8FA9]',
+            'text' => 'ELIGIBLE'
+        ],
+        'not_eligible' => [
+            'color' => 'bg-[#E0F7FF] text-[#2A8FA9] border-[#51A3B9] border-opacity-30',
+            'icon' => 'mdi:close-circle',
+            'iconColor' => 'text-[#2A8FA9]', 
+            'text' => 'NOT ELIGIBLE'
+        ],
+        'pending' => [
+            'color' => 'bg-[#E0F7FF] text-[#2A8FA9] border-[#51A3B9] border-opacity-30',
+            'icon' => 'mdi:clock',
+            'iconColor' => 'text-[#2A8FA9]',
+            'text' => 'PENDING'
+        ]
+    ];
+    
+    $config = $statusConfig[$statusLower] ?? [
+        'color' => 'bg-[#E0F7FF] text-[#2A8FA9] border-[#51A3B9] border-opacity-30',
+        'icon' => 'mdi:help-circle',
+        'iconColor' => 'text-[#2A8FA9]',
+        'text' => 'BELUM DIATUR'
+    ];
+    
+    return $config;
+}
+
 // di functions.php - perbaiki fungsi
 function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other') {
     global $conn;

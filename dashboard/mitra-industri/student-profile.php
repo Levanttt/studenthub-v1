@@ -499,7 +499,7 @@ usort($certificates, function($a, $b) {
                                                    target="_blank"
                                                    class="bg-cyan-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-cyan-600 transition-colors flex items-center gap-1">
                                                     <span class="iconify" data-icon="mdi:play" data-width="14"></span>
-                                                    Demo
+                                                    Link Project
                                                 </a>
                                             <?php endif; ?>
                                             

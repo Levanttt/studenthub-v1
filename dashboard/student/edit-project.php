@@ -566,7 +566,7 @@ function handleCertificateUpload($file, $user_id) {
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Proyek *</label>
                     <textarea name="description" rows="6" 
                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors resize-none" 
-                              placeholder="Jelaskan proyek menggunakan metode STAR..." required><?php echo htmlspecialchars($project['description']); ?></textarea>
+                              placeholder="Jelaskan proyek menggunakan metode STAR (Situasi, Task, Aksi, Result). Tulis dalam satu paragraf." required><?php echo htmlspecialchars($project['description']); ?></textarea>
                 </div>
             </div>
 

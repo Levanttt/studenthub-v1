@@ -1,7 +1,6 @@
 <?php
 include 'includes/config.php';
 
-// --- FUNGSI sanitize() jika belum ada di config.php ---
 if (!function_exists('sanitize')) {
     function sanitize($input) {
         return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
@@ -17,7 +16,6 @@ if (!function_exists('getUserRole')) {
         return $_SESSION['role'] ?? null;
     }
 }
-// --- Akhir fungsi tambahan ---
 
 if (isLoggedIn()) {
     $role = getUserRole();
@@ -43,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $phone = sanitize($_POST['phone']);
 
     // Student fields
+    $nim = isset($_POST['nim']) ? sanitize($_POST['nim']) : '';
     $major = isset($_POST['major']) ? sanitize($_POST['major']) : '';
     $semester = isset($_POST['semester']) ? sanitize($_POST['semester']) : '';
 
@@ -62,34 +61,73 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Format nomor telepon tidak valid!";
     }
     // Validasi untuk student
-    elseif ($role == 'student' && (empty($major) || empty($semester))) {
-        $error = "Untuk Mahasiswa, jurusan dan semester wajib diisi!";
+    elseif ($role == 'student' && (empty($nim) || empty($major) || empty($semester))) {
+        $error = "Untuk Mahasiswa, NIM, jurusan dan semester wajib diisi!";
+    }
+    // Validasi NIM untuk student
+    elseif ($role == 'student' && !empty($nim) && !preg_match('/^[0-9]{8,15}$/', $nim)) {
+        $error = "Format NIM tidak valid! Harus berupa angka (8-15 digit).";
     }
     // Validasi untuk mitra industri
     elseif ($role == 'mitra_industri' && (empty($company_name) || empty($position))) {
         $error = "Untuk Mitra Industri, nama perusahaan dan jabatan wajib diisi!";
     } else {
-        // Check if email already exists
-        $check_email = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $check_email->bind_param("s", $email);
-        $check_email->execute();
-        $check_email->store_result();
+        // Check if email or NIM already exists
+        if ($role == 'student') {
+            // Untuk student, cek email dan NIM
+            $check_user = $conn->prepare("SELECT id FROM users WHERE email = ? OR nim = ?");
+            $check_user->bind_param("ss", $email, $nim);
+            $check_user->execute();
+            $check_user->store_result();
 
-        if ($check_email->num_rows > 0) {
-            $error = "Email sudah terdaftar!";
-        } else {
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-            // Insert into users table - tambahkan phone, major, dan semester
-            $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, phone, company_name, position, company_website, major, semester) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssssssss", $email, $hashed_password, $role, $name, $phone, $company_name, $position, $company_website, $major, $semester);
-
-            if ($stmt->execute()) {
-                $_SESSION['success_message'] = "Registrasi berhasil! Silakan login.";
-                header("Location: login.php");
-                exit();
+            if ($check_user->num_rows > 0) {
+                $error = "Email atau NIM sudah terdaftar!";
+                $check_user->close();
             } else {
-                $error = "Terjadi kesalahan: " . $conn->error;
+                $check_user->close();
+                
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+                // Insert into users table dengan NIM
+                $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, phone, company_name, position, company_website, major, semester, nim) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssssssssss", $email, $hashed_password, $role, $name, $phone, $company_name, $position, $company_website, $major, $semester, $nim);
+
+                if ($stmt->execute()) {
+                    $_SESSION['success_message'] = "Registrasi berhasil! Silakan login.";
+                    header("Location: login.php");
+                    exit();
+                } else {
+                    $error = "Terjadi kesalahan: " . $conn->error;
+                }
+                $stmt->close();
+            }
+        } else {
+            // Untuk mitra industri, hanya cek email
+            $check_email = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $check_email->bind_param("s", $email);
+            $check_email->execute();
+            $check_email->store_result();
+
+            if ($check_email->num_rows > 0) {
+                $error = "Email sudah terdaftar!";
+                $check_email->close();
+            } else {
+                $check_email->close();
+                
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+                // Insert into users table tanpa NIM
+                $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, phone, company_name, position, company_website, major, semester) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssssssss", $email, $hashed_password, $role, $name, $phone, $company_name, $position, $company_website, $major, $semester);
+
+                if ($stmt->execute()) {
+                    $_SESSION['success_message'] = "Registrasi berhasil! Silakan login.";
+                    header("Location: login.php");
+                    exit();
+                } else {
+                    $error = "Terjadi kesalahan: " . $conn->error;
+                }
+                $stmt->close();
             }
         }
     }
@@ -264,6 +302,26 @@ $semesterOptions = [
                                     Informasi Akademik
                                 </h3>
                                 <div class="space-y-4">
+                                    <!-- Tambahkan field NIM di sini -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            NIM (Nomor Induk Mahasiswa) <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-gray-400">
+                                                <span class="iconify" data-icon="mdi:identifier" data-width="24"></span>
+                                            </span>
+                                            <input type="text" name="nim" 
+                                                value="<?php echo isset($_POST['nim']) ? htmlspecialchars($_POST['nim']) : ''; ?>"
+                                                class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                                placeholder="Masukkan NIM Anda"
+                                                pattern="[0-9]{8,15}"
+                                                title="NIM harus berupa angka (8-15 digit)"
+                                                maxlength="15"
+                                                required>
+                                        </div>
+                                    </div>
+                                    
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">
                                             Jurusan <span class="text-red-500">*</span>
@@ -273,7 +331,7 @@ $semesterOptions = [
                                                 <span class="iconify" data-icon="mdi:book-education" data-width="18"></span>
                                             </span>
                                             <select name="major" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm appearance-none bg-white compact-select" required>
-                                                <option value="">Pilih jurusan...</option>
+                                                <option value="" class="text-gray-500">Pilih jurusan...</option>
                                                 <optgroup label="Fakultas Ekonomi dan Bisnis">
                                                     <option value="Bisnis Digital" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Bisnis Digital') ? 'selected' : ''; ?>>Bisnis Digital</option>
                                                     <option value="Keuangan dan Investasi" <?php echo (isset($_POST['major']) && $_POST['major'] == 'Keuangan dan Investasi') ? 'selected' : ''; ?>>Keuangan dan Investasi</option>
@@ -304,6 +362,7 @@ $semesterOptions = [
                                             </span>
                                         </div>
                                     </div>
+
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">
                                             Semester / Status <span class="text-red-500">*</span>
@@ -313,7 +372,7 @@ $semesterOptions = [
                                                 <span class="iconify" data-icon="mdi:school" data-width="18"></span>
                                             </span>
                                             <select name="semester" class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm appearance-none bg-white compact-select" required>
-                                                <option value="">Pilih semester atau status...</option>
+                                                <option value="" class="text-gray-500">Pilih semester atau status...</option>
                                                 <?php foreach ($semesterOptions as $value => $label): ?>
                                                     <option value="<?php echo $value; ?>" <?php echo (isset($_POST['semester']) && $_POST['semester'] == $value) ? 'selected' : ''; ?>>
                                                         <?php echo $label; ?>
@@ -434,18 +493,15 @@ $semesterOptions = [
         const mitraFields = document.getElementById('mitraFields');
 
         function toggleRoleFields() {
-            // Sembunyikan semua fields terlebih dahulu
             studentFields.classList.add('hidden');
             mitraFields.classList.add('hidden');
 
-            // Hapus required attribute dari semua fields
             const studentInputs = studentFields.querySelectorAll('input, select');
             const mitraInputs = mitraFields.querySelectorAll('input, select');
             
             studentInputs.forEach(input => input.required = false);
             mitraInputs.forEach(input => input.required = false);
 
-            // Tampilkan fields sesuai role yang dipilih
             if (roleSelect.value === 'student') {
                 studentFields.classList.remove('hidden');
                 studentInputs.forEach(input => input.required = true);
@@ -455,10 +511,8 @@ $semesterOptions = [
             }
         }
 
-        // Initial check
         toggleRoleFields();
 
-        // Add event listener
         roleSelect.addEventListener('change', toggleRoleFields);
     });
     </script>

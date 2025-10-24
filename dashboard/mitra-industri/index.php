@@ -99,7 +99,7 @@ $query = "
     LEFT JOIN projects p ON u.id = p.student_id
     LEFT JOIN project_skills ps ON p.id = ps.project_id
     LEFT JOIN skills s ON ps.skill_id = s.id
-    WHERE u.role = 'student'
+    WHERE u.role = 'student' AND u.eligibility_status = 'eligible'
 ";
 
 $count_query = "
@@ -108,7 +108,7 @@ $count_query = "
     LEFT JOIN projects p ON u.id = p.student_id
     LEFT JOIN project_skills ps ON p.id = ps.project_id
     LEFT JOIN skills s ON ps.skill_id = s.id
-    WHERE u.role = 'student'
+    WHERE u.role = 'student' AND u.eligibility_status = 'eligible'
 ";
 
 $params = [];
@@ -402,7 +402,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                 </button>
                 <a href="index.php?show_all=1" class="bg-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:refresh" data-width="20"></span>
-                    Tampilkan Semua
+                    Tampilkan Semua Mahasiswa Eligible
                 </a>
             </div>
         </form>
@@ -574,10 +574,10 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
 
             <!-- Pagination Navigation -->
             <?php if (!$is_filter_active && $total_pages > 1): ?>
-            <div class="flex justify-center items-center space-x-4 mt-8">
+            <div class="flex justify-center items-center space-x-4 mt-8 mb-8">
                 <!-- Previous Button -->
                 <a href="?page=<?php echo max(1, $current_page - 1); ?>" 
-                   class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == 1 ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == 1 ? 'opacity-50 cursor-not-allowed' : ''; ?>">
                     <span class="iconify" data-icon="mdi:chevron-left" data-width="20"></span>
                     Sebelumnya
                 </a>
@@ -589,7 +589,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
 
                 <!-- Next Button -->
                 <a href="?page=<?php echo min($total_pages, $current_page + 1); ?>" 
-                   class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == $total_pages ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == $total_pages ? 'opacity-50 cursor-not-allowed' : ''; ?>">
                     Selanjutnya
                     <span class="iconify" data-icon="mdi:chevron-right" data-width="20"></span>
                 </a>
@@ -624,11 +624,11 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                 <div class="bg-[#E0F7FF] rounded-xl p-4 border border-[#51A3B9]">
                     <div class="text-2xl font-bold text-[#2A8FA9] mb-1">
                         <?php 
-                        $total_students_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'student'")->fetch_assoc()['total'];
+                        $total_students_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'student' AND eligibility_status = 'eligible'")->fetch_assoc()['total'];
                         echo $total_students_count;
                         ?>
                     </div>
-                    <div class="text-[#409BB2] text-sm">Talenta Tersedia</div>
+                    <div class="text-[#409BB2] text-sm">Talenta Eligible</div>
                 </div>
                 <div class="bg-green-50 rounded-xl p-4 border border-green-100">
                     <div class="text-2xl font-bold text-green-900 mb-1">
@@ -647,7 +647,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
             <div class="flex justify-center gap-4">
                 <a href="index.php?show_all=1" class="bg-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:account-multiple" data-width="20"></span>
-                    Lihat Semua Talenta
+                    Lihat Semua Talenta Eligible
                 </a>
                 <button onclick="document.getElementById('main-search').focus()" class="bg-[#2A8FA9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
