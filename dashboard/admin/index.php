@@ -259,7 +259,7 @@ if ($stats_result) {
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <span class="iconify" data-icon="mdi:book-education" data-width="18"></span>
                         </span>
-                        <select name="major" class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                        <select name="major" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
                             <option value="">Semua Major</option>
                             <?php foreach ($daftar_major as $m): ?>
                                 <option value="<?php echo htmlspecialchars($m['major']); ?>" 
@@ -268,6 +268,10 @@ if ($stats_result) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <!-- Panah dropdown -->
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
+                        </span>
                     </div>
                 </div>
 
@@ -278,7 +282,7 @@ if ($stats_result) {
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <span class="iconify" data-icon="mdi:numeric" data-width="18"></span>
                         </span>
-                        <select name="semester" class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                        <select name="semester" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
                             <option value="">Semua Semester</option>
                             <?php for ($i = 1; $i <= 8; $i++): ?>
                                 <option value="<?php echo $i; ?>" <?php echo $semester == $i ? 'selected' : ''; ?>>
@@ -286,6 +290,10 @@ if ($stats_result) {
                                 </option>
                             <?php endfor; ?>
                         </select>
+                        <!-- Panah dropdown -->
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
+                        </span>
                     </div>
                 </div>
 
@@ -296,12 +304,16 @@ if ($stats_result) {
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <span class="iconify" data-icon="mdi:shield-check" data-width="18"></span>
                         </span>
-                        <select name="eligibility_status" class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                        <select name="eligibility_status" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
                             <option value="">Semua Status</option>
                             <option value="pending" <?php echo $eligibility_filter == 'pending' ? 'selected' : ''; ?>>Pending</option>
                             <option value="eligible" <?php echo $eligibility_filter == 'eligible' ? 'selected' : ''; ?>>Eligible</option>
                             <option value="not_eligible" <?php echo $eligibility_filter == 'not_eligible' ? 'selected' : ''; ?>>Not Eligible</option>
                         </select>
+                        <!-- Panah dropdown -->
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
+                        </span>
                     </div>
                 </div>
             </div>
