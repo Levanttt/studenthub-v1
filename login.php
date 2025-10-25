@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body class="bg-cakrawala-light-gray"> <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/studenthub/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
-                <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-8"> <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> </a>
+                <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> </a>
             <div class="flex items-center space-x-3">
                 <a href="/studenthub/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
                     <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>

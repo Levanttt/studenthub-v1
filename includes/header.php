@@ -55,12 +55,10 @@
 </head>
 <body class="bg-gray-100">
     <?php
-    // Mapping folder dashboard berdasarkan role
     $role_folder_map = [
         'mitra_industri' => 'mitra-industri',
         'student' => 'student', 
         'admin' => 'admin'
-        // tambahkan role lainnya jika ada
     ];
 
     $current_role = $_SESSION['role'] ?? '';
@@ -73,8 +71,10 @@
             <a href="/studenthub/dashboard/<?php echo $folder_name; ?>/index.php"
                 class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala"
-                     class="h-6">
-                <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span>
+                    class="h-6">
+                <span class="text-lg font-bold text-cakrawala-primary sm:hidden lg:inline-block">
+                    Cakrawala Connect
+                </span>
             </a>
 
             <div class="flex items-center space-x-4">
@@ -90,7 +90,7 @@
                                     <span class="iconify text-white" data-icon="mdi:account" data-width="18"></span>
                                 </div>
                             <?php endif; ?>
-                            <span class="text-sm font-medium text-gray-700 hidden sm:block">
+                            <span class="text-sm font-medium text-gray-700 sm:hidden lg:inline-block">
                                 <?php echo htmlspecialchars($_SESSION['name'] ?? 'User'); ?>
                             </span>
                             <span class="iconify text-gray-500" data-icon="mdi:chevron-down" data-width="16"></span>

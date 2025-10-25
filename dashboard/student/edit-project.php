@@ -50,7 +50,7 @@ if ($images_stmt) {
 
 $existing_skills = [];
 $skills_stmt = $conn->prepare("
-    SELECT s.name, s.skill_type 
+    SELECT s.id, s.name, s.skill_type 
     FROM skills s 
     JOIN project_skills ps ON s.id = ps.skill_id 
     WHERE ps.project_id = ?
@@ -66,6 +66,10 @@ if ($skills_stmt) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // HAPUS debug echo yang mengganggu output
+    // echo "<!-- DEBUG: Form submitted -->";
+    // echo "<!-- DEBUG: skills_input: " . print_r($_POST['skills'], true) . " -->";
+    
     $title = sanitize($_POST['title']);
     $description = sanitize($_POST['description']);
     $category = sanitize($_POST['category']);
@@ -77,19 +81,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $figma_url = sanitize($_POST['figma_url'] ?? '');
     $demo_url = sanitize($_POST['demo_url'] ?? '');
     $video_url = sanitize($_POST['video_url'] ?? '');
-    $skills_input = $_POST['skills'] ?? [];
+    
+    // PERBAIKAN: Pastikan skills_input selalu array dan diproses dengan benar
+    $skills_input = isset($_POST['skills']) ? (is_array($_POST['skills']) ? $_POST['skills'] : [$_POST['skills']]) : [];
+    
     $delete_images = $_POST['delete_images'] ?? [];
     $delete_certificate = isset($_POST['delete_certificate']);
+
+    // DEBUG
+    error_log("=== DEBUG EDIT PROJECT ===");
+    error_log("Project ID: " . $project_id);
+    error_log("Skills from form: " . implode(', ', $skills_input));
+    error_log("Existing skills: " . implode(', ', $existing_skills));
 
     // Validation
     if (empty($title) || empty($description)) {
         $error = "Judul dan deskripsi wajib diisi!";
     } elseif (empty($category) || empty($status) || empty($project_type) || empty($project_year)) {
         $error = "Kategori, status, tipe proyek, dan tahun proyek wajib diisi!";
-    } 
-    // TAMBAHKAN VALIDASI CATEGORY DARI DATABASE
-    elseif (!empty($category)) {
-        // Validasi apakah category value ada di database
+    } elseif (!empty($category)) {
         $validate_category = $conn->prepare("SELECT id FROM project_categories WHERE value = ?");
         if ($validate_category) {
             $validate_category->bind_param("s", $category);
@@ -103,10 +113,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     
-    // Lanjut validasi lainnya
-    if (empty($skills_input) && !$error) {
-        $error = "Pilih minimal 1 skill!";
-    } else {
+    // PERBAIKAN: Validasi skills yang lebih longgar
+    $technical_skills_count = 0;
+    if (!empty($skills_input)) {
+        // Hitung technical skills
+        $technical_skills_stmt = $conn->prepare("SELECT COUNT(*) as count FROM skills WHERE name IN (" . implode(',', array_fill(0, count($skills_input), '?')) . ") AND skill_type = 'technical'");
+        if ($technical_skills_stmt) {
+            $types = str_repeat('s', count($skills_input));
+            $technical_skills_stmt->bind_param($types, ...$skills_input);
+            $technical_skills_stmt->execute();
+            $result = $technical_skills_stmt->get_result();
+            $row = $result->fetch_assoc();
+            $technical_skills_count = $row['count'];
+            $technical_skills_stmt->close();
+        }
+    }
+    
+    if ($technical_skills_count === 0 && !$error) {
+        $error = "Pilih minimal 1 technical skill!";
+    }
+
+    if (!$error) {
         $main_image_path = $project['image_path'];
         
         if (isset($_FILES['project_image']) && $_FILES['project_image']['error'] === UPLOAD_ERR_OK) {
@@ -156,63 +183,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         if (!$error) {
-        $conn->begin_transaction();
-        
-        try {
-            // Ambil data sertifikat dari form
-            $certificate_credential_id = sanitize($_POST['certificate_credential_id'] ?? '');
-            $certificate_credential_url = sanitize($_POST['certificate_credential_url'] ?? '');
-            $certificate_issue_date = sanitize($_POST['certificate_issue_date'] ?? '');
-            $certificate_expiry_date = sanitize($_POST['certificate_expiry_date'] ?? '');
+            $conn->begin_transaction();
+            
+            try {
+                $certificate_credential_id = sanitize($_POST['certificate_credential_id'] ?? '');
+                $certificate_credential_url = sanitize($_POST['certificate_credential_url'] ?? '');
+                $certificate_issue_date = sanitize($_POST['certificate_issue_date'] ?? '');
+                $certificate_expiry_date = sanitize($_POST['certificate_expiry_date'] ?? '');
 
-            $update_stmt = $conn->prepare("UPDATE projects SET 
-            title = ?, 
-            description = ?, 
-            image_path = ?, 
-            certificate_path = ?, 
-            github_url = ?, 
-            figma_url = ?, 
-            demo_url = ?, 
-            video_url = ?, 
-            category = ?, 
-            status = ?, 
-            project_type = ?, 
-            project_year = ?, 
-            project_duration = ?,
-            certificate_credential_id = ?,
-            certificate_credential_url = ?,
-            certificate_issue_date = ?,
-            certificate_expiry_date = ?
-        WHERE id = ? AND student_id = ?");
+                $update_stmt = $conn->prepare("UPDATE projects SET 
+                title = ?, 
+                description = ?, 
+                image_path = ?, 
+                certificate_path = ?, 
+                github_url = ?, 
+                figma_url = ?, 
+                demo_url = ?, 
+                video_url = ?, 
+                category = ?, 
+                status = ?, 
+                project_type = ?, 
+                project_year = ?, 
+                project_duration = ?,
+                certificate_credential_id = ?,
+                certificate_credential_url = ?,
+                certificate_issue_date = ?,
+                certificate_expiry_date = ?
+                WHERE id = ? AND student_id = ?");
 
-        if (!$update_stmt) {
-            throw new Exception("Error preparing update statement: " . $conn->error);
-        }
+                if (!$update_stmt) {
+                    throw new Exception("Error preparing update statement: " . $conn->error);
+                }
 
-        // Perhatikan: 18 parameter (16 string + 2 integer)
-        $update_stmt->bind_param("sssssssssssssssssii", 
-            $title, 
-            $description, 
-            $main_image_path, 
-            $certificate_path, 
-            $github_url, 
-            $figma_url, 
-            $demo_url, 
-            $video_url, 
-            $category, 
-            $status, 
-            $project_type, 
-            $project_year, 
-            $project_duration,
-            $certificate_credential_id,
-            $certificate_credential_url,
-            $certificate_issue_date,
-            $certificate_expiry_date,
-            $project_id, 
-            $user_id
-        );
-                
+                $update_stmt->bind_param("sssssssssssssssssii", 
+                    $title, 
+                    $description, 
+                    $main_image_path, 
+                    $certificate_path, 
+                    $github_url, 
+                    $figma_url, 
+                    $demo_url, 
+                    $video_url, 
+                    $category, 
+                    $status, 
+                    $project_type, 
+                    $project_year, 
+                    $project_duration,
+                    $certificate_credential_id,
+                    $certificate_credential_url,
+                    $certificate_issue_date,
+                    $certificate_expiry_date,
+                    $project_id, 
+                    $user_id
+                );
+                        
                 if ($update_stmt->execute()) {
+                    error_log("DEBUG: Project update successful");
+
+                    // Handle image deletions
                     if (!empty($delete_images)) {
                         $delete_stmt = $conn->prepare("DELETE FROM project_images WHERE id = ? AND project_id = ?");
                         if ($delete_stmt) {
@@ -225,6 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
                     }
                     
+                    // Handle new gallery images
                     if (!empty($gallery_images)) {
                         $image_stmt = $conn->prepare("INSERT INTO project_images (project_id, image_path, is_primary) VALUES (?, ?, ?)");
                         if ($image_stmt) {
@@ -237,51 +266,90 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
                     }
                     
+                    // PERBAIKAN KRITIS: Handle skills dengan cara yang lebih robust
+                    error_log("DEBUG: Starting skills update process");
+                    
+                    // 1. Hapus SEMUA skill dari project ini
                     $delete_skills_stmt = $conn->prepare("DELETE FROM project_skills WHERE project_id = ?");
                     if ($delete_skills_stmt) {
                         $delete_skills_stmt->bind_param("i", $project_id);
-                        $delete_skills_stmt->execute();
+                        if ($delete_skills_stmt->execute()) {
+                            error_log("DEBUG: Successfully deleted all skills from project");
+                        } else {
+                            throw new Exception("Gagal menghapus skill lama: " . $delete_skills_stmt->error);
+                        }
                         $delete_skills_stmt->close();
                     }
                     
-                    foreach ($skills_input as $skill_name) {
-                        $skill_name = trim($skill_name);
-                        if (!empty($skill_name)) {
-                            $skill_stmt = $conn->prepare("SELECT id, skill_type FROM skills WHERE name = ?");
-                            if ($skill_stmt) {
-                                $skill_stmt->bind_param("s", $skill_name);
-                                $skill_stmt->execute();
-                                $skill_result = $skill_stmt->get_result();
-                                
-                                if ($skill_result->num_rows > 0) {
-                                    $skill = $skill_result->fetch_assoc();
-                                    $skill_id = $skill['id'];
-                                } else {
-                                    $insert_skill = $conn->prepare("INSERT INTO skills (name, skill_type) VALUES (?, 'technical')");
-                                    if ($insert_skill) {
-                                        $insert_skill->bind_param("s", $skill_name);
-                                        $insert_skill->execute();
-                                        $skill_id = $conn->insert_id;
-                                        $insert_skill->close();
-                                    } else {
-                                        continue; 
+                    // 2. Tambahkan skill baru yang dipilih dari form
+                    if (!empty($skills_input)) {
+                        error_log("DEBUG: Adding new skills: " . implode(', ', $skills_input));
+                        
+                        $skill_insert_stmt = $conn->prepare("INSERT INTO project_skills (project_id, skill_id) VALUES (?, ?)");
+                        if ($skill_insert_stmt) {
+                            $added_skills = [];
+                            foreach ($skills_input as $skill_name) {
+                                $skill_name = trim($skill_name);
+                                if (!empty($skill_name)) {
+                                    // Cari skill di database
+                                    $skill_stmt = $conn->prepare("SELECT id, skill_type FROM skills WHERE name = ?");
+                                    if ($skill_stmt) {
+                                        $skill_stmt->bind_param("s", $skill_name);
+                                        $skill_stmt->execute();
+                                        $skill_result = $skill_stmt->get_result();
+                                        
+                                        $skill_id = null;
+                                        if ($skill_result->num_rows > 0) {
+                                            $skill = $skill_result->fetch_assoc();
+                                            $skill_id = $skill['id'];
+                                            error_log("DEBUG: Found skill '$skill_name' with ID: $skill_id, type: " . $skill['skill_type']);
+                                        } else {
+                                            // Tentukan skill_type berdasarkan konteks
+                                            $skill_type = 'technical'; // default
+                                            
+                                            // Buat skill baru jika tidak ada
+                                            $insert_skill = $conn->prepare("INSERT INTO skills (name, skill_type) VALUES (?, ?)");
+                                            if ($insert_skill) {
+                                                $insert_skill->bind_param("ss", $skill_name, $skill_type);
+                                                if ($insert_skill->execute()) {
+                                                    $skill_id = $conn->insert_id;
+                                                    error_log("DEBUG: Created new skill '$skill_name' with ID: $skill_id, type: $skill_type");
+                                                } else {
+                                                    error_log("DEBUG: Failed to create skill '$skill_name'");
+                                                    continue; // Skip skill ini tapi jangan rollback
+                                                }
+                                                $insert_skill->close();
+                                            }
+                                        }
+                                        $skill_stmt->close();
+                                        
+                                        // Insert ke project_skills
+                                        if ($skill_id) {
+                                            $skill_insert_stmt->bind_param("ii", $project_id, $skill_id);
+                                            if ($skill_insert_stmt->execute()) {
+                                                $added_skills[] = $skill_name;
+                                                error_log("DEBUG: Successfully added skill '$skill_name' to project");
+                                            } else {
+                                                error_log("DEBUG: Failed to add skill '$skill_name' to project: " . $skill_insert_stmt->error);
+                                                // Jangan throw exception, biarkan skill lain tetap diproses
+                                            }
+                                        }
                                     }
                                 }
-                                $skill_stmt->close();
-                                
-                                $link_skill = $conn->prepare("INSERT INTO project_skills (project_id, skill_id) VALUES (?, ?)");
-                                if ($link_skill) {
-                                    $link_skill->bind_param("ii", $project_id, $skill_id);
-                                    $link_skill->execute();
-                                    $link_skill->close();
-                                }
                             }
+                            $skill_insert_stmt->close();
+                            error_log("DEBUG: Final added skills: " . implode(', ', $added_skills));
                         }
+                    } else {
+                        error_log("DEBUG: No skills to add - project will have no skills");
+                        // Biarkan saja, project bisa tanpa skills (tapi validasi di atas sudah mencegah ini)
                     }
                     
                     $conn->commit();
                     $success = "Proyek berhasil diperbarui!";
+                    error_log("DEBUG: Transaction committed successfully");
                     
+                    // Refresh data untuk menampilkan perubahan
                     $refresh_stmt = $conn->prepare("SELECT * FROM projects WHERE id = ? AND student_id = ?");
                     if ($refresh_stmt) {
                         $refresh_stmt->bind_param("ii", $project_id, $user_id);
@@ -303,6 +371,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $refresh_images_stmt->close();
                     }
                     
+                    // Refresh skills
                     $refresh_skills_stmt = $conn->prepare("
                         SELECT s.name
                         FROM skills s 
@@ -318,10 +387,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $existing_skills[] = $skill['name'];
                         }
                         $refresh_skills_stmt->close();
+                        error_log("DEBUG: Refreshed skills after update: " . implode(', ', $existing_skills));
                     }
                     
                 } else {
-                    throw new Exception("Gagal memperbarui proyek: " . $conn->error);
+                    throw new Exception("Gagal memperbarui proyek: " . $update_stmt->error);
                 }
                 
                 $update_stmt->close();
@@ -329,6 +399,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } catch (Exception $e) {
                 $conn->rollback();
                 $error = $e->getMessage();
+                error_log("DEBUG: Transaction failed: " . $e->getMessage());
             }
         }
     }
@@ -360,7 +431,6 @@ if ($categories_stmt) {
     }
     $categories_stmt->close();
 } else {
-    // Fallback jika query error
     error_log("Error fetching categories: " . $conn->error);
 }
 
@@ -1347,22 +1417,34 @@ class SearchableDropdown {
     }
 
     removeSkill(skillName, category) {
+        // PERBAIKAN: Gunakan CSS.escape untuk handle special characters
+        const escapedSkillName = CSS.escape(skillName);
+        
         this.selectedSkills.delete(skillName);
         
-        // Remove visual tag
+        // Remove visual tag - cara yang lebih reliable
         const container = document.getElementById(`selected-${category}-skills`);
-        const tags = container.querySelectorAll('.skill-tag');
-        tags.forEach(tag => {
-            if (tag.textContent.includes(skillName)) {
+        const tags = container.getElementsByClassName('skill-tag');
+        
+        // Convert to array untuk bisa diiterasi dengan aman
+        Array.from(tags).forEach(tag => {
+            // Bandingkan text content tanpa button
+            const tagText = tag.childNodes[0].textContent.trim();
+            if (tagText === skillName) {
                 tag.remove();
             }
         });
 
-        // Remove hidden input
-        const hiddenInput = document.getElementById(`skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`);
-        if (hiddenInput) {
-            hiddenInput.remove();
-        }
+        // Remove hidden input - cara yang lebih reliable
+        const hiddenInputs = document.querySelectorAll('#skills-hidden-container input[name="skills[]"]');
+        hiddenInputs.forEach(input => {
+            if (input.value === skillName) {
+                input.remove();
+            }
+        });
+        
+        console.log('Removed skill:', skillName, 'from category:', category);
+        console.log('Remaining skills:', Array.from(this.selectedSkills));
     }
 }
 

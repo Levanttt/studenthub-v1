@@ -35,6 +35,12 @@ if ($major_result) {
 $query = "SELECT id, nim, name, email, major, semester, eligibility_status, created_at FROM users WHERE role = 'student'";
 $count_query = "SELECT COUNT(*) as total FROM users WHERE role = 'student'";
 
+$major_query = "SELECT DISTINCT major FROM users WHERE major IS NOT NULL AND major != '' ORDER BY major";
+$major_result = $conn->query($major_query);
+if ($major_result) {
+    $daftar_major = $major_result->fetch_all(MYSQLI_ASSOC);
+}
+
 $params = [];
 $types = "";
 $where_conditions = [];
@@ -110,12 +116,11 @@ if ($stmt) {
     $stmt->close();
 }
 
-// AJAX update eligibility status - DIPERBAIKI
+// AJAX update eligibility status 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_eligibility') {
     header('Content-Type: application/json');
     
     try {
-        // Validasi input
         if (!isset($_POST['user_id']) || !isset($_POST['eligibility_status'])) {
             throw new Exception('Data tidak lengkap');
         }
@@ -123,13 +128,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $user_id = intval($_POST['user_id']);
         $eligibility_status = $_POST['eligibility_status'];
         
-        // Validasi status
         $allowed_statuses = ['pending', 'eligible', 'not_eligible'];
         if (!in_array($eligibility_status, $allowed_statuses)) {
             throw new Exception('Status tidak valid');
         }
         
-        // Update database
         $update_stmt = $conn->prepare("UPDATE users SET eligibility_status = ? WHERE id = ?");
         if (!$update_stmt) {
             throw new Exception('Prepare statement failed: ' . $conn->error);
@@ -253,14 +256,15 @@ if ($stats_result) {
                 </div>
 
                 <!-- Major Filter -->
+                <!-- Prodi Filter -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Major</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Program Studi</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <span class="iconify" data-icon="mdi:book-education" data-width="18"></span>
                         </span>
                         <select name="major" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
-                            <option value="">Semua Major</option>
+                            <option value="">Semua Program Studi</option>
                             <?php foreach ($daftar_major as $m): ?>
                                 <option value="<?php echo htmlspecialchars($m['major']); ?>" 
                                         <?php echo $major == $m['major'] ? 'selected' : ''; ?>>
@@ -268,7 +272,6 @@ if ($stats_result) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <!-- Panah dropdown -->
                         <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
                             <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
                         </span>
@@ -290,7 +293,6 @@ if ($stats_result) {
                                 </option>
                             <?php endfor; ?>
                         </select>
-                        <!-- Panah dropdown -->
                         <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
                             <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
                         </span>
@@ -310,7 +312,6 @@ if ($stats_result) {
                             <option value="eligible" <?php echo $eligibility_filter == 'eligible' ? 'selected' : ''; ?>>Eligible</option>
                             <option value="not_eligible" <?php echo $eligibility_filter == 'not_eligible' ? 'selected' : ''; ?>>Not Eligible</option>
                         </select>
-                        <!-- Panah dropdown -->
                         <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
                             <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
                         </span>
@@ -356,13 +357,11 @@ if ($stats_result) {
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIM</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jurusan</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Program Studi</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Semester</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-44">Status</th>
                     </tr>
                 </thead>
-               <!-- Di bagian table body - GANTI dengan kode ini -->
-                    <!-- Di bagian table body -->
                     <tbody class="bg-white divide-y divide-gray-200">
                         <?php if (count($students) > 0): ?>
                             <?php foreach ($students as $index => $student): ?>

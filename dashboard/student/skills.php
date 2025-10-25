@@ -8,8 +8,144 @@ if (!isLoggedIn() || getUserRole() != 'student') {
 }
 
 $user_id = $_SESSION['user_id'];
+
+// Ambil nama user dari database berdasarkan user_id
+$user_name = 'Unknown';
+$user_query = $conn->prepare("SELECT name FROM users WHERE id = ?");
+$user_query->bind_param("i", $user_id);
+$user_query->execute();
+$user_result = $user_query->get_result();
+
+if ($user_result->num_rows > 0) {
+    $user_data = $user_result->fetch_assoc();
+    $user_name = !empty($user_data['name']) ? $user_data['name'] : 'User-' . $user_id;
+} else {
+    $user_name = 'User-' . $user_id;
+}
+$user_query->close();
+
 $success = '';
 $error = '';
+
+// ✅ HANDLER UNTUK SEMUA REDIRECT MESSAGES
+if (isset($_GET['success'])) {
+    $skill_name = isset($_GET['skill']) ? urldecode($_GET['skill']) : '';
+    
+    switch($_GET['success']) {
+        case 'added':
+            $success = "Skill '{$skill_name}' berhasil ditambahkan!";
+            break;
+        case 'edited':
+            $success = "Skill '{$skill_name}' berhasil diperbarui!";
+            break;
+        case 'deleted':
+            $success = "Skill '{$skill_name}' berhasil dihapus!";
+            break;
+    }
+}
+
+// ✅ HANDLER UNTUK ERROR MESSAGES
+if (isset($_GET['error'])) {
+    switch($_GET['error']) {
+        case 'used':
+            $error = "Tidak dapat menghapus skill karena sedang digunakan dalam proyek!";
+            break;
+        case 'not_found':
+            $error = "Skill tidak ditemukan!";
+            break;
+        case 'delete_failed':
+            $error = "Gagal menghapus skill!";
+            break;
+        case 'already_exists':
+            $error = "Skill sudah ada!";
+            break;
+    }
+}
+
+// Fungsi untuk mencatat log skill
+function logSkillAction($conn, $skill_id, $skill_name, $action, $user_id, $user_name) {
+    $stmt = $conn->prepare("INSERT INTO skill_logs (skill_id, skill_name, action, user_id, user_name) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("issis", $skill_id, $skill_name, $action, $user_id, $user_name);
+    return $stmt->execute();
+}
+
+// Fungsi untuk mengambil data skills - FIXED VERSION
+function getSkillsData($conn) {
+    $skills_by_category = [
+        'technical' => [],
+        'soft' => [],
+        'tool' => []
+    ];
+
+    $skills_stmt = $conn->prepare("
+        SELECT s.id, s.name, s.skill_type, COUNT(ps.project_id) as usage_count 
+        FROM skills s 
+        LEFT JOIN project_skills ps ON s.id = ps.skill_id 
+        GROUP BY s.id 
+        ORDER BY usage_count DESC, s.skill_type, s.name
+    ");
+    
+    if ($skills_stmt) {
+        $skills_stmt->execute();
+        $skills_result = $skills_stmt->get_result();
+        
+        if ($skills_result) {
+            while ($skill = $skills_result->fetch_assoc()) {
+                $skill_type = $skill['skill_type'] ?? 'technical';
+                
+                // Validasi dan pastikan skill_type valid
+                if (!in_array($skill_type, ['technical', 'soft', 'tool'])) {
+                    $skill_type = 'technical';
+                }
+                
+                // PASTIKAN KEY EXISTS sebelum assign
+                if (array_key_exists($skill_type, $skills_by_category)) {
+                    $skills_by_category[$skill_type][] = $skill;
+                } else {
+                    // Fallback ke technical
+                    $skills_by_category['technical'][] = $skill;
+                }
+            }
+            $total_skills = $skills_result->num_rows;
+        } else {
+            $total_skills = 0;
+        }
+        $skills_stmt->close();
+    } else {
+        $total_skills = 0;
+    }
+    
+    // Refresh skill_usage juga
+    $skill_usage = [];
+    foreach ($skills_by_category as $category => $skills) {
+        foreach ($skills as $skill) {
+            if (isset($skill['id']) && isset($skill['usage_count'])) {
+                $skill_usage[$skill['id']] = $skill['usage_count'];
+            }
+        }
+    }
+    
+    return [
+        'skills_by_category' => $skills_by_category,
+        'total_skills' => $total_skills,
+        'skill_usage' => $skill_usage
+    ];
+}
+
+// Inisialisasi variabel - FIXED
+$skills_by_category = [
+    'technical' => [],
+    'soft' => [],
+    'tool' => []
+];
+$total_skills = 0;
+$skill_usage = [];
+
+// Ambil data skills
+$skills_data = getSkillsData($conn);
+$skills_by_category = $skills_data['skills_by_category'];
+$total_skills = $skills_data['total_skills'];
+$skill_usage = $skills_data['skill_usage'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_skill'])) {
     $skill_name = sanitize($_POST['skill_name']);
@@ -24,13 +160,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_skill'])) {
         $check_result = $check_stmt->get_result();
         
         if ($check_result->num_rows > 0) {
-            $error = "Skill '$skill_name' sudah ada!";
+            // Redirect dengan error
+            header("Location: skills.php?error=already_exists");
+            exit();
         } else {
             $insert_stmt = $conn->prepare("INSERT INTO skills (name, skill_type) VALUES (?, ?)");
             $insert_stmt->bind_param("ss", $skill_name, $skill_type);
             
             if ($insert_stmt->execute()) {
-                $success = "Skill '$skill_name' berhasil ditambahkan!";
+                $new_skill_id = $conn->insert_id;
+                logSkillAction($conn, $new_skill_id, $skill_name, 'added', $user_id, $user_name);
+                
+                // ✅ REDIRECT SETELAH ADD SUCCESS
+                header("Location: skills.php?success=added&skill=" . urlencode($skill_name));
+                exit();
             } else {
                 $error = "Gagal menambahkan skill: " . $conn->error;
             }
@@ -49,19 +192,43 @@ if (isset($_GET['delete_id'])) {
     $usage_result = $check_usage->get_result();
     
     if ($usage_result->num_rows > 0) {
-        $error = "Tidak dapat menghapus skill karena sedang digunakan dalam proyek!";
+        // Redirect dengan error
+        header("Location: skills.php?error=used");
+        exit();
     } else {
-        $delete_stmt = $conn->prepare("DELETE FROM skills WHERE id = ?");
-        $delete_stmt->bind_param("i", $delete_id);
+        // Ambil informasi skill sebelum dihapus untuk logging
+        $skill_info_stmt = $conn->prepare("SELECT name FROM skills WHERE id = ?");
+        $skill_info_stmt->bind_param("i", $delete_id);
+        $skill_info_stmt->execute();
+        $skill_info_result = $skill_info_stmt->get_result();
         
-        if ($delete_stmt->execute()) {
-            $success = "Skill berhasil dihapus!";
+        // ✅ PERBAIKAN: Check jika skill exists
+        if ($skill_info_result->num_rows > 0) {
+            $skill_info = $skill_info_result->fetch_assoc();
+            $skill_name = $skill_info['name'];
+            $skill_info_stmt->close();
+            
+            $delete_stmt = $conn->prepare("DELETE FROM skills WHERE id = ?");
+            $delete_stmt->bind_param("i", $delete_id);
+            
+            if ($delete_stmt->execute()) {
+                // Catat log untuk penghapusan skill (skill_id = NULL karena sudah dihapus)
+                logSkillAction($conn, NULL, $skill_name, 'deleted', $user_id, $user_name);
+                
+                // ✅ REDIRECT SETELAH DELETE SUCCESS
+                header("Location: skills.php?success=deleted&skill=" . urlencode($skill_name));
+                exit();
+            } else {
+                // Redirect dengan error
+                header("Location: skills.php?error=delete_failed");
+                exit();
+            }
         } else {
-            $error = "Gagal menghapus skill: " . $conn->error;
+            // Redirect dengan error
+            header("Location: skills.php?error=not_found");
+            exit();
         }
-        $delete_stmt->close();
     }
-    $check_usage->close();
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
@@ -72,19 +239,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
     if (empty($skill_name)) {
         $error = "Nama skill tidak boleh kosong!";
     } else {
+        $old_skill_stmt = $conn->prepare("SELECT name FROM skills WHERE id = ?");
+        $old_skill_stmt->bind_param("i", $skill_id);
+        $old_skill_stmt->execute();
+        $old_skill_result = $old_skill_stmt->get_result();
+        $old_skill = $old_skill_result->fetch_assoc();
+        $old_skill_name = $old_skill['name'];
+        $old_skill_stmt->close();
+        
         $check_stmt = $conn->prepare("SELECT id FROM skills WHERE name = ? AND id != ?");
         $check_stmt->bind_param("si", $skill_name, $skill_id);
         $check_stmt->execute();
         $check_result = $check_stmt->get_result();
         
         if ($check_result->num_rows > 0) {
-            $error = "Skill '$skill_name' sudah ada!";
+            // Redirect dengan error
+            header("Location: skills.php?error=already_exists");
+            exit();
         } else {
             $update_stmt = $conn->prepare("UPDATE skills SET name = ?, skill_type = ? WHERE id = ?");
             $update_stmt->bind_param("ssi", $skill_name, $skill_type, $skill_id);
             
             if ($update_stmt->execute()) {
-                $success = "Skill berhasil diperbarui!";
+                logSkillAction($conn, $skill_id, $skill_name, 'edited', $user_id, $user_name);
+                
+                // ✅ REDIRECT SETELAH EDIT SUCCESS
+                header("Location: skills.php?success=edited&skill=" . urlencode($skill_name));
+                exit();
             } else {
                 $error = "Gagal memperbarui skill: " . $conn->error;
             }
@@ -93,41 +274,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
         $check_stmt->close();
     }
 }
-
-$skills_by_category = [
-    'technical' => [],
-    'soft' => [],
-    'tool' => []
-];
-
-$skills_stmt = $conn->prepare("
-    SELECT s.id, s.name, s.skill_type, COUNT(ps.project_id) as usage_count 
-    FROM skills s 
-    LEFT JOIN project_skills ps ON s.id = ps.skill_id 
-    GROUP BY s.id 
-    ORDER BY usage_count DESC, s.skill_type, s.name
-");
-$skills_stmt->execute();
-$skills_result = $skills_stmt->get_result();
-
-while ($skill = $skills_result->fetch_assoc()) {
-    $skills_by_category[$skill['skill_type']][] = $skill;
-}
-
-$total_skills = $skills_result->num_rows;
-$skills_stmt->close();
-
-$skill_usage = [];
-foreach ($skills_by_category as $category => $skills) {
-    foreach ($skills as $skill) {
-        $skill_usage[$skill['id']] = $skill['usage_count'];
-    }
-}
 ?>
 
 <?php include '../../includes/header.php'; ?>
 
 <style>
+header .hidden.sm\:inline {
+    display: inline-block !important;
+}
+
+/* Pastikan tidak ada konflik dengan class hidden */
+nav .hidden.sm\:inline {
+    display: inline-block !important;
+}
+
 .skill-card {
     transition: all 0.3s ease;
 }
@@ -160,6 +320,103 @@ foreach ($skills_by_category as $category => $skills) {
 .tab-button.active[data-tab="tool"] {
     border-bottom-color: #8b5cf6;
     color: #7e22ce;
+}
+
+/* Modal Styles untuk Edit */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: modalSlideIn 0.2s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.2;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    outline: none;
+}
+
+.btn:focus {
+    outline: 2px solid #2A8FA9;
+    outline-offset: 2px;
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #475467;
+    border: 1px solid #d0d5dd;
+}
+
+.btn-secondary:hover {
+    background: #f1f3f5;
+}
+
+.btn-primary {
+    background: #2A8FA9;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #409BB2;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.flex {
+    display: flex;
 }
 </style>
 
@@ -202,7 +459,7 @@ foreach ($skills_by_category as $category => $skills) {
                         <span class="iconify text-white" data-icon="mdi:code-braces" data-width="24"></span>
                     </div>
                     <div>
-                        <h3 class="text-blue-900 font-bold text-2xl"><?php echo count($skills_by_category['technical']); ?></h3>
+                        <h3 class="text-blue-900 font-bold text-2xl"><?php echo isset($skills_by_category['technical']) ? count($skills_by_category['technical']) : 0; ?></h3>
                         <p class="text-blue-700 text-sm">Technical Skills</p>
                     </div>
                 </div>
@@ -214,7 +471,7 @@ foreach ($skills_by_category as $category => $skills) {
                         <span class="iconify text-white" data-icon="mdi:account-group" data-width="24"></span>
                     </div>
                     <div>
-                        <h3 class="text-green-900 font-bold text-2xl"><?php echo count($skills_by_category['soft']); ?></h3>
+                        <h3 class="text-green-900 font-bold text-2xl"><?php echo isset($skills_by_category['soft']) ? count($skills_by_category['soft']) : 0; ?></h3>
                         <p class="text-green-700 text-sm">Soft Skills</p>
                     </div>
                 </div>
@@ -226,11 +483,22 @@ foreach ($skills_by_category as $category => $skills) {
                         <span class="iconify text-white" data-icon="mdi:tools" data-width="24"></span>
                     </div>
                     <div>
-                        <h3 class="text-purple-900 font-bold text-2xl"><?php echo count($skills_by_category['tool']); ?></h3>
+                        <h3 class="text-purple-900 font-bold text-2xl"><?php echo isset($skills_by_category['tool']) ? count($skills_by_category['tool']) : 0; ?></h3>
                         <p class="text-purple-700 text-sm">Tools & Software</p>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Global Warning -->
+        <div class="mb-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 p-4 rounded-lg" role="alert">
+            <p class="font-bold flex items-center gap-2">
+                <span class="iconify" data-icon="mdi:alert" data-width="20"></span>
+                Penting: Pengelolaan Skill Bersifat Global
+            </p>
+            <p class="text-sm mt-1">
+                Penambahan, pengeditan, atau penghapusan skill di halaman ini akan <strong>berdampak pada semua pengguna</strong> platform Cakrawala Connect. Pastikan skill yang Anda tambahkan relevan dan belum ada. Skill yang sedang digunakan dalam proyek tidak dapat dihapus.
+            </p>
         </div>
     </div>
 
@@ -332,12 +600,12 @@ foreach ($skills_by_category as $category => $skills) {
                 <!-- Tabs Navigation -->
                 <div class="flex border-b border-gray-200 mb-6">
                     <button type="button" 
-                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 active"
                             data-tab="technical"
                             onclick="switchTab('technical')">
                         <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
                         Technical
-                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['technical']); ?></span>
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"><?php echo isset($skills_by_category['technical']) ? count($skills_by_category['technical']) : 0; ?></span>
                     </button>
                     
                     <button type="button" 
@@ -346,7 +614,7 @@ foreach ($skills_by_category as $category => $skills) {
                             onclick="switchTab('soft')">
                         <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
                         Soft Skills
-                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['soft']); ?></span>
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"><?php echo isset($skills_by_category['soft']) ? count($skills_by_category['soft']) : 0; ?></span>
                     </button>
                     
                     <button type="button" 
@@ -355,7 +623,7 @@ foreach ($skills_by_category as $category => $skills) {
                             onclick="switchTab('tool')">
                         <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
                         Tools
-                        <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['tool']); ?></span>
+                        <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full"><?php echo isset($skills_by_category['tool']) ? count($skills_by_category['tool']) : 0; ?></span>
                     </button>
                 </div>
 
@@ -386,7 +654,7 @@ foreach ($skills_by_category as $category => $skills) {
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                         </button>
-                                        <button onclick="confirmDelete(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>')" 
+                                        <button onclick="confirmDeleteSkill(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>')" 
                                                 class="text-gray-400 hover:text-red-600 transition-colors p-1"
                                                 title="Hapus Skill">
                                             <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
@@ -430,7 +698,7 @@ foreach ($skills_by_category as $category => $skills) {
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                         </button>
-                                        <button onclick="confirmDelete(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>')" 
+                                        <button onclick="confirmDeleteSkill(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>')" 
                                                 class="text-gray-400 hover:text-red-600 transition-colors p-1"
                                                 title="Hapus Skill">
                                             <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
@@ -474,7 +742,7 @@ foreach ($skills_by_category as $category => $skills) {
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                         </button>
-                                        <button onclick="confirmDelete(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>')" 
+                                        <button onclick="confirmDeleteSkill(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>')" 
                                                 class="text-gray-400 hover:text-red-600 transition-colors p-1"
                                                 title="Hapus Skill">
                                             <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
@@ -497,12 +765,14 @@ foreach ($skills_by_category as $category => $skills) {
 </div>
 
 <!-- Edit Skill Modal -->
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
-        <h3 class="text-xl font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
-            <span class="iconify" data-icon="mdi:pencil" data-width="24"></span>
-            Edit Skill
-        </h3>
+<div id="editModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="bg-[#E0F7FF] p-3 rounded-xl">
+                <span class="iconify text-[#2A8FA9]" data-icon="mdi:pencil" data-width="24"></span>
+            </div>
+            <h3 class="modal-title">Edit Skill</h3>
+        </div>
         
         <form method="POST" action="" id="editForm">
             <input type="hidden" name="skill_id" id="edit_skill_id">
@@ -549,13 +819,11 @@ foreach ($skills_by_category as $category => $skills) {
                 </div>
             </div>
             
-            <div class="flex gap-3 mt-6">
-                <button type="button" onclick="closeEditModal()" 
-                        class="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-300">
+            <div class="modal-footer">
+                <button type="button" onclick="closeEditModal()" class="btn btn-secondary">
                     Batal
                 </button>
-                <button type="submit" 
-                        class="flex-1 bg-gradient-to-r from-[#2A8FA9] to-[#409BB2] text-white py-3 px-4 rounded-lg font-semibold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300">
+                <button type="submit" class="btn btn-primary">
                     Simpan Perubahan
                 </button>
             </div>
@@ -598,15 +866,6 @@ class CustomDropdown {
         this.selectedText = this.container.querySelector('[data-selected-text]');
         this.selectedIcon = this.container.querySelector('[data-selected-icon]');
         
-        // Debug logging
-        console.log('Initializing dropdown:', containerId, {
-            toggle: !!this.toggle,
-            options: !!this.options,
-            hiddenInput: !!this.hiddenInput,
-            selectedText: !!this.selectedText,
-            selectedIcon: !!this.selectedIcon
-        });
-        
         this.init();
     }
     
@@ -629,86 +888,52 @@ class CustomDropdown {
                 const text = option.textContent.trim();
                 const icon = option.getAttribute('data-icon');
                 
-                console.log('Option selected:', value, text, icon);
-                
                 this.hiddenInput.value = value;
                 this.selectedText.textContent = text;
-                if (this.selectedIcon) {
-                    this.selectedIcon.setAttribute('data-icon', icon);
-                }
-                
-                // Update selected state
-                this.options.querySelectorAll('[data-option]').forEach(opt => {
-                    opt.classList.remove('bg-blue-50', 'text-blue-700');
-                });
-                option.classList.add('bg-blue-50', 'text-blue-700');
+                this.selectedIcon.setAttribute('data-icon', icon);
                 
                 this.options.classList.add('hidden');
+                
+                // Trigger change event
+                this.hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
             });
         });
-        
-        // Prevent options from closing when clicking inside
-        this.options.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
+    }
+    
+    setValue(value, text, icon) {
+        if (this.hiddenInput) this.hiddenInput.value = value;
+        if (this.selectedText) this.selectedText.textContent = text;
+        if (this.selectedIcon && icon) this.selectedIcon.setAttribute('data-icon', icon);
     }
 }
 
-// Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing components...');
-    
-    // Set technical as default active tab
-    switchTab('technical');
-    
-    // Initialize custom dropdowns
-    const skillTypeDropdown = new CustomDropdown('skill-type-dropdown');
-    const editSkillTypeDropdown = new CustomDropdown('edit-skill-type-dropdown');
-    
-    // Debug: Check if dropdowns were initialized
-    console.log('Dropdowns initialized:', {
-        skillType: skillTypeDropdown,
-        editSkillType: editSkillTypeDropdown
-    });
-});
-
+// Edit Modal Functions
 function openEditModal(skillId, skillName, skillType) {
     document.getElementById('edit_skill_id').value = skillId;
     document.getElementById('edit_skill_name').value = skillName;
     
-    // Set values for edit modal dropdown
-    const editDropdown = document.getElementById('edit-skill-type-dropdown');
-    if (!editDropdown) {
-        console.error('Edit dropdown container not found');
-        return;
+    // Set dropdown value based on skill type
+    const editDropdown = new CustomDropdown('edit-skill-type-dropdown');
+    
+    let typeText = '';
+    let typeIcon = '';
+    
+    switch(skillType) {
+        case 'technical':
+            typeText = 'Technical Skill';
+            typeIcon = 'mdi:code-braces';
+            break;
+        case 'soft':
+            typeText = 'Soft Skill';
+            typeIcon = 'mdi:account-group';
+            break;
+        case 'tool':
+            typeText = 'Tool & Software';
+            typeIcon = 'mdi:tools';
+            break;
     }
     
-    const hiddenInput = editDropdown.querySelector('input[type="hidden"]');
-    const selectedText = editDropdown.querySelector('[data-selected-text]');
-    const selectedIcon = editDropdown.querySelector('[data-selected-icon]');
-    
-    // Map skill type to display text and icon
-    const typeMap = {
-        'technical': { text: 'Technical Skill', icon: 'mdi:code-braces' },
-        'soft': { text: 'Soft Skill', icon: 'mdi:account-group' },
-        'tool': { text: 'Tool & Software', icon: 'mdi:tools' }
-    };
-    
-    if (typeMap[skillType]) {
-        hiddenInput.value = skillType;
-        selectedText.textContent = typeMap[skillType].text;
-        if (selectedIcon) {
-            selectedIcon.setAttribute('data-icon', typeMap[skillType].icon);
-        }
-        
-        // Update selected state in options
-        editDropdown.querySelectorAll('[data-option]').forEach(option => {
-            option.classList.remove('bg-blue-50', 'text-blue-700');
-            if (option.getAttribute('data-value') === skillType) {
-                option.classList.add('bg-blue-50', 'text-blue-700');
-            }
-        });
-    }
+    editDropdown.setValue(skillType, typeText, typeIcon);
     
     document.getElementById('editModal').classList.remove('hidden');
 }
@@ -717,37 +942,40 @@ function closeEditModal() {
     document.getElementById('editModal').classList.add('hidden');
 }
 
-function confirmDelete(skillId, skillName) {
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'Hapus Skill?',
-            html: `<div class="text-left">
-                    <p class="text-red-600 font-semibold">Skill: <span class="text-gray-800">"${skillName}"</span></p>
-                    <p class="text-gray-600 mt-2">Skill akan dihapus permanent dari sistem.</p>
-                    <p class="text-amber-600 text-sm mt-2"><strong>Note:</strong> Skill yang sedang digunakan dalam proyek tidak dapat dihapus.</p>
-                   </div>`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            background: '#ffffff'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `skills.php?delete_id=${skillId}`;
-            }
-        });
-    } else {
-        // Fallback jika SweetAlert tidak tersedia
-        if (confirm(`Hapus skill "${skillName}"?`)) {
+// Delete Confirmation dengan SweetAlert
+function confirmDeleteSkill(skillId, skillName) {
+    Swal.fire({
+        title: 'Hapus Skill?',
+        html: `<div class="text-center">
+                <p class="text-gray-600 mt-2">Skill <strong>"${skillName}"</strong> akan dihapus permanent dari sistem.</p>
+                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-left">
+                    <p class="text-sm text-red-700 font-semibold flex items-center gap-2">
+                        <span class="iconify" data-icon="mdi:alert" data-width="16"></span>
+                        PERINGATAN: Tindakan ini akan berdampak pada semua pengguna!
+                    </p>
+                </div>
+                </div>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        background: '#ffffff',
+        customClass: {
+            popup: 'rounded-2xl',
+            title: 'text-xl font-bold text-gray-900',
+            htmlContainer: 'text-left'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
             window.location.href = `skills.php?delete_id=${skillId}`;
         }
-    }
+    });
 }
 
 // Close modal when clicking outside
-document.getElementById('editModal')?.addEventListener('click', function(e) {
+document.getElementById('editModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeEditModal();
     }
@@ -759,6 +987,38 @@ document.addEventListener('keydown', function(e) {
         closeEditModal();
     }
 });
+
+// Initialize dropdowns when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize main dropdown
+    new CustomDropdown('skill-type-dropdown');
+    
+    // Initialize edit dropdown
+    new CustomDropdown('edit-skill-type-dropdown');
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Debug: Cek apakah elemen header text ada dan kenapa hidden
+    const headerText = document.querySelector('nav span.text-lg');
+    if (headerText) {
+        console.log('Header text found:', headerText);
+        console.log('Computed display:', window.getComputedStyle(headerText).display);
+        console.log('Classes:', headerText.className);
+    }
+});
+
+// Clear notification parameters from URL
+function clearNotificationParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('success') || urlParams.has('error')) {
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+    }
+}
+
+// Execute when page loads
+document.addEventListener('DOMContentLoaded', clearNotificationParams);
 </script>
 
 <?php include '../../includes/footer.php'; ?>

@@ -402,7 +402,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                 </button>
                 <a href="index.php?show_all=1" class="bg-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:refresh" data-width="20"></span>
-                    Tampilkan Semua Mahasiswa Eligible
+                    Reset
                 </a>
             </div>
         </form>
