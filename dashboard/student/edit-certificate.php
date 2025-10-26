@@ -11,7 +11,6 @@ $user_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
 
-// Get certificate ID from URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: certificates.php");
     exit();
@@ -19,7 +18,6 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $certificate_id = intval($_GET['id']);
 
-// Get current certificate data
 $stmt = $conn->prepare("
     SELECT * FROM certificates 
     WHERE id = ? AND student_id = ?
@@ -36,7 +34,6 @@ if ($certificate_result->num_rows === 0) {
 $certificate = $certificate_result->fetch_assoc();
 $stmt->close();
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $certificate_title = sanitize($_POST['certificate_title']);
     $organization = sanitize($_POST['organization']);
@@ -46,17 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $credential_url = !empty($_POST['credential_url']) ? sanitize($_POST['credential_url']) : null;
     $description = sanitize($_POST['description']);
 
-    // Validation
     if (empty($certificate_title) || empty($organization) || empty($issue_date)) {
         $error = "Nama sertifikat, organisasi, dan tanggal terbit wajib diisi!";
     } else {
-        $file_path = $certificate['file_path']; // Keep existing file path
+        $file_path = $certificate['file_path']; 
         
-        // Handle file upload if new file is provided
         if (isset($_FILES['certificate_file']) && $_FILES['certificate_file']['error'] === UPLOAD_ERR_OK) {
             $upload_result = handleCertificateUpload($_FILES['certificate_file'], $user_id);
             if ($upload_result['success']) {
-                // Delete old file if exists
                 if (!empty($certificate['file_path'])) {
                     $old_file_path = $_SERVER['DOCUMENT_ROOT'] . $certificate['file_path'];
                     if (file_exists($old_file_path)) {
@@ -69,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Handle file deletion if requested
         if (isset($_POST['delete_file']) && $_POST['delete_file'] == '1') {
             if (!empty($certificate['file_path'])) {
                 $old_file_path = $_SERVER['DOCUMENT_ROOT'] . $certificate['file_path'];
@@ -95,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 if ($stmt->execute()) {
                     $success = "Sertifikat berhasil diperbarui!";
-                    // Update current certificate data
                     $certificate['title'] = $certificate_title;
                     $certificate['organization'] = $organization;
                     $certificate['issue_date'] = $issue_date;
@@ -117,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 function handleCertificateUpload($file, $user_id) {
     $allowed_types = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-    $max_size = 5 * 1024 * 1024; // 5MB
+    $max_size = 5 * 1024 * 1024;
     
     if ($file['size'] > $max_size) {
         return ['success' => false, 'error' => 'Ukuran file maksimal 5MB'];
@@ -128,7 +120,7 @@ function handleCertificateUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Hanya file PDF, JPG, dan PNG yang diizinkan'];
     }
     
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/certificates/' . $user_id . '/';
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/certificates/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -138,7 +130,7 @@ function handleCertificateUpload($file, $user_id) {
     $file_path = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        return ['success' => true, 'file_path' => '/studenthub/uploads/certificates/' . $user_id . '/' . $filename];
+        return ['success' => true, 'file_path' => '/cakrawala-connect/uploads/certificates/' . $user_id . '/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Gagal mengupload file'];
     }
@@ -195,17 +187,17 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Sertifikat *</label>
                             <input type="text" name="certificate_title" 
-                                   value="<?php echo htmlspecialchars($certificate['title'] ?? ''); ?>" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                                   placeholder="Contoh: Google Cloud Professional" required maxlength="255">
+                                    value="<?php echo htmlspecialchars($certificate['title'] ?? ''); ?>" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                                    placeholder="Contoh: Google Cloud Professional" required maxlength="255">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Organisasi Pemberi *</label>
                             <input type="text" name="organization" 
-                                   value="<?php echo htmlspecialchars($certificate['organization'] ?? ''); ?>" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                                   placeholder="Contoh: Google, Microsoft, AWS" required maxlength="255">
+                                    value="<?php echo htmlspecialchars($certificate['organization'] ?? ''); ?>" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                                    placeholder="Contoh: Google, Microsoft, AWS" required maxlength="255">
                         </div>
                     </div>
 
@@ -214,16 +206,16 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Terbit *</label>
                             <input type="date" name="issue_date" 
-                                   value="<?php echo htmlspecialchars($certificate['issue_date'] ?? ''); ?>" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                                   required>
+                                    value="<?php echo htmlspecialchars($certificate['issue_date'] ?? ''); ?>" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                                    required>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kadaluarsa</label>
                             <input type="date" name="expiry_date" 
-                                   value="<?php echo htmlspecialchars($certificate['expiry_date'] ?? ''); ?>" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors">
+                                    value="<?php echo htmlspecialchars($certificate['expiry_date'] ?? ''); ?>" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors">
                             <p class="text-xs text-gray-500 mt-1">Kosongkan jika sertifikat tidak memiliki masa berlaku</p>
                         </div>
                     </div>
@@ -338,7 +330,6 @@ function handleCertificateUpload($file, $user_id) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Validate expiry date is after issue date
     const issueDateInput = document.querySelector('input[name="issue_date"]');
     const expiryDateInput = document.querySelector('input[name="expiry_date"]');
     
@@ -371,7 +362,6 @@ function confirmDeleteFile() {
     }).then((result) => {
         if (result.isConfirmed) {
             document.getElementById('delete_file').value = '1';
-            // Submit form setelah konfirmasi
             document.querySelector('form').submit();
         }
     });

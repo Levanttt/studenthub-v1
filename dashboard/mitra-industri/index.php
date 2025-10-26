@@ -17,7 +17,6 @@ $specialization_filter = isset($_GET['specialization']) ? sanitize($_GET['specia
 $skill_filter = isset($_GET['skill']) ? sanitize($_GET['skill']) : '';
 $show_all = isset($_GET['show_all']) && $_GET['show_all'] == '1';
 
-// PAGINATION SETUP
 $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $students_per_page = 8;
 $offset = ($current_page - 1) * $students_per_page;

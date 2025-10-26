@@ -71,7 +71,7 @@ function handleCertificateUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Hanya file PDF, JPG, dan PNG yang diizinkan'];
     }
     
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/certificates/' . $user_id . '/';
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/certificates/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -81,7 +81,7 @@ function handleCertificateUpload($file, $user_id) {
     $file_path = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        return ['success' => true, 'file_path' => '/studenthub/uploads/certificates/' . $user_id . '/' . $filename];
+        return ['success' => true, 'file_path' => '/cakrawala-connect/uploads/certificates/' . $user_id . '/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Gagal mengupload file'];
     }
@@ -133,7 +133,6 @@ function handleCertificateUpload($file, $user_id) {
                 </h2>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Kolom Kiri -->
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Sertifikat *</label>
@@ -150,7 +149,6 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     </div>
 
-                    <!-- Kolom Kanan -->
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Terbit *</label>
@@ -168,7 +166,7 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                <!-- Informasi Kredensial - Hanya SATU bagian ini yang dipakai -->
+                <!-- Informasi Kredensial -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ID Kredensial</label>
@@ -240,14 +238,12 @@ function handleCertificateUpload($file, $user_id) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Set default date to today for issue date
     const issueDateInput = document.querySelector('input[name="issue_date"]');
     if (issueDateInput && !issueDateInput.value) {
         const today = new Date().toISOString().split('T')[0];
         issueDateInput.value = today;
     }
 
-    // Validate expiry date is after issue date
     const expiryDateInput = document.querySelector('input[name="expiry_date"]');
     if (expiryDateInput) {
         expiryDateInput.addEventListener('change', function() {

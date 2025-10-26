@@ -9,7 +9,6 @@ if (!isLoggedIn() || getUserRole() != 'student') {
 
 $user_id = $_SESSION['user_id'];
 
-// Get certificates from projects
 $project_certs_stmt = $conn->prepare("
     SELECT 
         p.id as project_id,
@@ -37,15 +36,13 @@ $project_certs_result = $project_certs_stmt->get_result();
 
 $project_certificates = [];
 while ($cert = $project_certs_result->fetch_assoc()) {
-    // Pastikan data valid
     if (!empty($cert['certificate_title']) && $cert['certificate_title'] != '0' && !empty($cert['file_path'])) {
         $project_certificates[] = $cert;
     }
 }
 
-// Get standalone certificates - PERBAIKAN DI SINI
 $standalone_certificates = [];
-$standalone_certs_stmt = null; // Inisialisasi variabel
+$standalone_certs_stmt = null; 
 
 $standalone_certs_stmt = $conn->prepare("
     SELECT 
@@ -64,7 +61,6 @@ $standalone_certs_stmt = $conn->prepare("
     WHERE student_id = ?
 ");
 
-// Check if prepare was successful
 if ($standalone_certs_stmt) {
     $standalone_certs_stmt->bind_param("i", $user_id);
     $standalone_certs_stmt->execute();
@@ -74,14 +70,11 @@ if ($standalone_certs_stmt) {
         $standalone_certificates[] = $cert;
     }
 } else {
-    // Jika tabel certificates tidak ada, tetap lanjut dengan array kosong
     error_log("Certificates table doesn't exist or query error: " . $conn->error);
 }
 
-// Merge all certificates
 $all_certificates = array_merge($project_certificates, $standalone_certificates);
 
-// Sort by issue date (newest first)
 usort($all_certificates, function($a, $b) {
     return strtotime($b['issue_date']) - strtotime($a['issue_date']);
 });
@@ -91,11 +84,9 @@ $from_projects = count($project_certificates);
 $standalone = count($standalone_certificates);
 ?>
 
-<!-- HTML code dengan perubahan warna -->
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header dengan tombol kembali -->
     <div class="flex justify-between items-center w-full mb-8">
         <div class="flex-1">
             <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
@@ -159,7 +150,6 @@ $standalone = count($standalone_certificates);
     <!-- Certificates Grid -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <?php if (empty($all_certificates)): ?>
-            <!-- Empty State -->
             <div class="text-center py-12">
                 <div class="text-[#2A8FA9] mb-4 flex justify-center">
                     <span class="iconify" data-icon="mdi:certificate-off" data-width="80"></span>

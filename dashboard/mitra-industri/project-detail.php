@@ -12,7 +12,6 @@ if (getUserRole() != 'mitra_industri') {
     exit();
 }
 
-// 2. Ambil ID project dan student dari parameter URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: student-all-projects.php?error=missing_project_id");
     exit();
@@ -26,7 +25,6 @@ if (!isset($_GET['student_id']) || empty($_GET['student_id'])) {
 $project_id = intval($_GET['id']);
 $student_id = intval($_GET['student_id']);
 
-// 3. Ambil data project
 $project = [];
 try {
     $project_query = "
@@ -51,7 +49,6 @@ try {
     exit();
 }
 
-// 4. Ambil gambar project
 $project_images = [];
 try {
     $images_query = "
@@ -70,10 +67,8 @@ try {
     }
     $images_stmt->close();
 } catch (Exception $e) {
-    // Continue without images
 }
 
-// Jika tidak ada gambar di tabel project_images, gunakan image_path dari projects
 if (empty($project_images) && !empty($project['image_path'])) {
     $project_images[] = [
         'image_path' => $project['image_path'],
@@ -81,7 +76,6 @@ if (empty($project_images) && !empty($project['image_path'])) {
     ];
 }
 
-// 5. Ambil skills project
 $skills = [];
 try {
     $skills_query = "
@@ -101,10 +95,8 @@ try {
     }
     $skills_stmt->close();
 } catch (Exception $e) {
-    // Continue without skills
 }
 
-// 6. Ambil state like dari database (HYBRID)
 $is_liked = false;
 try {
     if (isLoggedIn() && getUserRole() == 'mitra_industri') {
@@ -115,7 +107,6 @@ try {
         $is_liked = $like_check_stmt->get_result()->num_rows > 0;
         $like_check_stmt->close();
         
-        // Update session cache
         if (!isset($_SESSION['likes_cache'])) {
             $_SESSION['likes_cache'] = [];
         }
@@ -124,7 +115,6 @@ try {
         }
     }
 } catch (Exception $e) {
-    // Fallback to session cache
     $is_liked = isset($_SESSION['likes_cache']) && in_array($project_id, $_SESSION['likes_cache']);
 }
 ?>
@@ -148,7 +138,7 @@ try {
         
         <div class="flex gap-3">
             <a href="student-all-projects.php?id=<?php echo $student_id; ?>" 
-               class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
+                class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                 Kembali ke Semua Project
             </a>
@@ -160,10 +150,8 @@ try {
         <div class="lg:col-span-3 space-y-6">
             <!-- Project Header -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-                <!-- Student Info -->
                 <div class="flex items-center gap-4 mb-6 p-4 bg-[#E0F7FF] rounded-xl border border-[#51A3B9] border-opacity-30">
                     <?php
-                    // Ambil profile picture student
                     $student_pic_query = "SELECT profile_picture FROM users WHERE id = ?";
                     $student_pic_stmt = $conn->prepare($student_pic_query);
                     $student_pic_stmt->bind_param("i", $student_id);

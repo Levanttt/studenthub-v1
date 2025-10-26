@@ -66,10 +66,6 @@ if ($skills_stmt) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // HAPUS debug echo yang mengganggu output
-    // echo "<!-- DEBUG: Form submitted -->";
-    // echo "<!-- DEBUG: skills_input: " . print_r($_POST['skills'], true) . " -->";
-    
     $title = sanitize($_POST['title']);
     $description = sanitize($_POST['description']);
     $category = sanitize($_POST['category']);
@@ -82,19 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $demo_url = sanitize($_POST['demo_url'] ?? '');
     $video_url = sanitize($_POST['video_url'] ?? '');
     
-    // PERBAIKAN: Pastikan skills_input selalu array dan diproses dengan benar
     $skills_input = isset($_POST['skills']) ? (is_array($_POST['skills']) ? $_POST['skills'] : [$_POST['skills']]) : [];
     
     $delete_images = $_POST['delete_images'] ?? [];
     $delete_certificate = isset($_POST['delete_certificate']);
 
-    // DEBUG
-    error_log("=== DEBUG EDIT PROJECT ===");
-    error_log("Project ID: " . $project_id);
-    error_log("Skills from form: " . implode(', ', $skills_input));
-    error_log("Existing skills: " . implode(', ', $existing_skills));
-
-    // Validation
     if (empty($title) || empty($description)) {
         $error = "Judul dan deskripsi wajib diisi!";
     } elseif (empty($category) || empty($status) || empty($project_type) || empty($project_year)) {
@@ -113,10 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     
-    // PERBAIKAN: Validasi skills yang lebih longgar
     $technical_skills_count = 0;
     if (!empty($skills_input)) {
-        // Hitung technical skills
         $technical_skills_stmt = $conn->prepare("SELECT COUNT(*) as count FROM skills WHERE name IN (" . implode(',', array_fill(0, count($skills_input), '?')) . ") AND skill_type = 'technical'");
         if ($technical_skills_stmt) {
             $types = str_repeat('s', count($skills_input));
@@ -240,7 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if ($update_stmt->execute()) {
                     error_log("DEBUG: Project update successful");
 
-                    // Handle image deletions
                     if (!empty($delete_images)) {
                         $delete_stmt = $conn->prepare("DELETE FROM project_images WHERE id = ? AND project_id = ?");
                         if ($delete_stmt) {
@@ -253,7 +238,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
                     }
                     
-                    // Handle new gallery images
                     if (!empty($gallery_images)) {
                         $image_stmt = $conn->prepare("INSERT INTO project_images (project_id, image_path, is_primary) VALUES (?, ?, ?)");
                         if ($image_stmt) {
@@ -266,10 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
                     }
                     
-                    // PERBAIKAN KRITIS: Handle skills dengan cara yang lebih robust
                     error_log("DEBUG: Starting skills update process");
                     
-                    // 1. Hapus SEMUA skill dari project ini
                     $delete_skills_stmt = $conn->prepare("DELETE FROM project_skills WHERE project_id = ?");
                     if ($delete_skills_stmt) {
                         $delete_skills_stmt->bind_param("i", $project_id);
@@ -281,7 +263,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $delete_skills_stmt->close();
                     }
                     
-                    // 2. Tambahkan skill baru yang dipilih dari form
                     if (!empty($skills_input)) {
                         error_log("DEBUG: Adding new skills: " . implode(', ', $skills_input));
                         
@@ -291,7 +272,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             foreach ($skills_input as $skill_name) {
                                 $skill_name = trim($skill_name);
                                 if (!empty($skill_name)) {
-                                    // Cari skill di database
                                     $skill_stmt = $conn->prepare("SELECT id, skill_type FROM skills WHERE name = ?");
                                     if ($skill_stmt) {
                                         $skill_stmt->bind_param("s", $skill_name);
@@ -304,10 +284,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             $skill_id = $skill['id'];
                                             error_log("DEBUG: Found skill '$skill_name' with ID: $skill_id, type: " . $skill['skill_type']);
                                         } else {
-                                            // Tentukan skill_type berdasarkan konteks
-                                            $skill_type = 'technical'; // default
+                                            $skill_type = 'technical'; 
                                             
-                                            // Buat skill baru jika tidak ada
                                             $insert_skill = $conn->prepare("INSERT INTO skills (name, skill_type) VALUES (?, ?)");
                                             if ($insert_skill) {
                                                 $insert_skill->bind_param("ss", $skill_name, $skill_type);
@@ -316,14 +294,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     error_log("DEBUG: Created new skill '$skill_name' with ID: $skill_id, type: $skill_type");
                                                 } else {
                                                     error_log("DEBUG: Failed to create skill '$skill_name'");
-                                                    continue; // Skip skill ini tapi jangan rollback
+                                                    continue; 
                                                 }
                                                 $insert_skill->close();
                                             }
                                         }
                                         $skill_stmt->close();
                                         
-                                        // Insert ke project_skills
                                         if ($skill_id) {
                                             $skill_insert_stmt->bind_param("ii", $project_id, $skill_id);
                                             if ($skill_insert_stmt->execute()) {
@@ -331,7 +308,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 error_log("DEBUG: Successfully added skill '$skill_name' to project");
                                             } else {
                                                 error_log("DEBUG: Failed to add skill '$skill_name' to project: " . $skill_insert_stmt->error);
-                                                // Jangan throw exception, biarkan skill lain tetap diproses
                                             }
                                         }
                                     }
@@ -342,14 +318,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         }
                     } else {
                         error_log("DEBUG: No skills to add - project will have no skills");
-                        // Biarkan saja, project bisa tanpa skills (tapi validasi di atas sudah mencegah ini)
                     }
                     
                     $conn->commit();
                     $success = "Proyek berhasil diperbarui!";
                     error_log("DEBUG: Transaction committed successfully");
                     
-                    // Refresh data untuk menampilkan perubahan
                     $refresh_stmt = $conn->prepare("SELECT * FROM projects WHERE id = ? AND student_id = ?");
                     if ($refresh_stmt) {
                         $refresh_stmt->bind_param("ii", $project_id, $user_id);
@@ -371,7 +345,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $refresh_images_stmt->close();
                     }
                     
-                    // Refresh skills
                     $refresh_skills_stmt = $conn->prepare("
                         SELECT s.name
                         FROM skills s 
@@ -447,7 +420,7 @@ function handleFileUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan'];
     }
     
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/projects/' . $user_id . '/';
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/projects/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -457,7 +430,7 @@ function handleFileUpload($file, $user_id) {
     $file_path = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        return ['success' => true, 'file_path' => '/studenthub/uploads/projects/' . $user_id . '/' . $filename];
+        return ['success' => true, 'file_path' => '/cakrawala-connect/uploads/projects/' . $user_id . '/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Gagal mengupload file'];
     }
@@ -476,7 +449,7 @@ function handleCertificateUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Hanya file PDF, JPG, dan PNG yang diizinkan untuk sertifikat'];
     }
     
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/certificates/' . $user_id . '/';
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/certificates/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -486,7 +459,7 @@ function handleCertificateUpload($file, $user_id) {
     $file_path = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        return ['success' => true, 'file_path' => '/studenthub/uploads/certificates/' . $user_id . '/' . $filename];
+        return ['success' => true, 'file_path' => '/cakrawala-connect/uploads/certificates/' . $user_id . '/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Gagal mengupload sertifikat'];
     }

@@ -9,7 +9,6 @@ if (!isLoggedIn() || getUserRole() != 'student') {
 
 $user_id = $_SESSION['user_id'];
 
-// Ambil nama user dari database berdasarkan user_id
 $user_name = 'Unknown';
 $user_query = $conn->prepare("SELECT name FROM users WHERE id = ?");
 $user_query->bind_param("i", $user_id);
@@ -27,7 +26,6 @@ $user_query->close();
 $success = '';
 $error = '';
 
-// ✅ HANDLER UNTUK SEMUA REDIRECT MESSAGES
 if (isset($_GET['success'])) {
     $skill_name = isset($_GET['skill']) ? urldecode($_GET['skill']) : '';
     
@@ -44,7 +42,6 @@ if (isset($_GET['success'])) {
     }
 }
 
-// ✅ HANDLER UNTUK ERROR MESSAGES
 if (isset($_GET['error'])) {
     switch($_GET['error']) {
         case 'used':
@@ -62,14 +59,12 @@ if (isset($_GET['error'])) {
     }
 }
 
-// Fungsi untuk mencatat log skill
 function logSkillAction($conn, $skill_id, $skill_name, $action, $user_id, $user_name) {
     $stmt = $conn->prepare("INSERT INTO skill_logs (skill_id, skill_name, action, user_id, user_name) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("issis", $skill_id, $skill_name, $action, $user_id, $user_name);
     return $stmt->execute();
 }
 
-// Fungsi untuk mengambil data skills - FIXED VERSION
 function getSkillsData($conn) {
     $skills_by_category = [
         'technical' => [],
@@ -93,16 +88,13 @@ function getSkillsData($conn) {
             while ($skill = $skills_result->fetch_assoc()) {
                 $skill_type = $skill['skill_type'] ?? 'technical';
                 
-                // Validasi dan pastikan skill_type valid
                 if (!in_array($skill_type, ['technical', 'soft', 'tool'])) {
                     $skill_type = 'technical';
                 }
                 
-                // PASTIKAN KEY EXISTS sebelum assign
                 if (array_key_exists($skill_type, $skills_by_category)) {
                     $skills_by_category[$skill_type][] = $skill;
                 } else {
-                    // Fallback ke technical
                     $skills_by_category['technical'][] = $skill;
                 }
             }
@@ -115,7 +107,6 @@ function getSkillsData($conn) {
         $total_skills = 0;
     }
     
-    // Refresh skill_usage juga
     $skill_usage = [];
     foreach ($skills_by_category as $category => $skills) {
         foreach ($skills as $skill) {
@@ -132,7 +123,6 @@ function getSkillsData($conn) {
     ];
 }
 
-// Inisialisasi variabel - FIXED
 $skills_by_category = [
     'technical' => [],
     'soft' => [],
@@ -141,7 +131,6 @@ $skills_by_category = [
 $total_skills = 0;
 $skill_usage = [];
 
-// Ambil data skills
 $skills_data = getSkillsData($conn);
 $skills_by_category = $skills_data['skills_by_category'];
 $total_skills = $skills_data['total_skills'];
@@ -160,7 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_skill'])) {
         $check_result = $check_stmt->get_result();
         
         if ($check_result->num_rows > 0) {
-            // Redirect dengan error
             header("Location: skills.php?error=already_exists");
             exit();
         } else {
@@ -171,7 +159,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_skill'])) {
                 $new_skill_id = $conn->insert_id;
                 logSkillAction($conn, $new_skill_id, $skill_name, 'added', $user_id, $user_name);
                 
-                // ✅ REDIRECT SETELAH ADD SUCCESS
                 header("Location: skills.php?success=added&skill=" . urlencode($skill_name));
                 exit();
             } else {
@@ -192,17 +179,14 @@ if (isset($_GET['delete_id'])) {
     $usage_result = $check_usage->get_result();
     
     if ($usage_result->num_rows > 0) {
-        // Redirect dengan error
         header("Location: skills.php?error=used");
         exit();
     } else {
-        // Ambil informasi skill sebelum dihapus untuk logging
         $skill_info_stmt = $conn->prepare("SELECT name FROM skills WHERE id = ?");
         $skill_info_stmt->bind_param("i", $delete_id);
         $skill_info_stmt->execute();
         $skill_info_result = $skill_info_stmt->get_result();
         
-        // ✅ PERBAIKAN: Check jika skill exists
         if ($skill_info_result->num_rows > 0) {
             $skill_info = $skill_info_result->fetch_assoc();
             $skill_name = $skill_info['name'];
@@ -212,19 +196,15 @@ if (isset($_GET['delete_id'])) {
             $delete_stmt->bind_param("i", $delete_id);
             
             if ($delete_stmt->execute()) {
-                // Catat log untuk penghapusan skill (skill_id = NULL karena sudah dihapus)
                 logSkillAction($conn, NULL, $skill_name, 'deleted', $user_id, $user_name);
                 
-                // ✅ REDIRECT SETELAH DELETE SUCCESS
                 header("Location: skills.php?success=deleted&skill=" . urlencode($skill_name));
                 exit();
             } else {
-                // Redirect dengan error
                 header("Location: skills.php?error=delete_failed");
                 exit();
             }
         } else {
-            // Redirect dengan error
             header("Location: skills.php?error=not_found");
             exit();
         }
@@ -253,7 +233,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
         $check_result = $check_stmt->get_result();
         
         if ($check_result->num_rows > 0) {
-            // Redirect dengan error
             header("Location: skills.php?error=already_exists");
             exit();
         } else {
@@ -263,7 +242,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
             if ($update_stmt->execute()) {
                 logSkillAction($conn, $skill_id, $skill_name, 'edited', $user_id, $user_name);
                 
-                // ✅ REDIRECT SETELAH EDIT SUCCESS
                 header("Location: skills.php?success=edited&skill=" . urlencode($skill_name));
                 exit();
             } else {
@@ -283,7 +261,6 @@ header .hidden.sm\:inline {
     display: inline-block !important;
 }
 
-/* Pastikan tidak ada konflik dengan class hidden */
 nav .hidden.sm\:inline {
     display: inline-block !important;
 }
@@ -322,7 +299,6 @@ nav .hidden.sm\:inline {
     color: #7e22ce;
 }
 
-/* Modal Styles untuk Edit */
 .modal-overlay {
     position: fixed;
     inset: 0;

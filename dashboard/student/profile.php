@@ -54,7 +54,7 @@ function handleProfilePictureUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan'];
     }
     
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/profiles/' . $user_id . '/';
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/profiles/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -64,7 +64,7 @@ function handleProfilePictureUpload($file, $user_id) {
     $file_path = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        return ['success' => true, 'file_path' => '/studenthub/uploads/profiles/' . $user_id . '/' . $filename];
+        return ['success' => true, 'file_path' => '/cakrawala-connect/uploads/profiles/' . $user_id . '/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Gagal mengupload file'];
     }
@@ -83,7 +83,7 @@ function handleCVUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Hanya file PDF yang diizinkan untuk CV'];
     }
     
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/cvs/' . $user_id . '/';
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/cvs/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -93,7 +93,7 @@ function handleCVUpload($file, $user_id) {
     $file_path = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        return ['success' => true, 'file_path' => '/studenthub/uploads/cvs/' . $user_id . '/' . $filename];
+        return ['success' => true, 'file_path' => '/cakrawala-connect/uploads/cvs/' . $user_id . '/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Gagal mengupload file CV'];
     }
@@ -1368,7 +1368,6 @@ function removeProfilePicture() {
     }
 }
 
-// Konfirmasi Logout
 function confirmLogout() {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
@@ -1383,24 +1382,23 @@ function confirmLogout() {
             background: '#ffffff'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = '/studenthub/logout.php';
+                window.location.href = '/cakrawala-connect/logout.php';
             }
         });
     } else {
         if (confirm('Yakin ingin logout?')) {
-            window.location.href = '/studenthub/logout.php';
+            window.location.href = '/cakrawala-connect/logout.php';
         }
     }
 }
 
-// Konfirmasi Hapus Akun
 function confirmDelete() {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             title: 'Hapus Akun Permanent?',
             html: `<div class="text-left">
                     <p class="text-red-600 font-semibold">PERINGATAN: Tindakan ini tidak dapat dibatalkan!</p>
-                   </div>`,
+                    </div>`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -1420,12 +1418,9 @@ function confirmDelete() {
     }
 }
 
-// Initialize all functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize counters
     updateSpecCounter();
     
-    // Specialization select event
     const specSelect = document.getElementById('specialization-select');
     if (specSelect) {
         specSelect.addEventListener('change', function() {
@@ -1435,7 +1430,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Real-time bio character counter
     const bioTextarea = document.querySelector('textarea[name="bio"]');
     const bioCounter = document.getElementById('bioCounter');
     
@@ -1445,7 +1439,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Loading state untuk form submission
     const form = document.getElementById('profileForm');
     const submitBtn = document.getElementById('submitBtn');
     

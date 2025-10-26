@@ -9,24 +9,20 @@ if (!isLoggedIn() || getUserRole() != 'student') {
 
 $user_id = $_SESSION['user_id'];
 
-// Get student data
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $student = $result->fetch_assoc();
 
-// Get project count
 $project_stmt = $conn->prepare("SELECT COUNT(*) as total_projects FROM projects WHERE student_id = ?");
 $project_stmt->bind_param("i", $user_id);
 $project_stmt->execute();
 $project_result = $project_stmt->get_result();
 $project_count = $project_result->fetch_assoc()['total_projects'];
 
-// Get total profile views
 $total_views = getProfileViewsCount($user_id);
 
-// Get total likes from project_likes table
 $likes_stmt = $conn->prepare("
     SELECT COUNT(*) as total_likes 
     FROM project_likes pl 
@@ -38,7 +34,6 @@ $likes_stmt->execute();
 $likes_result = $likes_stmt->get_result();
 $total_likes = $likes_result->fetch_assoc()['total_likes'];
 
-// Get recent projects with skills data
 $recent_projects_stmt = $conn->prepare("
     SELECT p.*, GROUP_CONCAT(DISTINCT s.name) as skill_names, GROUP_CONCAT(DISTINCT s.skill_type) as skill_types
     FROM projects p 
@@ -186,14 +181,12 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                 </a>
             </div>
         <?php else: ?>
-            <!-- Projects Grid dengan Style projects.php -->
+            <!-- Projects Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php while($project = $recent_projects_result->fetch_assoc()): 
-                    // Parse skills data
                     $skill_names = !empty($project['skill_names']) ? explode(',', $project['skill_names']) : [];
                     $skill_types = !empty($project['skill_types']) ? explode(',', $project['skill_types']) : [];
                     
-                    // Combine skills with their types
                     $skills_with_types = [];
                     foreach ($skill_names as $index => $skill_name) {
                         $skill_type = $skill_types[$index] ?? 'technical';
@@ -216,7 +209,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                             </div>
                         <?php endif; ?>
                         
-                        <!-- Category Badge di pojok kiri atas -->
                         <div class="absolute top-3 left-3">
                         <?php
                         $category_mapping = [
@@ -235,8 +227,7 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                             'other' => 'Lainnya'
                         ];
 
-                        $enum_category = $project['category']; // Ambil value singkat dari database proyek
-                        // Cari nama lengkap di mapping, jika tidak ada, gunakan formatText() sebagai fallback
+                        $enum_category = $project['category']; 
                         $category_name = $category_mapping[$enum_category] ?? formatText($enum_category);
                         ?>
                         <span class="bg-white/90 text-[#2A8FA9] px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
@@ -247,7 +238,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                     
                     <!-- Content -->
                     <div class="p-5">
-                        <!-- Judul dan Tahun dalam satu baris -->
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-[#2A8FA9] text-lg group-hover:text-[#51A3B9] transition-colors line-clamp-1 flex-1 mr-2">
                                 <?php echo htmlspecialchars($project['title']); ?>
@@ -257,7 +247,7 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                             </span>
                         </div>
                         
-                        <!-- Skills/Tags dengan warna konsisten seperti di projects.php -->
+                        <!-- Skills -->
                         <?php if (!empty($skills_with_types)): ?>
                         <div class="flex flex-wrap gap-1 mb-3">
                             <?php 
@@ -293,7 +283,7 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                                 <?php echo date('M Y', strtotime($project['created_at'])); ?>
                             </span>
                             <a href="project-detail.php?id=<?php echo $project['id']; ?>" 
-                               class="text-[#51A3B9] hover:text-[#409BB2] font-semibold text-sm flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
+                                class="text-[#51A3B9] hover:text-[#409BB2] font-semibold text-sm flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
                                 View Details
                                 <span class="iconify" data-icon="mdi:arrow-right" data-width="16"></span>
                             </a>
