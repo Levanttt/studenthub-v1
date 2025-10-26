@@ -113,11 +113,11 @@
                 <?php else: ?>
                     <div class="flex items-center space-x-3">
                         <a href="/studenthub/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
-                            <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
+                            <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
                             Daftar
                         </a>
-                        <a href="/studenthub/login.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
-                            <span class="iconify" data-icon="mdi:login" data-width="16"></span>
+                        <a href="/studenthub/login.php" class="bg-cakrawala-primary text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
+                            <span class="iconify" data-icon="mdi:login" data-width="18"></span>
                             Login
                         </a>
                     </div>
