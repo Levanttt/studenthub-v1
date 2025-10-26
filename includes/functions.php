@@ -19,7 +19,6 @@ function getStatusBadge($status) {
     return '<span class="font-semibold text-white px-2 py-1 rounded-full text-xs ' . $color . '">' . $formattedStatus . '</span>';
 }
 
-// Di functions.php
 function getEligibilityBadge($status) {
     $statusLower = strtolower($status);
     
@@ -54,17 +53,14 @@ function getEligibilityBadge($status) {
     return $config;
 }
 
-// di functions.php - perbaiki fungsi
 function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other') {
     global $conn;
     
-    // Validasi input
     if (!$student_id) {
         error_log("Error: student_id is required");
         return false;
     }
     
-    // Cek apakah viewer adalah stakeholder
     if ($viewer_id) {
         $role_stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
         $role_stmt->bind_param("i", $viewer_id);
@@ -88,7 +84,6 @@ function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other
     $check_stmt->execute();
     
     if ($check_stmt->get_result()->num_rows == 0) {
-        // Insert new view
         $insert_stmt = $conn->prepare("
             INSERT INTO profile_views (student_id, viewer_id, viewer_role, viewer_ip, user_agent) 
             VALUES (?, ?, ?, ?, ?)
@@ -104,7 +99,7 @@ function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other
         }
     } else {
         error_log("⏩ DUPLICATE profile view skipped - Student: $student_id, IP: $ip");
-        return false; // Duplicate, tidak dihitung
+        return false; 
     }
 }
 

@@ -1,6 +1,6 @@
 </main>
 
-<!-- Footer Manual -->
+<!-- Footer -->
     <footer class="bg-[#E0F2F7] border-t border-[#ABD0D8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"> 
             <div class="flex flex-col md:flex-row justify-between items-start gap-6"> 
@@ -8,7 +8,7 @@
                 <!-- Logo & Address -->
                 <div class="space-y-2"> 
                     <a href="<?php echo $dashboard_url; ?>" class="inline-flex items-center gap-2 mb-1 group"> 
-                        <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" 
+                        <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" 
                             alt="Logo Universitas Cakrawala" 
                             class="h-8 group-hover:opacity-80 transition-opacity"> 
                         <div class="flex flex-col leading-tight">
@@ -25,7 +25,7 @@
                 <!-- Quick Links -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mt-5"> 
                     <div>
-                        <a href="/studenthub/about.php" 
+                        <a href="/cakrawala-connect/about.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200"> 
                             Tentang Platform
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -33,7 +33,7 @@
                         </a>
                     </div>
                     <div>
-                        <a href="/studenthub/for-partners.php" 
+                        <a href="/cakrawala-connect/for-partners.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Untuk Mitra Industri
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -41,8 +41,7 @@
                         </a>
                     </div>
                     <div>
-                        <!-- CDC Link -->
-                        <a href="/studenthub/" 
+                        <a href="/cakrawala-connect/" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Career Center (CDC)
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -50,7 +49,7 @@
                         </a>
                     </div>
                     <div>
-                        <a href="/studenthub/privacy-terms.php" 
+                        <a href="/cakrawala-connect/privacy-terms.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Kebijakan Privasi
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 

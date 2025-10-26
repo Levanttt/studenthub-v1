@@ -10,8 +10,7 @@
 
     <style>
         :root {
-            /* Warna Primer (Biru Paling Tua) */
-            --cakrawala-primary: #2A8FA9; /* Blue Munsell */
+            --cakrawala-primary: #2A8FA9; 
             --cakrawala-primary-hover: #409BB2;
             --cakrawala-secondary: #4CA1B6;
             --cakrawala-secondary-light: #E0F2F7;
@@ -68,9 +67,9 @@
     <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
 
-            <a href="/studenthub/dashboard/<?php echo $folder_name; ?>/index.php"
+            <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/index.php"
                 class="flex items-center gap-2 transition-opacity hover:opacity-80">
-                <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala"
+                <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala"
                     class="h-6">
                 <span class="text-lg font-bold text-cakrawala-primary sm:hidden lg:inline-block">
                     Cakrawala Connect
@@ -97,7 +96,7 @@
                         </button>
 
                         <div class="dropdown-menu absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                            <a href="/studenthub/dashboard/<?php echo $folder_name; ?>/profile.php"
+                            <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/profile.php"
                                 class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                                 <span class="iconify" data-icon="mdi:account-cog" data-width="16"></span>
                                 Profile
@@ -112,11 +111,11 @@
                     </div>
                 <?php else: ?>
                     <div class="flex items-center space-x-3">
-                        <a href="/studenthub/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
+                        <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
                             <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
                             Daftar
                         </a>
-                        <a href="/studenthub/login.php" class="bg-cakrawala-primary text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
+                        <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
                             <span class="iconify" data-icon="mdi:login" data-width="18"></span>
                             Login
                         </a>
@@ -150,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Konfirmasi Logout
 function confirmLogout() {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
@@ -165,12 +163,12 @@ function confirmLogout() {
             background: '#ffffff'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = '/studenthub/logout.php';
+                window.location.href = '/cakrawala-connect/logout.php';
             }
         });
     } else {
         if (confirm('Yakin ingin logout?')) {
-            window.location.href = '/studenthub/logout.php';
+            window.location.href = '/cakrawala-connect/logout.php';
         }
     }
 }

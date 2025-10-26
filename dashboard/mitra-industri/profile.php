@@ -41,7 +41,7 @@ function handleProfilePictureUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan'];
     }
     
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/studenthub/uploads/profiles/' . $user_id . '/';
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/profiles/' . $user_id . '/';
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
@@ -51,7 +51,7 @@ function handleProfilePictureUpload($file, $user_id) {
     $file_path = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        return ['success' => true, 'file_path' => '/studenthub/uploads/profiles/' . $user_id . '/' . $filename];
+        return ['success' => true, 'file_path' => '/cakrawala-connect/uploads/profiles/' . $user_id . '/' . $filename];
     } else {
         return ['success' => false, 'error' => 'Gagal mengupload file'];
     }
@@ -267,7 +267,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             
                             <!-- Upload Controls -->
                             <div class="flex-1 space-y-4">
-                                <!-- Upload Button -->
                                 <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
                                     <div class="flex flex-col items-center justify-center mb-3">
                                         <div class="text-gray-400 mb-2">
@@ -288,7 +287,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     
                                     <p class="text-xs text-gray-500 mt-3">Max. 2MB (JPG, PNG, GIF, WebP)</p>
                                     
-                                    <!-- File name display -->
                                     <div id="profile-picture-name" class="text-sm text-[#2A8FA9] mt-2 hidden"></div>
                                 </div>
                                 
@@ -316,8 +314,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:account" data-width="20"></span>
                                     </span>
                                     <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" 
-                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
-                                           required maxlength="100">
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        required maxlength="100">
                                 </div>
                             </div>
                             
@@ -328,8 +326,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:briefcase" data-width="20"></span>
                                     </span>
                                     <input type="text" name="position" value="<?php echo htmlspecialchars($user['position'] ?? ''); ?>" 
-                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
-                                           placeholder="HR Manager, Recruiter, dll" maxlength="100">
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        placeholder="HR Manager, Recruiter, dll" maxlength="100">
                                 </div>
                             </div>
                         </div>
@@ -342,8 +340,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:office-building" data-width="20"></span>
                                     </span>
                                     <input type="text" name="company" value="<?php echo htmlspecialchars($user['company_name'] ?? ''); ?>" 
-                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
-                                           placeholder="Nama perusahaan" maxlength="100">
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        placeholder="Nama perusahaan" maxlength="100">
                                 </div>
                             </div>
                             
@@ -354,11 +352,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <span class="iconify" data-icon="mdi:phone" data-width="20"></span>
                                     </span>
                                     <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" 
-                                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
-                                           placeholder="Contoh: 081234567890" 
-                                           pattern="^[0-9+\-\s()]{10,20}$"
-                                           title="Format: +62xxx atau 08xxx"
-                                           maxlength="20">
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        placeholder="Contoh: 081234567890" 
+                                        pattern="^[0-9+\-\s()]{10,20}$"
+                                        title="Format: +62xxx atau 08xxx"
+                                        maxlength="20">
                                 </div>
                             </div>
                         </div>
@@ -370,11 +368,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="iconify" data-icon="mdi:linkedin" data-width="20"></span>
                                 </span>
                                 <input type="url" name="linkedin" value="<?php echo htmlspecialchars($user['linkedin'] ?? ''); ?>" 
-                                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
-                                       placeholder="https://linkedin.com/in/username" 
-                                       pattern="^(https?:\/\/)?(www\.)?linkedin\.com\/.+\/?$"
-                                       title="Masukkan URL LinkedIn yang valid"
-                                       maxlength="200">
+                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                    placeholder="https://linkedin.com/in/username" 
+                                    pattern="^(https?:\/\/)?(www\.)?linkedin\.com\/.+\/?$"
+                                    title="Masukkan URL LinkedIn yang valid"
+                                    maxlength="200">
                             </div>
                             <p class="text-gray-500 text-xs mt-1">URL profil LinkedIn Anda</p>
                         </div>
@@ -390,9 +388,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="iconify" data-icon="mdi:text" data-width="20"></span>
                                 </span>
                                 <textarea name="bio" rows="5" 
-                                          class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none" 
-                                          placeholder="Ceritakan tentang diri Anda, perusahaan, atau bidang yang Anda tekuni..." 
-                                          maxlength="500"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none" 
+                                        placeholder="Ceritakan tentang diri Anda, perusahaan, atau bidang yang Anda tekuni..." 
+                                        maxlength="500"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
                             </div>
                             <div class="flex justify-between items-center mt-1">
                                 <p class="text-gray-500 text-xs">Deskripsi singkat tentang profil profesional</p>
@@ -513,7 +511,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         Hapus Akun
                     </button>
                     
-                    <!-- Delete Account Form (Hidden) -->
+                    <!-- Delete Account Form  -->
                     <form method="POST" action="" id="deleteAccountForm" class="hidden">
                         <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         <input type="hidden" name="delete_account" value="1">
@@ -525,19 +523,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </div>
 
 <script>
-// Profile Picture Drag & Drop functionality
 function initializeProfilePictureDragDrop() {
     const profilePictureInput = document.getElementById('profile-picture-input');
     const profilePictureName = document.getElementById('profile-picture-name');
     const dropZone = document.querySelector('.border-dashed');
     
     if (dropZone) {
-        // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
         });
         
-        // Highlight drop zone when item is dragged over it
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, highlight, false);
         });
@@ -546,10 +541,8 @@ function initializeProfilePictureDragDrop() {
             dropZone.addEventListener(eventName, unhighlight, false);
         });
         
-        // Handle dropped files
         dropZone.addEventListener('drop', handleDrop, false);
 
-        // Click to select file
         dropZone.addEventListener('click', function() {
             profilePictureInput.click();
         });
@@ -578,9 +571,8 @@ function initializeProfilePictureDragDrop() {
     }
     
     function handleFileSelection(file) {
-        // Validate file type and size
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        const maxSize = 2 * 1024 * 1024; // 2MB
+        const maxSize = 2 * 1024 * 1024; 
         
         if (!allowedTypes.includes(file.type)) {
             showError('Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan');
@@ -592,18 +584,15 @@ function initializeProfilePictureDragDrop() {
             return;
         }
         
-        // Show file name
         if (profilePictureName) {
             profilePictureName.textContent = 'File terpilih: ' + file.name;
             profilePictureName.classList.remove('hidden');
         }
         
-        // Set file to input
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         profilePictureInput.files = dataTransfer.files;
         
-        // Preview image
         const reader = new FileReader();
         reader.onload = function(e) {
             const profileContainer = document.querySelector('.flex-shrink-0 .relative.group');
@@ -611,7 +600,6 @@ function initializeProfilePictureDragDrop() {
                 let profilePic = profileContainer.querySelector('img');
                 
                 if (!profilePic) {
-                    // If no img exists (using default icon), replace the icon with image
                     const defaultIcon = profileContainer.querySelector('.bg-gradient-to-br');
                     if (defaultIcon) {
                         profilePic = document.createElement('img');
@@ -621,7 +609,6 @@ function initializeProfilePictureDragDrop() {
                         defaultIcon.parentNode.replaceChild(profilePic, defaultIcon);
                     }
                 } else {
-                    // If img exists, just update the src
                     profilePic.src = e.target.result;
                 }
             }
@@ -638,7 +625,6 @@ function initializeProfilePictureDragDrop() {
     }
 }
 
-// Utility Functions
 function showError(message) {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
@@ -653,22 +639,18 @@ function showError(message) {
     }
 }
 
-// Remove profile picture
 function removeProfilePicture() {
     if (confirm('Hapus foto profil?')) {
-        // Create a hidden input to indicate removal
         const removeInput = document.createElement('input');
         removeInput.type = 'hidden';
         removeInput.name = 'remove_profile_picture';
         removeInput.value = '1';
         document.getElementById('profileForm').appendChild(removeInput);
         
-        // Submit form
         document.getElementById('profileForm').submit();
     }
 }
 
-// Konfirmasi Logout
 function confirmLogout() {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
@@ -683,17 +665,16 @@ function confirmLogout() {
             background: '#ffffff'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = '/studenthub/logout.php';
+                window.location.href = '/cakrawala-connect/logout.php';
             }
         });
     } else {
         if (confirm('Yakin ingin logout?')) {
-            window.location.href = '/studenthub/logout.php';
+            window.location.href = '/cakrawala-connect/logout.php';
         }
     }
 }
 
-// Konfirmasi Hapus Akun
 function confirmDelete() {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
