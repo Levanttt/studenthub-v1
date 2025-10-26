@@ -40,17 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = sanitize($_POST['name']);
     $phone = sanitize($_POST['phone']);
 
-    // Student fields
     $nim = isset($_POST['nim']) ? sanitize($_POST['nim']) : '';
     $major = isset($_POST['major']) ? sanitize($_POST['major']) : '';
     $semester = isset($_POST['semester']) ? sanitize($_POST['semester']) : '';
 
-    // Mitra Industri fields
     $company_name = isset($_POST['company_name']) ? sanitize($_POST['company_name']) : '';
     $position = isset($_POST['position']) ? sanitize($_POST['position']) : '';
     $company_website = isset($_POST['company_website']) ? sanitize($_POST['company_website']) : '';
 
-    // Basic validation
     if (empty($email) || empty($password) || empty($name) || empty($role) || empty($phone)) {
         $error = "Semua field wajib diisi!";
     } elseif ($password !== $confirm_password) {
@@ -60,21 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (!preg_match('/^[0-9+\-\s()]{10,20}$/', $phone)) {
         $error = "Format nomor telepon tidak valid!";
     }
-    // Validasi untuk student
     elseif ($role == 'student' && (empty($nim) || empty($major) || empty($semester))) {
         $error = "Untuk Mahasiswa, NIM, jurusan dan semester wajib diisi!";
     }
-    // Validasi NIM untuk student
     elseif ($role == 'student' && !empty($nim) && !preg_match('/^[0-9]{8,15}$/', $nim)) {
         $error = "Format NIM tidak valid! Harus berupa angka (8-15 digit).";
     }
-    // Validasi untuk mitra industri
     elseif ($role == 'mitra_industri' && (empty($company_name) || empty($position))) {
         $error = "Untuk Mitra Industri, nama perusahaan dan jabatan wajib diisi!";
     } else {
-        // Check if email or NIM already exists
         if ($role == 'student') {
-            // Untuk student, cek email dan NIM
             $check_user = $conn->prepare("SELECT id FROM users WHERE email = ? OR nim = ?");
             $check_user->bind_param("ss", $email, $nim);
             $check_user->execute();
@@ -88,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                // Insert into users table dengan NIM
                 $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, phone, company_name, position, company_website, major, semester, nim) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("sssssssssss", $email, $hashed_password, $role, $name, $phone, $company_name, $position, $company_website, $major, $semester, $nim);
 
@@ -102,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt->close();
             }
         } else {
-            // Untuk mitra industri, hanya cek email
             $check_email = $conn->prepare("SELECT id FROM users WHERE email = ?");
             $check_email->bind_param("s", $email);
             $check_email->execute();
@@ -116,7 +106,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                // Insert into users table tanpa NIM
                 $stmt = $conn->prepare("INSERT INTO users (email, password, role, name, phone, company_name, position, company_website, major, semester) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("ssssssssss", $email, $hashed_password, $role, $name, $phone, $company_name, $position, $company_website, $major, $semester);
 
@@ -133,7 +122,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Semester options (sama seperti di profile.php)
 $semesterOptions = [
     '1' => 'Semester 1',
     '2' => 'Semester 2', 
@@ -184,7 +172,6 @@ $semesterOptions = [
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* Style untuk dropdown yang compact */
         .compact-select {
             max-height: 200px;
             overflow-y: auto;
@@ -194,16 +181,16 @@ $semesterOptions = [
 <body class="bg-cakrawala-light-gray"> 
     <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="/studenthub/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
-                <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> 
+            <a href="/cakrawala-connect/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
+                <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> 
                 <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> 
             </a>
             <div class="flex items-center space-x-3">
-                <a href="/studenthub/register.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
+                <a href="/cakrawala-connect/register.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
                     <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
                     Daftar
                 </a>
-                <a href="/studenthub/login.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
+                <a href="/cakrawala-connect/login.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
                     <span class="iconify" data-icon="mdi:login" data-width="16"></span>
                     Login
                 </a>
@@ -461,8 +448,8 @@ $semesterOptions = [
                                         <span class="iconify" data-icon="mdi:lock-check" data-width="18"></span>
                                     </span>
                                     <input type="password" name="confirm_password"
-                                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                           placeholder="Ulangi password" required>
+                                            class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                            placeholder="Ulangi password" required>
                                 </div>
                             </div>
                         </div>
@@ -476,7 +463,7 @@ $semesterOptions = [
                     <div class="mt-6 pt-4 border-t border-gray-200 text-center">
                         <p class="text-gray-600 text-sm">
                             Sudah punya akun?
-                            <a href="/studenthub/login.php" class="text-cakrawala-primary font-semibold hover:text-cakrawala-primary-hover transition-colors ml-1">
+                            <a href="/cakrawala-connect/login.php" class="text-cakrawala-primary font-semibold hover:text-cakrawala-primary-hover transition-colors ml-1">
                                 Login di sini
                             </a>
                         </p>

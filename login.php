@@ -1,9 +1,6 @@
 <?php
 include 'includes/config.php';
-// --- PERBAIKI INCLUDE functions.php JIKA DIPERLUKAN ---
-// include 'includes/functions.php'; // Pastikan path ini benar jika file ada
 
-// --- FUNGSI sanitize() jika belum ada di config.php ---
 if (!function_exists('sanitize')) {
     function sanitize($input) {
         return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
@@ -19,16 +16,13 @@ if (!function_exists('getUserRole')) {
         return $_SESSION['role'] ?? null;
     }
 }
-// --- Akhir fungsi tambahan ---
-
 
 if (isLoggedIn()) {
     $role = getUserRole();
     if ($role == 'student') {
         header("Location: dashboard/student/index.php");
-    } elseif ($role == 'mitra_industri') { // <-- Ganti ke mitra_industri
-        // Arahkan ke folder yang benar
-        header("Location: dashboard/mitra-industri/index.php"); // <-- Nama folder masih stakeholder
+    } elseif ($role == 'mitra_industri') {
+        header("Location: dashboard/mitra-industri/index.php"); 
     } elseif ($role == 'admin') {
         header("Location: dashboard/admin/index.php");
     }
@@ -55,23 +49,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (password_verify($password, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['email'] = $user['email'];
-                $_SESSION['role'] = $user['role']; // Ambil role dari DB ('student', 'mitra_industri', 'admin')
+                $_SESSION['role'] = $user['role']; 
                 $_SESSION['name'] = $user['name'];
                 $_SESSION['profile_picture'] = $user['profile_picture'];
 
-                // --- LOGIKA REDIRECT BARU ---
                 if ($user['role'] == 'student') {
                     header("Location: dashboard/student/index.php");
-                } elseif ($user['role'] == 'mitra_industri') { // Ganti ke mitra_industri
-                    header("Location: dashboard/mitra-industri/index.php"); // Nama folder masih stakeholder
+                } elseif ($user['role'] == 'mitra_industri') { 
+                    header("Location: dashboard/mitra-industri/index.php"); 
                 } elseif ($user['role'] == 'admin') {
-                    header("Location: dashboard/admin/index.php"); // Arahkan admin
+                    header("Location: dashboard/admin/index.php"); 
                 } else {
-                    // Fallback jika role tidak valid
-                    session_destroy(); // Hancurkan session jika role aneh
+                    session_destroy(); 
                     $error = "Role pengguna tidak dikenali.";
                 }
-                exit(); // Pastikan exit setelah header
+                exit();
 
             } else {
                 $error = "Password salah!";
@@ -91,14 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
 
     <style>
-        /* PALETTE WARNA DARI SEBELUMNYA */
         :root {
-            --cakrawala-primary: #2A8FA9; /* Blue Munsell */
+            --cakrawala-primary: #2A8FA9; 
             --cakrawala-primary-hover: #409BB2;
             --cakrawala-secondary: #4CA1B6;
             --cakrawala-secondary-light: #E0F2F7;
-            --cakrawala-cta: #F9A825; /* GANTI DENGAN ORANYE LOGO */
-            --cakrawala-cta-hover: #F57F17; /* GANTI DENGAN ORANYE LEBIH TUA */
+            --cakrawala-cta: #F9A825; 
+            --cakrawala-cta-hover: #F57F17;
             --cakrawala-light-gray: #F1F3F5;
             --cakrawala-medium-gray: #CED4DA;
             --cakrawala-dark-gray: #495057;
@@ -111,19 +102,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .focus\:ring-cakrawala-primary:focus { --tw-ring-color: var(--cakrawala-primary); }
         .focus\:border-cakrawala-primary:focus { border-color: var(--cakrawala-primary); }
 
-        .auth-height { min-height: calc(100vh - 64px); } /* Sesuaikan tinggi navbar */
+        .auth-height { min-height: calc(100vh - 64px); } 
     </style>
 </head>
 <body class="bg-cakrawala-light-gray"> <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="/studenthub/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
-                <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> </a>
+            <a href="/cakrawala-connect/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
+                <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> </a>
             <div class="flex items-center space-x-3">
-                <a href="/studenthub/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
+                <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
                     <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
                     Daftar
                 </a>
-                <a href="/studenthub/login.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
+                <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
                     <span class="iconify" data-icon="mdi:login" data-width="16"></span>
                     Login
                 </a>
@@ -182,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="mt-6 pt-4 border-t border-gray-200 text-center">
                         <p class="text-gray-600 text-sm">
                             Belum punya akun?
-                            <a href="/studenthub/register.php" class="text-cakrawala-primary font-semibold hover:text-cakrawala-primary-hover transition-colors ml-1">
+                            <a href="/cakrawala-connect/register.php" class="text-cakrawala-primary font-semibold hover:text-cakrawala-primary-hover transition-colors ml-1">
                                 Daftar di sini
                             </a>
                         </p>

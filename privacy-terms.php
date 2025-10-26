@@ -7,14 +7,13 @@ $current_role = getUserRole();
 $user_name = $_SESSION['name'] ?? 'User';
 $profile_picture = $_SESSION['profile_picture'] ?? '';
 
-// Mapping folder dashboard berdasarkan role
 $role_folder_map = [
     'mitra_industri' => 'mitra-industri',
     'student' => 'student', 
     'admin' => 'admin'
 ];
 $folder_name = $role_folder_map[$current_role] ?? $current_role;
-$dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php" : "/studenthub/";
+$dashboard_url = $is_logged_in ? "/cakrawala-connect/dashboard/{$folder_name}/index.php" : "/cakrawala-connect/";
 ?>
 
 <!DOCTYPE html>
@@ -77,7 +76,7 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
             <!-- Logo -->
             <a href="<?php echo $dashboard_url; ?>"
                 class="flex items-center gap-2 transition-opacity hover:opacity-80">
-                <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" 
+                <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" 
                      alt="Logo Universitas Cakrawala"
                      class="h-6">
                 <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline-block">
@@ -106,12 +105,12 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
                         </button>
 
                         <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                            <a href="/studenthub/dashboard/<?php echo $folder_name; ?>/profile.php"
+                            <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/profile.php"
                                 class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                                 <span class="iconify" data-icon="mdi:account-cog" data-width="16"></span>
                                 Profile Saya
                             </a>
-                            <a href="/studenthub/dashboard/<?php echo $folder_name; ?>/index.php"
+                            <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/index.php"
                                 class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                                 <span class="iconify" data-icon="mdi:view-dashboard" data-width="16"></span>
                                 Dashboard
@@ -126,12 +125,12 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
                     </div>
                 <?php else: ?>
                     <div class="flex items-center space-x-3">
-                        <a href="/studenthub/register.php" 
+                        <a href="/cakrawala-connect/register.php" 
                            class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
                             <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
                             Daftar
                         </a>
-                        <a href="/studenthub/login.php" 
+                        <a href="/cakrawala-connect/login.php" 
                            class="bg-cakrawala-primary text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
                             <span class="iconify" data-icon="mdi:login" data-width="16"></span>
                             Login
@@ -302,7 +301,7 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
                 <!-- Logo & Address -->
                 <div class="space-y-2"> 
                     <a href="<?php echo $dashboard_url; ?>" class="inline-flex items-center gap-2 mb-1 group"> 
-                        <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" 
+                        <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" 
                             alt="Logo Universitas Cakrawala" 
                             class="h-8 group-hover:opacity-80 transition-opacity"> 
                         <div class="flex flex-col leading-tight">
@@ -319,7 +318,7 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
                 <!-- Quick Links -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mt-1"> 
                     <div>
-                        <a href="/studenthub/about.php" 
+                        <a href="/cakrawala-connect/about.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200"> 
                             Tentang Platform
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -327,7 +326,7 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
                         </a>
                     </div>
                     <div>
-                        <a href="/studenthub/for-partners.php" 
+                        <a href="/cakrawala-connect/for-partners.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Untuk Mitra Industri
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -335,8 +334,8 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
                         </a>
                     </div>
                     <div>
-                        <!-- CDC Link - Arahkan ke landing page utama -->
-                        <a href="/studenthub/" 
+                        <!-- CDC Link -->
+                        <a href="/cakrawala-connect/" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Career Center (CDC)
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -344,7 +343,7 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
                         </a>
                     </div>
                     <div>
-                        <a href="/studenthub/privacy-terms.php" 
+                        <a href="/cakrawala-connect/privacy-terms.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Kebijakan Privasi
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -414,12 +413,12 @@ $dashboard_url = $is_logged_in ? "/studenthub/dashboard/{$folder_name}/index.php
                 background: '#ffffff'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = '/studenthub/logout.php';
+                    window.location.href = '/cakrawala-connect/logout.php';
                 }
             });
         } else {
             if (confirm('Yakin ingin logout?')) {
-                window.location.href = '/studenthub/logout.php';
+                window.location.href = '/cakrawala-connect/logout.php';
             }
         }
     }

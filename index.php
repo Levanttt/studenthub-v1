@@ -11,7 +11,7 @@ if (isLoggedIn()) {
         'admin' => 'admin'
     ];
     $folder_name = $role_folder_map[$role] ?? $role;
-    header("Location: /studenthub/dashboard/{$folder_name}/index.php");
+    header("Location: /cakrawala-connect/dashboard/{$folder_name}/index.php");
     exit();
 }
 ?>
@@ -199,12 +199,12 @@ if (isLoggedIn()) {
                     Platform portofolio berbasis bukti yang menjembatani talenta mahasiswa Universitas Cakrawala dengan kebutuhan industri profesional.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                    <a href="/studenthub/register.php" 
+                    <a href="/cakrawala-connect/register.php" 
                        class="group bg-[#F9A825] hover:bg-[#F57F17] text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-center relative overflow-hidden">
                         <span class="relative z-10">Daftar Sekarang</span>
                         <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
                     </a>
-                    <a href="/studenthub/login.php" 
+                    <a href="/cakrawala-connect/login.php" 
                        class="group bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 border border-white/30 text-center">
                         <span class="relative z-10">Login</span>
                     </a>
@@ -447,7 +447,7 @@ if (isLoggedIn()) {
                         </div>
                     </div>
                 </div>
-                <a href="/studenthub/register.php" 
+                <a href="/cakrawala-connect/register.php" 
                    class="inline-flex items-center gap-2 bg-gradient-to-r from-[#2A8FA9] to-[#409BB2] hover:from-[#409BB2] hover:to-[#2A8FA9] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
                     Mulai Bangun Portofolio
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -505,7 +505,7 @@ if (isLoggedIn()) {
                         </div>
                     </div>
                 </div>
-                <a href="/studenthub/register.php" 
+                <a href="/cakrawala-connect/register.php" 
                    class="inline-flex items-center gap-2 bg-gradient-to-r from-[#F9A825] to-[#F57F17] hover:from-[#F57F17] hover:to-[#F9A825] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
                     Daftar Sebagai Mitra Industri
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -628,7 +628,7 @@ if (isLoggedIn()) {
                 Bergabunglah dengan 500+ mahasiswa dan 50+ mitra industri yang telah menemukan kesempatan di Cakrawala Connect
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style="animation-delay: 0.6s;">
-                <a href="/studenthub/register.php" 
+                <a href="/cakrawala-connect/register.php" 
                    class="group inline-flex items-center justify-center gap-2 bg-[#F9A825] hover:bg-[#F57F17] text-white font-bold py-3 px-10 rounded-lg text-base transition-all duration-300 transform hover:scale-105 shadow-2xl relative overflow-hidden">
                     <span class="relative z-10">Daftar Gratis Sekarang</span>
                     <svg class="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,7 +636,7 @@ if (isLoggedIn()) {
                     </svg>
                     <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
                 </a>
-                <a href="/studenthub/login.php" 
+                <a href="/cakrawala-connect/login.php" 
                    class="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-bold py-3 px-10 rounded-lg text-base transition-all duration-300 border-2 border-white/30">
                     Sudah Punya Akun? Login
                 </a>
@@ -674,7 +674,7 @@ if (isLoggedIn()) {
                 <!-- Logo & Address -->
                 <div class="space-y-2"> 
                     <a href="<?php echo $dashboard_url; ?>" class="inline-flex items-center gap-2 mb-1 group"> 
-                        <img src="/studenthub/assets/images/Logo Universitas Cakrawala1.png" 
+                        <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" 
                             alt="Logo Universitas Cakrawala" 
                             class="h-8 group-hover:opacity-80 transition-opacity"> 
                         <div class="flex flex-col leading-tight">
@@ -691,7 +691,7 @@ if (isLoggedIn()) {
                 <!-- Quick Links -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mt-5"> 
                     <div>
-                        <a href="/studenthub/about.php" 
+                        <a href="/cakrawala-connect/about.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200"> 
                             Tentang Platform
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -699,7 +699,7 @@ if (isLoggedIn()) {
                         </a>
                     </div>
                     <div>
-                        <a href="/studenthub/for-partners.php" 
+                        <a href="/cakrawala-connect/for-partners.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Untuk Mitra Industri
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -707,7 +707,7 @@ if (isLoggedIn()) {
                         </a>
                     </div>
                     <div>
-                        <a href="/studenthub/" 
+                        <a href="/cakrawala-connect/" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Career Center (CDC)
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
@@ -715,7 +715,7 @@ if (isLoggedIn()) {
                         </a>
                     </div>
                     <div>
-                        <a href="/studenthub/privacy-terms.php" 
+                        <a href="/cakrawala-connect/privacy-terms.php" 
                         class="inline-flex items-center text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs group transition-all duration-200">
                             Kebijakan Privasi
                             <span class="iconify ml-1 transition-transform duration-200 group-hover:translate-x-1" 
