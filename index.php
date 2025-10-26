@@ -740,7 +740,7 @@ if (isLoggedIn()) {
                     class="text-[#495057] hover:text-[#2A8FA9] transition-colors p-1 rounded-full hover:bg-white/50">
                         <span class="iconify" data-icon="mdi:twitter" data-width="16"></span> 
                     </a>
-                    <a href="https://www.instagram.com/cakrawalauniversity/" 
+                    <a href="https://www.instagram.com/cdccakrawala/" 
                     class="text-[#495057] hover:text-[#2A8FA9] transition-colors p-1 rounded-full hover:bg-white/50">
                         <span class="iconify" data-icon="mdi:instagram" data-width="16"></span> 
                     </a>
