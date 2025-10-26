@@ -10,7 +10,6 @@ $user_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = sanitize($_POST['title'] ?? '');
     $description = sanitize($_POST['description'] ?? '');
@@ -25,14 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $video_url = sanitize($_POST['video_url'] ?? '');
     $skills_input = $_POST['skills'] ?? [];
 
-    // Certificate fields
     $certificate_credential_id = !empty($_POST['certificate_credential_id']) ? sanitize($_POST['certificate_credential_id']) : null;
     $certificate_credential_url = !empty($_POST['certificate_credential_url']) ? sanitize($_POST['certificate_credential_url']) : null;
-    $certificate_issue_date = !empty($_POST['certificate_issue_date']) ? sanitize($_POST['certificate_issue_date']) : null;
-    $certificate_expiry_date = !empty($_POST['certificate_expiry_date']) ? sanitize($_POST['certificate_expiry_date']) : null;
+    $raw_issue_date = sanitize($_POST['certificate_issue_date'] ?? '');
+    $raw_expiry_date = sanitize($_POST['certificate_expiry_date'] ?? '');
+    $certificate_issue_date = ($raw_issue_date === '') ? null : $raw_issue_date;
+    $certificate_expiry_date = ($raw_expiry_date === '') ? null : $raw_expiry_date;
     $certificate_description = !empty($_POST['certificate_description']) ? sanitize($_POST['certificate_description']) : null;
 
-    // Validation
     if (empty($title) || empty($description)) {
         $error = "Judul dan deskripsi wajib diisi!";
     } elseif (empty($category) || empty($status) || empty($project_type) || empty($project_year)) {
@@ -40,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (empty($skills_input)) {
         $error = "Pilih minimal 1 skill!";
     } else {
-        // Handle main image upload
         $main_image_path = '';
         if (isset($_FILES['project_image']) && $_FILES['project_image']['error'] === UPLOAD_ERR_OK) {
             $upload_result = handleFileUpload($_FILES['project_image'], $user_id);
@@ -51,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Handle multiple images upload
         $gallery_images = [];
         if (isset($_FILES['project_gallery']) && !empty($_FILES['project_gallery']['name'][0])) {
             foreach ($_FILES['project_gallery']['tmp_name'] as $key => $tmp_name) {
@@ -75,7 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        // Handle certificate upload
         $certificate_path = '';
         if (isset($_FILES['certificate_file']) && $_FILES['certificate_file']['error'] === UPLOAD_ERR_OK) {
             $upload_result = handleCertificateUpload($_FILES['certificate_file'], $user_id);
@@ -87,18 +83,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         if (!$error) {
-            // Start transaction
             $conn->begin_transaction();
             
             try {
-                // Insert project dengan semua field certificate
                 $stmt = $conn->prepare("INSERT INTO projects (student_id, title, description, image_path, certificate_path, certificate_credential_id, certificate_credential_url, certificate_issue_date, certificate_expiry_date, certificate_description, github_url, figma_url, demo_url, video_url, category, status, project_type, project_year, project_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("issssssssssssssssss", $user_id, $title, $description, $main_image_path, $certificate_path, $certificate_credential_id, $certificate_credential_url, $certificate_issue_date, $certificate_expiry_date, $certificate_description, $github_url, $figma_url, $demo_url, $video_url, $category, $status, $project_type, $project_year, $project_duration);
                 
                 if ($stmt->execute()) {
                     $project_id = $conn->insert_id;
                     
-                    // Insert gallery images
                     if (!empty($gallery_images)) {
                         $image_stmt = $conn->prepare("INSERT INTO project_images (project_id, image_path, is_primary) VALUES (?, ?, ?)");
                         
@@ -110,11 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $image_stmt->close();
                     }
                     
-                    // Handle skills
                     foreach ($skills_input as $skill_name) {
                         $skill_name = trim($skill_name);
                         if (!empty($skill_name)) {
-                            // Check if skill exists, if not create it
                             $skill_stmt = $conn->prepare("SELECT id, skill_type FROM skills WHERE name = ?");
                             $skill_stmt->bind_param("s", $skill_name);
                             $skill_stmt->execute();
@@ -124,14 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 $skill = $skill_result->fetch_assoc();
                                 $skill_id = $skill['id'];
                             } else {
-                                // Create new skill (default to technical)
                                 $insert_skill = $conn->prepare("INSERT INTO skills (name, skill_type) VALUES (?, 'technical')");
                                 $insert_skill->bind_param("s", $skill_name);
                                 $insert_skill->execute();
                                 $skill_id = $conn->insert_id;
                             }
                             
-                            // Link skill to project
                             $link_skill = $conn->prepare("INSERT INTO project_skills (project_id, skill_id) VALUES (?, ?)");
                             $link_skill->bind_param("ii", $project_id, $skill_id);
                             $link_skill->execute();
@@ -140,7 +129,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     $conn->commit();
                     $success = "Proyek berhasil ditambahkan!";
-                    // Clear form
                     $_POST = array();
                 } else {
                     throw new Exception("Gagal menambahkan proyek: " . $conn->error);
@@ -153,7 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Get existing skills categorized
 $skills_by_category = [
     'technical' => [],
     'soft' => [],
@@ -178,7 +165,6 @@ if ($categories_stmt) {
     }
     $categories_stmt->close();
 } else {
-    // Fallback jika query error
     error_log("Error fetching categories: " . $conn->error);
 }
 
@@ -396,19 +382,17 @@ function handleCertificateUpload($file, $user_id) {
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Project Category - Custom Dropdown -->
+                    <!-- Project Category -->
                     <div class="relative" id="category-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Proyek *</label>
                         
                         <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
                                 <?php 
-                                // UNTUK ADD-PROJECT: Default values karena tidak ada $project
                                 $current_category_value = $_POST['category'] ?? ''; 
                                 $current_icon = 'mdi:tag-outline';
                                 $current_category_name = 'Pilih Kategori';
                                 
-                                // Cari category yang sesuai
                                 foreach ($categories as $cat) {
                                     if ($cat['value'] == $current_category_value) {
                                         $current_icon = $cat['icon'];
@@ -617,7 +601,7 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Skills Section dengan Searchable Dropdown -->
+            <!-- Skills Section -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="24"></span>
@@ -760,7 +744,6 @@ function handleCertificateUpload($file, $user_id) {
                     <p class="text-gray-500 text-xs mt-1">Software dan tools yang digunakan</p>
                 </div>
 
-                <!-- Hidden input untuk menyimpan semua skills -->
                 <div id="skills-hidden-container">
                     <?php
                     if (isset($_POST['skills'])) {

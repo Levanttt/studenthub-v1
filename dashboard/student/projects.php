@@ -170,28 +170,40 @@ $student = $student_result->fetch_assoc();
                             </div>
                         <?php endif; ?>
                         
-                        <!-- Category Badge di pojok kiri atas -->
+                        <!-- Category Badge -->
                         <div class="absolute top-3 left-3">
                         <?php
-                        // Mapping LENGKAP antara value singkat dan nama kategori dari tabel
                         $category_mapping = [
-                            'web' => 'Web Development',
-                            'mobile' => 'Mobile Development',
-                            'data' => 'Data Science & AI', // Asumsi value singkatnya 'data'
-                            'design' => 'UI/UX & Graphic Design',
-                            'game' => 'Game Development',
-                            'digital_marketing' => 'Digital Marketing & E-commerce', // Asumsi value singkatnya 'digital_marketing'
-                            'finance' => 'Finance & Investment Analysis',
-                            'business' => 'Business Strategy & Management', // Asumsi value singkatnya 'business'
-                            'communication' => 'Communication & Public Relations',
-                            'content' => 'Content Creation',
-                            'branding' => 'Branding & Visual Identity', // Asumsi value singkatnya 'branding'
-                            'iot' => 'IoT & Embedded Systems',
-                            'other' => 'Lainnya' // Asumsi value singkatnya 'other'
+                        // IT & Desain
+                        'web' => 'Web Development',
+                        'mobile' => 'Mobile Development',
+                        'data' => 'Data Science & AI',
+                        'design' => 'UI/UX & Graphic Design', 
+                        'game' => 'Game Development',
+                        'iot' => 'IoT & Embedded Systems', 
+                        'cybersecurity' => 'Cybersecurity', 
+
+                        // Bisnis & Manajemen
+                        'digital_marketing' => 'Digital Marketing',
+                        'finance' => 'Finance & Investment',
+                        'business' => 'Business Strategy',
+                        'industrial_ops' => 'Industrial Ops', 
+
+                        // Komunikasi & Konten
+                        'communication' => 'Public Relations',
+                        'content' => 'Content Creation', 
+                        'branding' => 'Branding',
+
+                        // Sosial & Humaniora
+                        'legal' => 'Legal Analysis', 
+                        'research' => 'Research', 
+                        'education' => 'Education Material', 
+
+                        // Lainnya
+                        'other' => 'Lainnya'
                         ];
 
-                        $enum_category = $project['category']; // Ambil value singkat dari database proyek
-                        // Cari nama lengkap di mapping, jika tidak ada, gunakan formatText() sebagai fallback
+                        $enum_category = $project['category']; 
                         $category_name = $category_mapping[$enum_category] ?? formatText($enum_category);
                         ?>
                         <span class="bg-white/90 text-[#2A8FA9] px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
@@ -217,7 +229,6 @@ $student = $student_result->fetch_assoc();
 
                     <!-- Project Content -->
                     <div class="p-5">
-                        <!-- Judul dan Tahun -->
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-[#2A8FA9] text-lg group-hover:text-[#51A3B9] transition-colors line-clamp-1 flex-1 mr-2">
                                 <?php echo htmlspecialchars($project['title']); ?>

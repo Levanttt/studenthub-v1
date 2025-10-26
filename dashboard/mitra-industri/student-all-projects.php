@@ -1,5 +1,4 @@
 <?php
-// student-all-projects.php
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
@@ -8,7 +7,6 @@ if (!isLoggedIn() || getUserRole() != 'mitra_industri') {
     exit();
 }
 
-// 2. Ambil ID student dari parameter URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: index.php");
     exit();
@@ -16,7 +14,6 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $student_id = intval($_GET['id']);
 
-// 3. Ambil data student untuk header
 $student = [];
 try {
     $student_query = "SELECT id, name, university, major FROM users WHERE id = ? AND role = 'student'";
@@ -36,7 +33,6 @@ try {
     exit();
 }
 
-// 4. Ambil semua projects student dengan detail lengkap
 $projects = [];
 try {
     $projects_query = "
@@ -63,7 +59,6 @@ try {
     error_log("Error fetching projects: " . $e->getMessage());
 }
 
-// 5. Ambil skills untuk setiap project secara detail
 foreach ($projects as &$project) {
     $project_skills = [];
     try {
@@ -89,7 +84,7 @@ foreach ($projects as &$project) {
     
     $project['skills_detail'] = $project_skills;
 }
-unset($project); // Unset reference
+unset($project); 
 
 $total_projects = count($projects);
 ?>
@@ -224,19 +219,33 @@ $total_projects = count($projects);
                         <div class="absolute top-3 left-3">
                         <?php
                         $category_mapping = [
-                            'web' => 'Web Development',
-                            'mobile' => 'Mobile Development',
-                            'data' => 'Data Science & AI',
-                            'design' => 'UI/UX & Graphic Design',
-                            'game' => 'Game Development',
-                            'digital_marketing' => 'Digital Marketing & E-commerce', 
-                            'finance' => 'Finance & Investment Analysis',
-                            'business' => 'Business Strategy & Management', 
-                            'communication' => 'Communication & Public Relations',
-                            'content' => 'Content Creation',
-                            'branding' => 'Branding & Visual Identity', 
-                            'iot' => 'IoT & Embedded Systems',
-                            'other' => 'Lainnya' 
+                        // IT & Desain
+                        'web' => 'Web Development',
+                        'mobile' => 'Mobile Development',
+                        'data' => 'Data Science & AI',
+                        'design' => 'UI/UX & Graphic Design', 
+                        'game' => 'Game Development',
+                        'iot' => 'IoT & Embedded Systems', 
+                        'cybersecurity' => 'Cybersecurity', 
+
+                        // Bisnis & Manajemen
+                        'digital_marketing' => 'Digital Marketing',
+                        'finance' => 'Finance & Investment',
+                        'business' => 'Business Strategy',
+                        'industrial_ops' => 'Industrial Ops', 
+
+                        // Komunikasi & Konten
+                        'communication' => 'Public Relations',
+                        'content' => 'Content Creation', 
+                        'branding' => 'Branding',
+
+                        // Sosial & Humaniora
+                        'legal' => 'Legal Analysis', 
+                        'research' => 'Research', 
+                        'education' => 'Education Material', 
+
+                        // Lainnya
+                        'other' => 'Lainnya'
                         ];
 
                         $enum_category = $project['category']; 
@@ -250,7 +259,6 @@ $total_projects = count($projects);
 
                     <!-- Project Content -->
                     <div class="p-5">
-                        <!-- Judul dan Tahun -->
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-[#2A8FA9] text-lg group-hover:text-[#51A3B9] transition-colors line-clamp-1 flex-1 mr-2">
                                 <?php echo htmlspecialchars($project['title']); ?>

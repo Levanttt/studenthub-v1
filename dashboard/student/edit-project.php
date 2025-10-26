@@ -66,22 +66,32 @@ if ($skills_stmt) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $title = sanitize($_POST['title']);
-    $description = sanitize($_POST['description']);
-    $category = sanitize($_POST['category']);
-    $status = sanitize($_POST['status']);
-    $project_type = sanitize($_POST['project_type']);
-    $project_year = sanitize($_POST['project_year']);
+    $title = sanitize($_POST['title'] ?? '');
+    $description = sanitize($_POST['description'] ?? '');
+    $category = sanitize($_POST['category'] ?? ''); 
+    $status = sanitize($_POST['status'] ?? '');
+    $project_type = sanitize($_POST['project_type'] ?? '');
+    $project_year = sanitize($_POST['project_year'] ?? '');
     $project_duration = sanitize($_POST['project_duration'] ?? '');
     $github_url = sanitize($_POST['github_url'] ?? '');
     $figma_url = sanitize($_POST['figma_url'] ?? '');
     $demo_url = sanitize($_POST['demo_url'] ?? '');
     $video_url = sanitize($_POST['video_url'] ?? '');
-    
     $skills_input = isset($_POST['skills']) ? (is_array($_POST['skills']) ? $_POST['skills'] : [$_POST['skills']]) : [];
-    
-    $delete_images = $_POST['delete_images'] ?? [];
-    $delete_certificate = isset($_POST['delete_certificate']);
+    $delete_images = $_POST['delete_images'] ?? []; 
+    $delete_certificate = isset($_POST['delete_certificate']) && $_POST['delete_certificate'] == '1';
+
+    $certificate_issue_date = null;
+    $certificate_expiry_date = null;
+    if (isset($_POST['certificate_issue_date']) && !empty(trim($_POST['certificate_issue_date']))) {
+        $certificate_issue_date = sanitize($_POST['certificate_issue_date']);
+    }
+    if (isset($_POST['certificate_expiry_date']) && !empty(trim($_POST['certificate_expiry_date']))) {
+        $certificate_expiry_date = sanitize($_POST['certificate_expiry_date']);
+    }
+    $certificate_credential_id = sanitize($_POST['certificate_credential_id'] ?? '');
+    $certificate_credential_url = sanitize($_POST['certificate_credential_url'] ?? '');
+    $certificate_description = sanitize($_POST['certificate_description'] ?? '');
 
     if (empty($title) || empty($description)) {
         $error = "Judul dan deskripsi wajib diisi!";
@@ -154,11 +164,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        $delete_certificate = isset($_POST['delete_certificate']) && $_POST['delete_certificate'] == '1';
-
         $certificate_path = $project['certificate_path'];
         if ($delete_certificate) {
             $certificate_path = '';
+            $certificate_issue_date = null;
+            $certificate_expiry_date = null;
+            $certificate_credential_id = '';
+            $certificate_credential_url = '';
         } elseif (isset($_FILES['certificate_file']) && $_FILES['certificate_file']['error'] === UPLOAD_ERR_OK) {
             $upload_result = handleCertificateUpload($_FILES['certificate_file'], $user_id);
             if ($upload_result['success']) {
@@ -172,11 +184,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $conn->begin_transaction();
             
             try {
-                $certificate_credential_id = sanitize($_POST['certificate_credential_id'] ?? '');
-                $certificate_credential_url = sanitize($_POST['certificate_credential_url'] ?? '');
-                $certificate_issue_date = sanitize($_POST['certificate_issue_date'] ?? '');
-                $certificate_expiry_date = sanitize($_POST['certificate_expiry_date'] ?? '');
-
                 $update_stmt = $conn->prepare("UPDATE projects SET 
                 title = ?, 
                 description = ?, 
@@ -284,7 +291,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             $skill_id = $skill['id'];
                                             error_log("DEBUG: Found skill '$skill_name' with ID: $skill_id, type: " . $skill['skill_type']);
                                         } else {
-                                            $skill_type = 'technical'; 
+                                            $skill_type = 'technical';
                                             
                                             $insert_skill = $conn->prepare("INSERT INTO skills (name, skill_type) VALUES (?, ?)");
                                             if ($insert_skill) {
@@ -294,7 +301,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                     error_log("DEBUG: Created new skill '$skill_name' with ID: $skill_id, type: $skill_type");
                                                 } else {
                                                     error_log("DEBUG: Failed to create skill '$skill_name'");
-                                                    continue; 
+                                                    continue;
                                                 }
                                                 $insert_skill->close();
                                             }
@@ -557,7 +564,6 @@ function handleCertificateUpload($file, $user_id) {
 </style>
 
 <div class="px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
     <div class="flex justify-between items-center w-full mb-8">
         <div class="flex-1">
             <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
@@ -573,7 +579,6 @@ function handleCertificateUpload($file, $user_id) {
         </a>
     </div>
 
-    <!-- Alerts -->
     <?php if ($error): ?>
         <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
             <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
@@ -588,10 +593,8 @@ function handleCertificateUpload($file, $user_id) {
         </div>
     <?php endif; ?>
 
-    <!-- Project Form -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <form method="POST" action="" enctype="multipart/form-data" class="space-y-8">
-            <!-- Basic Information -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:information" data-width="24"></span>
@@ -613,7 +616,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Project Details -->                      
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:clipboard-list" data-width="24"></span>
@@ -621,14 +623,12 @@ function handleCertificateUpload($file, $user_id) {
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Project Category - Custom Dropdown -->
                     <div class="relative" id="category-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Proyek *</label>
                         
                         <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
                             <div class="flex items-center gap-3">
                                 <?php 
-                                // Find current category icon
                                 $current_icon = 'mdi:tag-outline';
                                 $current_category_name = formatText($project['category']);
                                 
@@ -670,7 +670,6 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     </div>
 
-                    <!-- Project Status - Custom Dropdown -->
                     <div class="relative" id="status-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status Proyek *</label>
                         
@@ -704,7 +703,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Project Timeline & Credibility -->
             <div class="space-y-4">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:calendar-clock" data-width="24"></span>
@@ -722,7 +720,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Project Year - Custom Dropdown -->
                     <div class="relative" id="year-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tahun Proyek *</label>
                         
@@ -752,7 +749,6 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     </div>
 
-                    <!-- Project Duration - Custom Dropdown -->
                     <div class="relative" id="duration-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Durasi Pengerjaan</label>
                         
@@ -793,7 +789,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Project Type - Custom Dropdown -->
                     <div class="relative" id="project-type-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tipe Proyek *</label>
                         
@@ -832,7 +827,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Skills Section dengan Searchable Dropdown -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="24"></span>
@@ -840,7 +834,6 @@ function handleCertificateUpload($file, $user_id) {
                 </h2>
                 <p class="text-gray-500 text-sm -mt-4">Klik dropdown dan ketik untuk mencari skill. Pilih dari daftar yang tersedia.</p>
 
-                <!-- Technical Skills -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Technical Skills *</label>
                     <div class="searchable-dropdown">
@@ -865,7 +858,6 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     </div>
                     
-                    <!-- Selected skills display -->
                     <div id="selected-technical-skills" class="flex flex-wrap gap-2 mt-3">
                         <?php
                         $technical_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
@@ -883,7 +875,6 @@ function handleCertificateUpload($file, $user_id) {
                     <p class="text-gray-500 text-xs mt-1">Pilih minimal 1 technical skill</p>
                 </div>
 
-                <!-- Soft Skills -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Soft Skills</label>
                     <div class="searchable-dropdown">
@@ -908,7 +899,6 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     </div>
                     
-                    <!-- Selected skills display -->
                     <div id="selected-soft-skills" class="flex flex-wrap gap-2 mt-3">
                         <?php
                         $soft_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
@@ -926,7 +916,6 @@ function handleCertificateUpload($file, $user_id) {
                     <p class="text-gray-500 text-xs mt-1">Soft skill yang digunakan dalam proyek</p>
                 </div>
 
-                <!-- Tools & Software -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tools & Software</label>
                     <div class="searchable-dropdown">
@@ -951,7 +940,6 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     </div>
                     
-                    <!-- Selected skills display -->
                     <div id="selected-tool-skills" class="flex flex-wrap gap-2 mt-3">
                         <?php
                         $tool_skills = array_filter($existing_skills, function($skill) use ($skills_by_category) {
@@ -969,7 +957,6 @@ function handleCertificateUpload($file, $user_id) {
                     <p class="text-gray-500 text-xs mt-1">Software dan tools yang digunakan</p>
                 </div>
 
-                <!-- Hidden input untuk menyimpan semua skills -->
                 <div id="skills-hidden-container">
                     <?php
                     foreach ($existing_skills as $skill): ?>
@@ -978,7 +965,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Media & Links -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:link" data-width="24"></span>
@@ -1016,14 +1002,12 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Images Section -->
             <div class="space-y-6">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:image-multiple" data-width="24"></span>
                     Gambar Proyek
                 </h2>
 
-                <!-- Main Project Image -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Utama Proyek</label>
                     <div class="flex items-center gap-4">
@@ -1045,11 +1029,9 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                <!-- Gallery Images -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Gallery</label>
                     
-                    <!-- Existing Gallery Images -->
                     <?php if (!empty($existing_images)): ?>
                         <div class="mb-4">
                             <p class="text-sm text-gray-600 mb-2">Gambar yang sudah diupload:</p>
@@ -1073,7 +1055,6 @@ function handleCertificateUpload($file, $user_id) {
                         </div>
                     <?php endif; ?>
 
-                    <!-- New Gallery Images Upload -->
                     <div>
                         <input type="file" name="project_gallery[]" multiple accept="image/*" 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#E0F7FF] file:text-[#2A8FA9] hover:file:bg-[#D0F0FF]">
@@ -1082,14 +1063,12 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Certificate Section -->
             <div class="space-y-6 pt-6 border-t border-gray-200">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
                     Informasi Sertifikat Proyek
                 </h2>
 
-                <!-- Info bahwa sertifikat akan muncul di halaman certificates -->
                 <div class="bg-[#E0F7FF] border border-[#51A3B9] border-opacity-30 rounded-lg p-4">
                     <div class="flex items-start gap-3">
                         <span class="iconify text-[#2A8FA9] mt-0.5" data-icon="mdi:information" data-width="20"></span>
@@ -1103,7 +1082,6 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                <!-- Informasi Kredensial Sertifikat -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ID Kredensial Sertifikat</label>
@@ -1124,14 +1102,13 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                <!-- Tanggal Sertifikat -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Diterbitkan</label>
                         <input type="date" name="certificate_issue_date" 
                             value="<?php echo htmlspecialchars($project['certificate_issue_date'] ?? ''); ?>" 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors">
-                        <p class="text-xs text-gray-500 mt-1">Tanggal sertifikat diterbitkan</p>
+                        <p class="text-xs text-gray-500 mt-1">Tanggal sertifikat diterbitkan *</p>
                     </div>
 
                     <div>
@@ -1143,7 +1120,6 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                <!-- Current File Info -->
                 <?php if (!empty($project['certificate_path'])): ?>
                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                         <div class="flex items-center justify-between">
@@ -1174,7 +1150,6 @@ function handleCertificateUpload($file, $user_id) {
                     <input type="hidden" name="delete_certificate" id="delete_certificate" value="0">
                 <?php endif; ?>
 
-                <!-- Upload/Ganti File Sertifikat -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         <?php echo empty($project['certificate_path']) ? 'Upload File Sertifikat' : 'Ganti File Sertifikat'; ?>
@@ -1185,7 +1160,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Submit Button -->
             <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
                 <a href="project-detail.php?id=<?php echo $project_id; ?>" 
                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
@@ -1204,7 +1178,7 @@ function handleCertificateUpload($file, $user_id) {
 <script>
 console.log('Categories loaded:', <?php echo json_encode($categories); ?>);
 console.log('Current category:', '<?php echo $project['category']; ?>');
-// Custom Dropdown System
+
 class CustomDropdown {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
@@ -1218,18 +1192,15 @@ class CustomDropdown {
     }
     
     init() {
-        // Toggle dropdown
         this.toggle.addEventListener('click', (e) => {
             e.stopPropagation();
             this.options.classList.toggle('hidden');
         });
         
-        // Close when clicking outside
         document.addEventListener('click', () => {
             this.options.classList.add('hidden');
         });
         
-        // Handle option selection
         this.options.querySelectorAll('[data-option]').forEach(option => {
             option.addEventListener('click', () => {
                 const value = option.getAttribute('data-value');
@@ -1242,7 +1213,6 @@ class CustomDropdown {
                     this.selectedIcon.setAttribute('data-icon', icon);
                 }
                 
-                // Update selected state
                 this.options.querySelectorAll('[data-option]').forEach(opt => {
                     opt.classList.remove('bg-[#E0F7FF]', 'text-[#2A8FA9]');
                 });
@@ -1252,14 +1222,12 @@ class CustomDropdown {
             });
         });
         
-        // Prevent options from closing when clicking inside
         this.options.addEventListener('click', (e) => {
             e.stopPropagation();
         });
     }
 }
 
-// Searchable Dropdown System untuk Skills
 class SearchableDropdown {
     constructor() {
         this.selectedSkills = new Set();
@@ -1267,7 +1235,6 @@ class SearchableDropdown {
     }
 
     init() {
-        // Event listeners untuk dropdown toggle
         document.querySelectorAll('.skill-dropdown-toggle').forEach(toggle => {
             toggle.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1276,7 +1243,6 @@ class SearchableDropdown {
             });
         });
 
-        // Event listeners untuk search input
         document.querySelectorAll('.search-input').forEach(input => {
             input.addEventListener('input', (e) => {
                 const category = e.target.getAttribute('data-category');
@@ -1288,7 +1254,6 @@ class SearchableDropdown {
             });
         });
 
-        // Event listeners untuk option items
         document.querySelectorAll('.option-item').forEach(option => {
             option.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1298,12 +1263,10 @@ class SearchableDropdown {
             });
         });
 
-        // Close dropdowns when clicking outside
         document.addEventListener('click', () => {
             this.closeAllDropdowns();
         });
 
-        // Load existing skills
         this.loadExistingSkills();
     }
 
@@ -1344,7 +1307,6 @@ class SearchableDropdown {
     }
 
     loadExistingSkills() {
-        // Load existing skills from hidden inputs
         const hiddenInputs = document.querySelectorAll('#skills-hidden-container input[name="skills[]"]');
         hiddenInputs.forEach(input => {
             const skillName = input.value;
@@ -1357,7 +1319,6 @@ class SearchableDropdown {
 
         this.selectedSkills.add(skillName);
         
-        // Create visual tag
         const container = document.getElementById(`selected-${category}-skills`);
         const tag = document.createElement('span');
         tag.className = `skill-tag ${category}-tag`;
@@ -1369,7 +1330,6 @@ class SearchableDropdown {
         `;
         container.appendChild(tag);
 
-        // Create hidden input
         const hiddenContainer = document.getElementById('skills-hidden-container');
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
@@ -1378,10 +1338,8 @@ class SearchableDropdown {
         hiddenInput.id = `skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`;
         hiddenContainer.appendChild(hiddenInput);
 
-        // Close dropdown
         this.closeAllDropdowns();
 
-        // Add visual feedback
         const dropdownToggle = document.querySelector(`.skill-dropdown-toggle[data-category="${category}"]`);
         dropdownToggle.classList.add('border-[#2A8FA9]', 'bg-[#E0F7FF]');
         setTimeout(() => {
@@ -1390,25 +1348,20 @@ class SearchableDropdown {
     }
 
     removeSkill(skillName, category) {
-        // PERBAIKAN: Gunakan CSS.escape untuk handle special characters
         const escapedSkillName = CSS.escape(skillName);
         
         this.selectedSkills.delete(skillName);
         
-        // Remove visual tag - cara yang lebih reliable
         const container = document.getElementById(`selected-${category}-skills`);
         const tags = container.getElementsByClassName('skill-tag');
         
-        // Convert to array untuk bisa diiterasi dengan aman
         Array.from(tags).forEach(tag => {
-            // Bandingkan text content tanpa button
             const tagText = tag.childNodes[0].textContent.trim();
             if (tagText === skillName) {
                 tag.remove();
             }
         });
 
-        // Remove hidden input - cara yang lebih reliable
         const hiddenInputs = document.querySelectorAll('#skills-hidden-container input[name="skills[]"]');
         hiddenInputs.forEach(input => {
             if (input.value === skillName) {
@@ -1421,9 +1374,7 @@ class SearchableDropdown {
     }
 }
 
-// Initialize systems
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize custom dropdowns
     const singleDropdowns = ['project-type-dropdown', 'category-dropdown', 'status-dropdown', 'year-dropdown', 'duration-dropdown'];
     singleDropdowns.forEach(dropdownId => {
         if (document.getElementById(dropdownId)) {
@@ -1431,10 +1382,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initialize searchable dropdown
     window.searchableDropdown = new SearchableDropdown();
 
-    // Form validation
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(e) {
@@ -1497,7 +1446,6 @@ function confirmDeleteCertificate() {
             }
         });
     } else {
-        // Fallback jika SweetAlert tidak tersedia
         if (confirm('Hapus sertifikat? Sertifikat akan dihapus permanent dari proyek ini.')) {
             document.getElementById('delete_certificate').value = '1';
             const certificateSection = document.querySelector('.bg-green-50');
@@ -1511,7 +1459,6 @@ function confirmDeleteCertificate() {
     }
 }
 
-// Reset certificate delete status jika user memilih file baru
 const certificateFileInput = document.querySelector('input[name="certificate_file"]');
 if (certificateFileInput) {
     certificateFileInput.addEventListener('change', function() {
@@ -1519,14 +1466,12 @@ if (certificateFileInput) {
         if (deleteInput && this.files.length > 0) {
             deleteInput.value = '0';
             
-            // Reset tampilan jika ada
             const certificateSection = document.querySelector('.bg-green-50');
             if (certificateSection) {
                 certificateSection.style.opacity = '1';
                 certificateSection.style.backgroundColor = '';
                 certificateSection.style.borderColor = '';
                 
-                // Hapus pesan status
                 const statusMessage = certificateSection.querySelector('.bg-red-100');
                 if (statusMessage) {
                     statusMessage.remove();

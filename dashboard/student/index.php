@@ -212,19 +212,33 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                         <div class="absolute top-3 left-3">
                         <?php
                         $category_mapping = [
-                            'web' => 'Web Development',
-                            'mobile' => 'Mobile Development',
-                            'data' => 'Data Science & AI', 
-                            'design' => 'UI/UX & Graphic Design',
-                            'game' => 'Game Development',
-                            'digital_marketing' => 'Digital Marketing & E-commerce', 
-                            'finance' => 'Finance & Investment Analysis',
-                            'business' => 'Business Strategy & Management', 
-                            'communication' => 'Communication & Public Relations',
-                            'content' => 'Content Creation',
-                            'branding' => 'Branding & Visual Identity', 
-                            'iot' => 'IoT & Embedded Systems',
-                            'other' => 'Lainnya'
+                        // IT & Desain
+                        'web' => 'Web Development',
+                        'mobile' => 'Mobile Development',
+                        'data' => 'Data Science & AI',
+                        'design' => 'UI/UX & Graphic Design', 
+                        'game' => 'Game Development',
+                        'iot' => 'IoT & Embedded Systems', 
+                        'cybersecurity' => 'Cybersecurity', 
+
+                        // Bisnis & Manajemen
+                        'digital_marketing' => 'Digital Marketing',
+                        'finance' => 'Finance & Investment',
+                        'business' => 'Business Strategy',
+                        'industrial_ops' => 'Industrial Ops', 
+
+                        // Komunikasi & Konten
+                        'communication' => 'Public Relations',
+                        'content' => 'Content Creation', 
+                        'branding' => 'Branding',
+
+                        // Sosial & Humaniora
+                        'legal' => 'Legal Analysis', 
+                        'research' => 'Research', 
+                        'education' => 'Education Material', 
+
+                        // Lainnya
+                        'other' => 'Lainnya'
                         ];
 
                         $enum_category = $project['category']; 
