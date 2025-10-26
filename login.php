@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .auth-height { min-height: calc(100vh - 64px); } 
     </style>
 </head>
-<body class="bg-cakrawala-light-gray"> <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
+<body class="bg-cakrawala-light-gray"> <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/cakrawala-connect/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> </a>

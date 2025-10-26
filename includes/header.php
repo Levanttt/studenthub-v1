@@ -64,7 +64,7 @@
     $folder_name = $role_folder_map[$current_role] ?? $current_role;
     ?>
 
-    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
+    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
 
             <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/index.php"

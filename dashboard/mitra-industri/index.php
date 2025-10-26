@@ -149,7 +149,6 @@ if (!empty($skill_filter)) {
 
 $query .= " GROUP BY u.id ORDER BY u.name ASC";
 
-// Hanya tambahkan LIMIT jika tidak ada filter aktif
 $is_filter_active = !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || $show_all;
 if (!$is_filter_active) {
     $query .= " LIMIT ? OFFSET ?";
@@ -158,11 +157,9 @@ if (!$is_filter_active) {
     $types .= "ii";
 }
 
-// Hitung total students
 $count_stmt = $conn->prepare($count_query);
 if ($count_stmt) {
     if (!empty($params)) {
-        // Hapus parameter LIMIT dan OFFSET untuk count query
         $count_params = array_slice($params, 0, count($params) - (!$is_filter_active ? 2 : 0));
         $count_types = $is_filter_active ? $types : substr($types, 0, -2);
         if (!empty($count_params)) {
@@ -178,7 +175,6 @@ if ($count_stmt) {
     $count_stmt->close();
 }
 
-// Ambil data students
 $stmt = $conn->prepare($query);
 if ($stmt) {
     if (!empty($params)) $stmt->bind_param($types, ...$params);
@@ -212,12 +208,10 @@ function shortenName($full_name, $max_length = 20) {
 }
 
 function shortenBio($bio, $max_length = 180) {
-    // Handle bio yang kosong, null, atau hanya whitespace
     if (empty($bio) || trim($bio) === '') {
         return 'Mahasiswa ini belum menambahkan bio.';
     }
     
-    // Handle case dimana bio sudah ada pesan default
     if (trim($bio) === 'Mahasiswa ini belum menambahkan bio.') {
         return $bio;
     }
@@ -242,7 +236,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero Section dengan HIW -->
+    <!-- Hero Section -->
     <div class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white rounded-2xl p-8 mb-8 shadow-lg">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
             <div class="flex-1">

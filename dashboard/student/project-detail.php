@@ -378,6 +378,7 @@ function openImageModal(imageSrc) {
 
 function closeImageModal() {
     document.getElementById('imageModal').classList.add('hidden');
+    document.body.style.overflow = ''; 
 }
 
 document.getElementById('imageModal').addEventListener('click', function(e) {
@@ -386,10 +387,16 @@ document.getElementById('imageModal').addEventListener('click', function(e) {
     }
 });
 
-function confirmDelete(projectId, projectTitle) {
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+function confirmDelete(projectId) {
     Swal.fire({
         title: 'Hapus Proyek?',
-        html: `<div class="text-middle">
+        html: `<div class="text-center">
                 <p class="text-gray-600 mt-2">Proyek akan dihapus permanent dari portofoliomu.</p>
                 </div>`,
         icon: 'warning',
@@ -407,18 +414,12 @@ function confirmDelete(projectId, projectTitle) {
 }
 
 if (typeof Swal === 'undefined') {
-    function confirmDelete(projectId, projectTitle) {
-        if (confirm(`Hapus proyek "${projectTitle}"?`)) {
+    function confirmDelete(projectId) {
+        if (confirm('Hapus proyek ini?')) {
             window.location.href = `projects.php?delete_id=${projectId}`;
         }
     }
 }
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeImageModal();
-    }
-});
 </script>
 
 <?php include '../../includes/footer.php'; ?>

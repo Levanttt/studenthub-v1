@@ -9,6 +9,37 @@ if (!isLoggedIn() || getUserRole() != 'student') {
 
 $user_id = $_SESSION['user_id'];
 
+// Handle delete certificate
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'delete_certificate') {
+    if (isset($_POST['certificate_id']) && !empty($_POST['certificate_id'])) {
+        $certificate_id = intval($_POST['certificate_id']);
+        
+        // Cek apakah sertifikat milik user yang login
+        $check_stmt = $conn->prepare("SELECT id FROM certificates WHERE id = ? AND student_id = ?");
+        $check_stmt->bind_param("ii", $certificate_id, $user_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            // Hapus sertifikat
+            $delete_stmt = $conn->prepare("DELETE FROM certificates WHERE id = ? AND student_id = ?");
+            $delete_stmt->bind_param("ii", $certificate_id, $user_id);
+            
+            if ($delete_stmt->execute()) {
+                $_SESSION['success'] = "Sertifikat berhasil dihapus";
+            } else {
+                $_SESSION['error'] = "Gagal menghapus sertifikat: " . $conn->error;
+            }
+        } else {
+            $_SESSION['error'] = "Sertifikat tidak ditemukan atau tidak memiliki akses";
+        }
+        
+        // Redirect ke halaman yang sama untuk menghindari resubmit
+        header("Location: certificates.php");
+        exit();
+    }
+}
+
 $project_certs_stmt = $conn->prepare("
     SELECT 
         p.id as project_id,
@@ -107,6 +138,19 @@ $standalone = count($standalone_certificates);
             </a>
         </div>
     </div>
+
+    <!-- Notifikasi -->
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+            <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+        </div>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+            <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
+        </div>
+    <?php endif; ?>
 
     <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -288,6 +332,12 @@ $standalone = count($standalone_certificates);
     </div>
 </div>
 
+<!-- Hidden form untuk delete -->
+<form id="deleteCertificateForm" method="post" style="display: none;">
+    <input type="hidden" name="certificate_id" id="deleteCertificateId">
+    <input type="hidden" name="action" value="delete_certificate">
+</form>
+
 <script>
 function confirmDeleteCertificate(certificateId) {
     Swal.fire({
@@ -304,7 +354,9 @@ function confirmDeleteCertificate(certificateId) {
         background: '#ffffff'
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = `delete-certificate.php?id=${certificateId}`;
+            // Submit form untuk delete
+            document.getElementById('deleteCertificateId').value = certificateId;
+            document.getElementById('deleteCertificateForm').submit();
         }
     });
 }

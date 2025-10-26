@@ -179,7 +179,7 @@ $semesterOptions = [
     </style>
 </head>
 <body class="bg-cakrawala-light-gray"> 
-    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-2">
+    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/cakrawala-connect/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> 
@@ -474,7 +474,7 @@ $semesterOptions = [
     </main>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
         const roleSelect = document.getElementById('roleSelect');
         const studentFields = document.getElementById('studentFields');
         const mitraFields = document.getElementById('mitraFields');
@@ -494,7 +494,11 @@ $semesterOptions = [
                 studentInputs.forEach(input => input.required = true);
             } else if (roleSelect.value === 'mitra_industri') {
                 mitraFields.classList.remove('hidden');
-                mitraInputs.forEach(input => input.required = true);
+                mitraInputs.forEach(input => {
+                    if (input.name === 'company_name' || input.name === 'position') {
+                        input.required = true;
+                    }
+                });
             }
         }
 
