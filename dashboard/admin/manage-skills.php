@@ -2,186 +2,96 @@
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-if (!isLoggedIn() || getUserRole() != 'student') {
+if (!isLoggedIn() || getUserRole() != 'admin') {
     header("Location: ../../login.php");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
-
-$user_name = 'Unknown';
-$user_query = $conn->prepare("SELECT name FROM users WHERE id = ?");
-$user_query->bind_param("i", $user_id);
-$user_query->execute();
-$user_result = $user_query->get_result();
-
-if ($user_result->num_rows > 0) {
-    $user_data = $user_result->fetch_assoc();
-    $user_name = !empty($user_data['name']) ? $user_data['name'] : 'User-' . $user_id;
-} else {
-    $user_name = 'User-' . $user_id;
-}
-$user_query->close();
+$user_name = $_SESSION['user_name'] ?? 'Admin';
 
 $success = '';
 $error = '';
 
-if (isset($_GET['success'])) {
-    $skill_name = isset($_GET['skill']) ? urldecode($_GET['skill']) : '';
+// Handle form submissions
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $action = $_POST['action'] ?? '';
     
-    switch($_GET['success']) {
-        case 'added':
-            $success = "Skill '{$skill_name}' berhasil ditambahkan!";
-            break;
-        case 'edited':
-            $success = "Skill '{$skill_name}' berhasil diperbarui!";
-            break;
-        case 'deleted':
-            $success = "Skill '{$skill_name}' berhasil dihapus!";
-            break;
-    }
-}
-
-if (isset($_GET['error'])) {
-    switch($_GET['error']) {
-        case 'used':
-            $error = "Tidak dapat menghapus skill karena sedang digunakan dalam proyek!";
-            break;
-        case 'not_found':
-            $error = "Skill tidak ditemukan!";
-            break;
-        case 'delete_failed':
-            $error = "Gagal menghapus skill!";
-            break;
-        case 'already_exists':
-            $error = "Skill sudah ada!";
-            break;
-    }
-}
-
-function logSkillAction($conn, $skill_id, $skill_name, $action, $user_id, $user_name) {
-    $stmt = $conn->prepare("INSERT INTO skill_logs (skill_id, skill_name, action, user_id, user_name) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("issis", $skill_id, $skill_name, $action, $user_id, $user_name);
-    return $stmt->execute();
-}
-
-function getSkillsData($conn) {
-    $skills_by_category = [
-        'technical' => [],
-        'soft' => [],
-        'tool' => []
-    ];
-
-    $skills_stmt = $conn->prepare("
-        SELECT s.id, s.name, s.skill_type, COUNT(ps.project_id) as usage_count 
-        FROM skills s 
-        LEFT JOIN project_skills ps ON s.id = ps.skill_id 
-        GROUP BY s.id 
-        ORDER BY usage_count DESC, s.skill_type, s.name
-    ");
-    
-    if ($skills_stmt) {
-        $skills_stmt->execute();
-        $skills_result = $skills_stmt->get_result();
+    if ($action == 'add_skill') {
+        $skill_name = sanitize($_POST['skill_name']);
+        $skill_type = sanitize($_POST['skill_type']);
         
-        if ($skills_result) {
-            while ($skill = $skills_result->fetch_assoc()) {
-                $skill_type = $skill['skill_type'] ?? 'technical';
-                
-                if (!in_array($skill_type, ['technical', 'soft', 'tool'])) {
-                    $skill_type = 'technical';
-                }
-                
-                if (array_key_exists($skill_type, $skills_by_category)) {
-                    $skills_by_category[$skill_type][] = $skill;
-                } else {
-                    $skills_by_category['technical'][] = $skill;
-                }
-            }
-            $total_skills = $skills_result->num_rows;
+        if (empty($skill_name)) {
+            $error = "Nama skill tidak boleh kosong!";
         } else {
-            $total_skills = 0;
-        }
-        $skills_stmt->close();
-    } else {
-        $total_skills = 0;
-    }
-    
-    $skill_usage = [];
-    foreach ($skills_by_category as $category => $skills) {
-        foreach ($skills as $skill) {
-            if (isset($skill['id']) && isset($skill['usage_count'])) {
-                $skill_usage[$skill['id']] = $skill['usage_count'];
-            }
-        }
-    }
-    
-    return [
-        'skills_by_category' => $skills_by_category,
-        'total_skills' => $total_skills,
-        'skill_usage' => $skill_usage
-    ];
-}
-
-$skills_by_category = [
-    'technical' => [],
-    'soft' => [],
-    'tool' => []
-];
-$total_skills = 0;
-$skill_usage = [];
-
-$skills_data = getSkillsData($conn);
-$skills_by_category = $skills_data['skills_by_category'];
-$total_skills = $skills_data['total_skills'];
-$skill_usage = $skills_data['skill_usage'];
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_skill'])) {
-    $skill_name = sanitize($_POST['skill_name']);
-    $skill_type = sanitize($_POST['skill_type']);
-    
-    if (empty($skill_name)) {
-        $error = "Nama skill tidak boleh kosong!";
-    } else {
-        $check_stmt = $conn->prepare("SELECT id FROM skills WHERE name = ?");
-        $check_stmt->bind_param("s", $skill_name);
-        $check_stmt->execute();
-        $check_result = $check_stmt->get_result();
-        
-        if ($check_result->num_rows > 0) {
-            header("Location: skills.php?error=already_exists");
-            exit();
-        } else {
-            $insert_stmt = $conn->prepare("INSERT INTO skills (name, skill_type) VALUES (?, ?)");
-            $insert_stmt->bind_param("ss", $skill_name, $skill_type);
+            $check_stmt = $conn->prepare("SELECT id FROM skills WHERE name = ?");
+            $check_stmt->bind_param("s", $skill_name);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
             
-            if ($insert_stmt->execute()) {
-                $new_skill_id = $conn->insert_id;
-                logSkillAction($conn, $new_skill_id, $skill_name, 'added', $user_id, $user_name);
-                
-                header("Location: skills.php?success=added&skill=" . urlencode($skill_name));
-                exit();
+            if ($check_result->num_rows > 0) {
+                $error = "Skill '$skill_name' sudah ada!";
             } else {
-                $error = "Gagal menambahkan skill: " . $conn->error;
+                $insert_stmt = $conn->prepare("INSERT INTO skills (name, skill_type) VALUES (?, ?)");
+                $insert_stmt->bind_param("ss", $skill_name, $skill_type);
+                
+                if ($insert_stmt->execute()) {
+                    $success = "Skill '$skill_name' berhasil ditambahkan!";
+                } else {
+                    $error = "Gagal menambahkan skill: " . $conn->error;
+                }
+                $insert_stmt->close();
             }
-            $insert_stmt->close();
+            $check_stmt->close();
         }
-        $check_stmt->close();
+    }
+    
+    // Handle edit skill
+    elseif ($action == 'edit_skill') {
+        $skill_id = intval($_POST['skill_id']);
+        $skill_name = sanitize($_POST['edit_skill_name']);
+        $skill_type = sanitize($_POST['edit_skill_type']);
+        
+        if (empty($skill_name)) {
+            $error = "Nama skill tidak boleh kosong!";
+        } else {
+            $check_stmt = $conn->prepare("SELECT id FROM skills WHERE name = ? AND id != ?");
+            $check_stmt->bind_param("si", $skill_name, $skill_id);
+            $check_stmt->execute();
+            $check_result = $check_stmt->get_result();
+            
+            if ($check_result->num_rows > 0) {
+                $error = "Skill '$skill_name' sudah ada!";
+            } else {
+                $update_stmt = $conn->prepare("UPDATE skills SET name = ?, skill_type = ? WHERE id = ?");
+                $update_stmt->bind_param("ssi", $skill_name, $skill_type, $skill_id);
+                
+                if ($update_stmt->execute()) {
+                    $success = "Skill berhasil diperbarui!";
+                } else {
+                    $error = "Gagal memperbarui skill: " . $conn->error;
+                }
+                $update_stmt->close();
+            }
+            $check_stmt->close();
+        }
     }
 }
 
+// Handle delete skill
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
     
+    // Check if skill is used in any projects
     $check_usage = $conn->prepare("SELECT ps.id FROM project_skills ps WHERE ps.skill_id = ? LIMIT 1");
     $check_usage->bind_param("i", $delete_id);
     $check_usage->execute();
     $usage_result = $check_usage->get_result();
     
     if ($usage_result->num_rows > 0) {
-        header("Location: skills.php?error=used");
-        exit();
+        $error = "Tidak dapat menghapus skill karena sedang digunakan dalam proyek!";
     } else {
+        // Get skill name for success message
         $skill_info_stmt = $conn->prepare("SELECT name FROM skills WHERE id = ?");
         $skill_info_stmt->bind_param("i", $delete_id);
         $skill_info_stmt->execute();
@@ -190,81 +100,71 @@ if (isset($_GET['delete_id'])) {
         if ($skill_info_result->num_rows > 0) {
             $skill_info = $skill_info_result->fetch_assoc();
             $skill_name = $skill_info['name'];
-            $skill_info_stmt->close();
             
             $delete_stmt = $conn->prepare("DELETE FROM skills WHERE id = ?");
             $delete_stmt->bind_param("i", $delete_id);
             
             if ($delete_stmt->execute()) {
-                logSkillAction($conn, NULL, $skill_name, 'deleted', $user_id, $user_name);
-                
-                header("Location: skills.php?success=deleted&skill=" . urlencode($skill_name));
-                exit();
+                $success = "Skill '$skill_name' berhasil dihapus!";
             } else {
-                header("Location: skills.php?error=delete_failed");
-                exit();
+                $error = "Gagal menghapus skill!";
             }
+            $delete_stmt->close();
         } else {
-            header("Location: skills.php?error=not_found");
-            exit();
+            $error = "Skill tidak ditemukan!";
         }
+        $skill_info_stmt->close();
     }
+    $check_usage->close();
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_skill'])) {
-    $skill_id = intval($_POST['skill_id']);
-    $skill_name = sanitize($_POST['edit_skill_name']);
-    $skill_type = sanitize($_POST['edit_skill_type']);
+// Ambil data skills
+$skills_by_category = [
+    'technical' => [],
+    'soft' => [],
+    'tool' => []
+];
+
+$skills_stmt = $conn->prepare("
+    SELECT s.id, s.name, s.skill_type, COUNT(ps.project_id) as usage_count 
+    FROM skills s 
+    LEFT JOIN project_skills ps ON s.id = ps.skill_id 
+    GROUP BY s.id 
+    ORDER BY usage_count DESC, s.skill_type, s.name
+");
+
+if ($skills_stmt) {
+    $skills_stmt->execute();
+    $skills_result = $skills_stmt->get_result();
     
-    if (empty($skill_name)) {
-        $error = "Nama skill tidak boleh kosong!";
-    } else {
-        $old_skill_stmt = $conn->prepare("SELECT name FROM skills WHERE id = ?");
-        $old_skill_stmt->bind_param("i", $skill_id);
-        $old_skill_stmt->execute();
-        $old_skill_result = $old_skill_stmt->get_result();
-        $old_skill = $old_skill_result->fetch_assoc();
-        $old_skill_name = $old_skill['name'];
-        $old_skill_stmt->close();
-        
-        $check_stmt = $conn->prepare("SELECT id FROM skills WHERE name = ? AND id != ?");
-        $check_stmt->bind_param("si", $skill_name, $skill_id);
-        $check_stmt->execute();
-        $check_result = $check_stmt->get_result();
-        
-        if ($check_result->num_rows > 0) {
-            header("Location: skills.php?error=already_exists");
-            exit();
-        } else {
-            $update_stmt = $conn->prepare("UPDATE skills SET name = ?, skill_type = ? WHERE id = ?");
-            $update_stmt->bind_param("ssi", $skill_name, $skill_type, $skill_id);
+    if ($skills_result) {
+        while ($skill = $skills_result->fetch_assoc()) {
+            $skill_type = $skill['skill_type'] ?? 'technical';
             
-            if ($update_stmt->execute()) {
-                logSkillAction($conn, $skill_id, $skill_name, 'edited', $user_id, $user_name);
-                
-                header("Location: skills.php?success=edited&skill=" . urlencode($skill_name));
-                exit();
-            } else {
-                $error = "Gagal memperbarui skill: " . $conn->error;
+            if (!in_array($skill_type, ['technical', 'soft', 'tool'])) {
+                $skill_type = 'technical';
             }
-            $update_stmt->close();
+            
+            if (array_key_exists($skill_type, $skills_by_category)) {
+                $skills_by_category[$skill_type][] = $skill;
+            } else {
+                $skills_by_category['technical'][] = $skill;
+            }
         }
-        $check_stmt->close();
+        $total_skills = $skills_result->num_rows;
+    } else {
+        $total_skills = 0;
     }
+    $skills_stmt->close();
+} else {
+    $total_skills = 0;
+    $error = "Error mengambil data skills: " . $conn->error;
 }
 ?>
 
 <?php include '../../includes/header.php'; ?>
 
 <style>
-header .hidden.sm\:inline {
-    display: inline-block !important;
-}
-
-nav .hidden.sm\:inline {
-    display: inline-block !important;
-}
-
 .skill-card {
     transition: all 0.3s ease;
 }
@@ -316,7 +216,7 @@ nav .hidden.sm\:inline {
     padding: 2rem;
     width: 100%;
     max-width: 500px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     animation: modalSlideIn 0.2s ease-out;
 }
 
@@ -331,68 +231,82 @@ nav .hidden.sm\:inline {
     }
 }
 
-.modal-header {
+/* Fix untuk hidden modal */
+.modal-overlay.hidden {
+    display: none !important;
+}
+
+.tab-content.hidden {
+    display: none !important;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background: white;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.modal-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1a1a1a;
-    line-height: 1.2;
-}
-
-.modal-footer {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    margin-top: 2rem;
-}
-
-.btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
+    justify-content: space-between;
     transition: all 0.2s ease;
-    border: none;
+}
+
+.dropdown-toggle:hover {
+    border-color: #2A8FA9;
+}
+
+.dropdown-toggle:focus {
     outline: none;
+    ring: 2px;
+    ring-color: #2A8FA9;
+    border-color: #2A8FA9;
 }
 
-.btn:focus {
-    outline: 2px solid #2A8FA9;
-    outline-offset: 2px;
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    margin-top: 4px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
-.btn-secondary {
-    background: #f8f9fa;
-    color: #475467;
-    border: 1px solid #d0d5dd;
+.dropdown-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background-color 0.2s ease;
 }
 
-.btn-secondary:hover {
-    background: #f1f3f5;
+.dropdown-option:hover {
+    background-color: #f3f4f6;
 }
 
-.btn-primary {
-    background: #2A8FA9;
-    color: white;
+.dropdown-option:first-child {
+    border-radius: 0.5rem 0.5rem 0 0;
 }
 
-.btn-primary:hover {
-    background: #409BB2;
+.dropdown-option:last-child {
+    border-radius: 0 0 0.5rem 0.5rem;
 }
 
 .hidden {
     display: none !important;
-}
-
-.flex {
-    display: flex;
 }
 </style>
 
@@ -403,9 +317,9 @@ nav .hidden.sm\:inline {
             <div>
                 <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:tag-multiple" data-width="32"></span>
-                    Kelola Skill & Tag
+                    Kelola Skills
                 </h1>
-                <p class="text-gray-600 mt-2">Kelola keterampilan dan tools untuk portfolio proyek Anda</p>
+                <p class="text-gray-600 mt-2">Kelola keterampilan dan tools untuk portfolio mahasiswa</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-3">
                 <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
@@ -413,68 +327,6 @@ nav .hidden.sm\:inline {
                     Kembali ke Dashboard
                 </a>
             </div>
-        </div>
-        
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div class="bg-gradient-to-r from-[#2A8FA9]/5 to-[#409BB2]/10 rounded-2xl p-6 border border-[#2A8FA9]/30">
-                <div class="flex items-center gap-4">
-                    <div class="bg-[#2A8FA9] p-3 rounded-xl">
-                        <span class="iconify text-white" data-icon="mdi:tag" data-width="24"></span>
-                    </div>
-                    <div>
-                        <h3 class="text-[#2A8FA9] font-bold text-2xl"><?php echo $total_skills; ?></h3>
-                        <p class="text-[#2A8FA9] text-sm">Total Skill</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-2xl p-6 border border-blue-200">
-                <div class="flex items-center gap-4">
-                    <div class="bg-blue-600 p-3 rounded-xl">
-                        <span class="iconify text-white" data-icon="mdi:code-braces" data-width="24"></span>
-                    </div>
-                    <div>
-                        <h3 class="text-blue-900 font-bold text-2xl"><?php echo isset($skills_by_category['technical']) ? count($skills_by_category['technical']) : 0; ?></h3>
-                        <p class="text-blue-700 text-sm">Technical Skills</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-gradient-to-r from-green-50 to-green-100/50 rounded-2xl p-6 border border-green-200">
-                <div class="flex items-center gap-4">
-                    <div class="bg-green-600 p-3 rounded-xl">
-                        <span class="iconify text-white" data-icon="mdi:account-group" data-width="24"></span>
-                    </div>
-                    <div>
-                        <h3 class="text-green-900 font-bold text-2xl"><?php echo isset($skills_by_category['soft']) ? count($skills_by_category['soft']) : 0; ?></h3>
-                        <p class="text-green-700 text-sm">Soft Skills</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-gradient-to-r from-purple-50 to-purple-100/50 rounded-2xl p-6 border border-purple-200">
-                <div class="flex items-center gap-4">
-                    <div class="bg-purple-600 p-3 rounded-xl">
-                        <span class="iconify text-white" data-icon="mdi:tools" data-width="24"></span>
-                    </div>
-                    <div>
-                        <h3 class="text-purple-900 font-bold text-2xl"><?php echo isset($skills_by_category['tool']) ? count($skills_by_category['tool']) : 0; ?></h3>
-                        <p class="text-purple-700 text-sm">Tools & Software</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Global Warning -->
-        <div class="mb-6 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 p-4 rounded-lg" role="alert">
-            <p class="font-bold flex items-center gap-2">
-                <span class="iconify" data-icon="mdi:alert" data-width="20"></span>
-                Penting: Pengelolaan Skill Bersifat Global
-            </p>
-            <p class="text-sm mt-1">
-                Penambahan, pengeditan, atau penghapusan skill di halaman ini akan <strong>berdampak pada semua pengguna</strong> platform Cakrawala Connect. Pastikan skill yang Anda tambahkan relevan dan belum ada. Skill yang sedang digunakan dalam proyek tidak dapat dihapus.
-            </p>
         </div>
     </div>
 
@@ -502,45 +354,46 @@ nav .hidden.sm\:inline {
                 </h2>
                 
                 <form method="POST" action="" class="space-y-4">
+                    <input type="hidden" name="action" value="add_skill">
+                    
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Nama Skill *</label>
                         <input type="text" name="skill_name" 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
                             placeholder="Contoh: React, Leadership, Figma" required>
                     </div>
-        
-                    <div class="relative" id="skill-type-dropdown">
+    
+                    <!-- Custom Dropdown untuk Kategori Skill -->
+                    <div class="custom-dropdown" id="skill-type-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Skill *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
-                            <div class="flex items-center gap-3">
+                        <div class="dropdown-toggle" data-toggle>
+                            <div class="flex items-center gap-3 flex-1">
                                 <span class="iconify" data-icon="mdi:tag-outline" data-width="20" data-selected-icon></span>
                                 <span data-selected-text>Pilih Kategori</span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify transform transition-transform" data-icon="mdi:chevron-down" data-width="20" data-arrow></span>
                         </div>
                         
                         <input type="hidden" name="skill_type" id="skill-type-value" required>
                         
-                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden" data-options>
-                            <div class="p-2 space-y-1">
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="technical" data-icon="mdi:code-braces">
-                                    <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
-                                    <span>Technical Skill</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="soft" data-icon="mdi:account-group">
-                                    <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
-                                    <span>Soft Skill</span>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="tool" data-icon="mdi:tools">
-                                    <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
-                                    <span>Tool & Software</span>
-                                </div>
+                        <div class="dropdown-options hidden" data-options>
+                            <div class="dropdown-option" data-value="technical" data-icon="mdi:code-braces">
+                                <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
+                                <span>Technical Skill</span>
+                            </div>
+                            <div class="dropdown-option" data-value="soft" data-icon="mdi:account-group">
+                                <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
+                                <span>Soft Skill</span>
+                            </div>
+                            <div class="dropdown-option" data-value="tool" data-icon="mdi:tools">
+                                <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
+                                <span>Tool & Software</span>
                             </div>
                         </div>
                     </div>
                     
-                    <button type="submit" name="add_skill" 
+                    <button type="submit" 
                             class="w-full bg-gradient-to-r from-[#2A8FA9] to-[#409BB2] text-white py-3 px-4 rounded-lg font-semibold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
                         <span class="iconify" data-icon="mdi:plus" data-width="20"></span>
                         Tambah Skill
@@ -576,33 +429,32 @@ nav .hidden.sm\:inline {
                 <!-- Tabs Navigation -->
                 <div class="flex border-b border-gray-200 mb-6">
                     <button type="button" 
-                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 active"
+                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 transition-colors flex items-center justify-center gap-2 active border-blue-500 text-blue-700 bg-blue-50"
                             data-tab="technical"
                             onclick="switchTab('technical')">
                         <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
                         Technical
-                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"><?php echo isset($skills_by_category['technical']) ? count($skills_by_category['technical']) : 0; ?></span>
+                        <span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['technical']); ?></span>
                     </button>
                     
                     <button type="button" 
-                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center gap-2"
                             data-tab="soft"
                             onclick="switchTab('soft')">
                         <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
                         Soft Skills
-                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"><?php echo isset($skills_by_category['soft']) ? count($skills_by_category['soft']) : 0; ?></span>
+                        <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['soft']); ?></span>
                     </button>
                     
                     <button type="button" 
-                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center gap-2"
                             data-tab="tool"
                             onclick="switchTab('tool')">
                         <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
                         Tools
-                        <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full"><?php echo isset($skills_by_category['tool']) ? count($skills_by_category['tool']) : 0; ?></span>
+                        <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['tool']); ?></span>
                     </button>
                 </div>
-
                 <!-- Tab Contents -->
                 <div id="technical-tab" class="tab-content">
                     <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
@@ -618,14 +470,14 @@ nav .hidden.sm\:inline {
                                         <span class="technical-badge px-3 py-1 rounded-lg text-sm font-medium">
                                             <?php echo htmlspecialchars($skill['name']); ?>
                                         </span>
-                                        <?php if (isset($skill_usage[$skill['id']]) && $skill_usage[$skill['id']] > 0): ?>
+                                        <?php if (isset($skill['usage_count']) && $skill['usage_count'] > 0): ?>
                                             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                                <?php echo $skill_usage[$skill['id']]; ?> proyek
+                                                <?php echo $skill['usage_count']; ?> proyek
                                             </span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="flex gap-2">
-                                        <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', 'technical')" 
+                                        <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', '<?php echo $skill['skill_type']; ?>')" 
                                                 class="text-gray-400 hover:text-[#2A8FA9] transition-colors p-1"
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
@@ -643,7 +495,6 @@ nav .hidden.sm\:inline {
                         <div class="text-center py-8 text-gray-500">
                             <span class="iconify inline-block mb-2" data-icon="mdi:code-braces-off" data-width="48"></span>
                             <p class="text-lg font-semibold">Belum ada Technical Skills</p>
-                            <p class="text-sm mt-2">Tambahkan bahasa pemrograman atau framework yang Anda kuasai</p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -662,14 +513,14 @@ nav .hidden.sm\:inline {
                                         <span class="soft-badge px-3 py-1 rounded-lg text-sm font-medium">
                                             <?php echo htmlspecialchars($skill['name']); ?>
                                         </span>
-                                        <?php if (isset($skill_usage[$skill['id']]) && $skill_usage[$skill['id']] > 0): ?>
+                                        <?php if (isset($skill['usage_count']) && $skill['usage_count'] > 0): ?>
                                             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                                <?php echo $skill_usage[$skill['id']]; ?> proyek
+                                                <?php echo $skill['usage_count']; ?> proyek
                                             </span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="flex gap-2">
-                                        <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', 'soft')" 
+                                        <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', '<?php echo $skill['skill_type']; ?>')" 
                                                 class="text-gray-400 hover:text-[#2A8FA9] transition-colors p-1"
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
@@ -687,7 +538,6 @@ nav .hidden.sm\:inline {
                         <div class="text-center py-8 text-gray-500">
                             <span class="iconify inline-block mb-2" data-icon="mdi:account-off" data-width="48"></span>
                             <p class="text-lg font-semibold">Belum ada Soft Skills</p>
-                            <p class="text-sm mt-2">Tambahkan kemampuan interpersonal dan leadership Anda</p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -706,14 +556,14 @@ nav .hidden.sm\:inline {
                                         <span class="tool-badge px-3 py-1 rounded-lg text-sm font-medium">
                                             <?php echo htmlspecialchars($skill['name']); ?>
                                         </span>
-                                        <?php if (isset($skill_usage[$skill['id']]) && $skill_usage[$skill['id']] > 0): ?>
+                                        <?php if (isset($skill['usage_count']) && $skill['usage_count'] > 0): ?>
                                             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                                                <?php echo $skill_usage[$skill['id']]; ?> proyek
+                                                <?php echo $skill['usage_count']; ?> proyek
                                             </span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="flex gap-2">
-                                        <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', 'tool')" 
+                                        <button onclick="openEditModal(<?php echo $skill['id']; ?>, '<?php echo htmlspecialchars($skill['name']); ?>', '<?php echo $skill['skill_type']; ?>')" 
                                                 class="text-gray-400 hover:text-[#2A8FA9] transition-colors p-1"
                                                 title="Edit Skill">
                                             <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
@@ -731,7 +581,6 @@ nav .hidden.sm\:inline {
                         <div class="text-center py-8 text-gray-500">
                             <span class="iconify inline-block mb-2" data-icon="mdi:tools-off" data-width="48"></span>
                             <p class="text-lg font-semibold">Belum ada Tools & Software</p>
-                            <p class="text-sm mt-2">Tambahkan software dan tools yang Anda gunakan</p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -743,16 +592,16 @@ nav .hidden.sm\:inline {
 <!-- Edit Skill Modal -->
 <div id="editModal" class="modal-overlay hidden">
     <div class="modal-content">
-        <div class="modal-header">
-            <div class="bg-[#E0F7FF] p-3 rounded-xl">
-                <span class="iconify text-[#2A8FA9]" data-icon="mdi:pencil" data-width="24"></span>
+        <div class="flex items-center gap-3 mb-4">
+            <div class="bg-[#E0F7FF] p-2 rounded-lg">
+                <span class="iconify text-[#2A8FA9]" data-icon="mdi:pencil" data-width="20"></span>
             </div>
-            <h3 class="modal-title">Edit Skill</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Edit Skill</h3>
         </div>
         
         <form method="POST" action="" id="editForm">
+            <input type="hidden" name="action" value="edit_skill">
             <input type="hidden" name="skill_id" id="edit_skill_id">
-            <input type="hidden" name="edit_skill" value="1">
             
             <div class="space-y-4">
                 <div>
@@ -763,43 +612,41 @@ nav .hidden.sm\:inline {
                 </div>
                 
                 <!-- Custom Dropdown untuk Edit Kategori Skill -->
-                <div class="relative" id="edit-skill-type-dropdown">
+                <div class="custom-dropdown" id="edit-skill-type-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Skill</label>
                     
-                    <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
-                        <div class="flex items-center gap-3">
+                    <div class="dropdown-toggle" data-toggle>
+                        <div class="flex items-center gap-3 flex-1">
                             <span class="iconify" data-icon="mdi:tag-outline" data-width="20" data-selected-icon></span>
                             <span data-selected-text>Pilih Kategori</span>
                         </div>
-                        <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                        <span class="iconify transform transition-transform" data-icon="mdi:chevron-down" data-width="20" data-arrow></span>
                     </div>
                     
                     <input type="hidden" name="edit_skill_type" id="edit-skill-type-value" required>
                     
-                    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden" data-options>
-                        <div class="p-2 space-y-1">
-                            <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="technical" data-icon="mdi:code-braces">
-                                <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
-                                <span>Technical Skill</span>
-                            </div>
-                            <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="soft" data-icon="mdi:account-group">
-                                <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
-                                <span>Soft Skill</span>
-                            </div>
-                            <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="tool" data-icon="mdi:tools">
-                                <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
-                                <span>Tool & Software</span>
-                            </div>
+                    <div class="dropdown-options hidden" data-options>
+                        <div class="dropdown-option" data-value="technical" data-icon="mdi:code-braces">
+                            <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
+                            <span>Technical Skill</span>
+                        </div>
+                        <div class="dropdown-option" data-value="soft" data-icon="mdi:account-group">
+                            <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
+                            <span>Soft Skill</span>
+                        </div>
+                        <div class="dropdown-option" data-value="tool" data-icon="mdi:tools">
+                            <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
+                            <span>Tool & Software</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="modal-footer">
-                <button type="button" onclick="closeEditModal()" class="btn btn-secondary">
+            <div class="flex gap-3 justify-end mt-6">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium">
                     Batal
                 </button>
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="bg-[#2A8FA9] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors">
                     Simpan Perubahan
                 </button>
             </div>
@@ -807,9 +654,190 @@ nav .hidden.sm\:inline {
     </div>
 </div>
 
+<!-- Hidden form untuk delete -->
+<form id="deleteSkillForm" method="GET" style="display: none;">
+    <input type="hidden" name="delete_id" id="deleteSkillId">
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+// Notification Manager Class
+class NotificationManager {
+    constructor() {
+        this.notificationTimeout = 5000; // 5 detik
+        this.fadeOutDuration = 500; // 0.5 detik
+        this.maxNotifications = 1;
+        this.init();
+    }
+    
+    init() {
+        console.log('NotificationManager initialized');
+        this.ensureSingleNotification();
+        this.setupAutoHide();
+        this.addCloseButtons();
+        this.clearURLParams();
+        this.setupMutationObserver();
+    }
+    
+    // Pastikan hanya ada 1 notifikasi
+    ensureSingleNotification() {
+        const notifications = this.getAllNotifications();
+        
+        if (notifications.length > this.maxNotifications) {
+            // Hapus notifikasi tambahan, sisakan hanya 1
+            for (let i = this.maxNotifications; i < notifications.length; i++) {
+                notifications[i].remove();
+            }
+            console.log(`Removed ${notifications.length - this.maxNotifications} excess notifications`);
+        }
+    }
+    
+    // Setup auto hide untuk notifikasi
+    setupAutoHide() {
+        const notifications = this.getAllNotifications();
+        
+        notifications.forEach(notification => {
+            // Set timeout untuk auto hide
+            const timeoutId = setTimeout(() => {
+                this.hideNotification(notification);
+            }, this.notificationTimeout);
+            
+            // Simpan timeout ID di element untuk bisa di-cancel jika needed
+            notification.dataset.timeoutId = timeoutId;
+        });
+    }
+    
+    // Tambahkan close button manual
+    addCloseButtons() {
+        const notifications = this.getAllNotifications();
+        
+        notifications.forEach(notification => {
+            // Skip jika sudah ada close button
+            if (notification.querySelector('.notification-close')) return;
+            
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '<span class="iconify" data-icon="mdi:close" data-width="16"></span>';
+            closeButton.className = 'notification-close ml-auto text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0';
+            closeButton.setAttribute('type', 'button');
+            closeButton.setAttribute('aria-label', 'Tutup notifikasi');
+            
+            closeButton.addEventListener('click', () => {
+                // Cancel auto hide timeout
+                if (notification.dataset.timeoutId) {
+                    clearTimeout(parseInt(notification.dataset.timeoutId));
+                }
+                this.hideNotification(notification);
+            });
+            
+            // Style notification container
+            notification.style.display = 'flex';
+            notification.style.alignItems = 'center';
+            notification.style.justifyContent = 'space-between';
+            notification.appendChild(closeButton);
+        });
+    }
+    
+    // Animasi hide notification
+    hideNotification(notification) {
+        if (!notification || !notification.parentNode) return;
+        
+        // Add fade-out class
+        notification.style.opacity = '0';
+        notification.style.transition = `opacity ${this.fadeOutDuration}ms ease`;
+        
+        // Remove after fade out
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+                console.log('Notification removed');
+            }
+        }, this.fadeOutDuration);
+    }
+    
+    // Clear URL parameters untuk prevent duplicate notifications on refresh
+    clearURLParams() {
+        const url = new URL(window.location);
+        const params = new URLSearchParams(url.search);
+        
+        const hadNotification = params.has('success') || params.has('error');
+        
+        if (hadNotification) {
+            // Hapus parameter notifikasi
+            params.delete('success');
+            params.delete('error');
+            params.delete('skill');
+            
+            // Update URL tanpa reload
+            const newUrl = `${url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+            window.history.replaceState({}, '', newUrl);
+            
+            console.log('Cleared notification parameters from URL');
+        }
+    }
+    
+    // Setup mutation observer untuk handle dynamic content
+    setupMutationObserver() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1 && // Element node
+                        (node.classList.contains('bg-green-50') || 
+                         node.classList.contains('bg-red-50') ||
+                         node.querySelector('.bg-green-50') || 
+                         node.querySelector('.bg-red-50'))) {
+                        console.log('New notification detected');
+                        // Tunggu sebentar lalu re-initialize
+                        setTimeout(() => {
+                            this.init();
+                        }, 100);
+                    }
+                });
+            });
+        });
+        
+        // Start observing
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
+    
+    // Helper: Get all notifications
+    getAllNotifications() {
+        return Array.from(document.querySelectorAll('.bg-green-50, .bg-red-50'))
+                    .filter(el => el.closest('body')); // Pastikan element masih di DOM
+    }
+    
+    // Method untuk manually show notification (jika needed)
+    showNotification(message, type = 'success') {
+        // Hapus notifikasi existing dulu
+        this.getAllNotifications().forEach(notification => {
+            this.hideNotification(notification);
+        });
+        
+        // Buat notifikasi baru
+        const notification = document.createElement('div');
+        notification.className = `mb-6 ${type === 'success' ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'} px-4 py-3 rounded-lg flex items-center gap-2`;
+        notification.innerHTML = `
+            <span class="iconify" data-icon="mdi:${type === 'success' ? 'check-circle' : 'alert-circle'}" data-width="20"></span>
+            ${message}
+        `;
+        
+        // Tambahkan ke DOM
+        const container = document.querySelector('.max-w-7xl.mx-auto .px-4') || document.body;
+        container.insertBefore(notification, container.firstChild);
+        
+        // Re-initialize untuk setup auto-hide dan close button
+        setTimeout(() => {
+            this.init();
+        }, 100);
+    }
+}
+
 // Tab System
 function switchTab(tabName) {
+    console.log('Switching to tab:', tabName);
+    
     // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.add('hidden');
@@ -817,14 +845,35 @@ function switchTab(tabName) {
     
     // Remove active class from all buttons
     document.querySelectorAll('.tab-button').forEach(button => {
-        button.classList.remove('active');
+        button.classList.remove('active', 'border-blue-500', 'text-blue-700', 'bg-blue-50');
+        button.classList.add('border-transparent', 'text-gray-500');
     });
     
     // Show selected tab content
-    document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+    const targetTab = document.getElementById(`${tabName}-tab`);
+    if (targetTab) {
+        targetTab.classList.remove('hidden');
+    }
     
     // Add active class to clicked button
-    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+        
+        // Set styling berdasarkan tab
+        switch(tabName) {
+            case 'technical':
+                activeButton.classList.add('border-blue-500', 'text-blue-700', 'bg-blue-50');
+                break;
+            case 'soft':
+                activeButton.classList.add('border-green-500', 'text-green-700', 'bg-green-50');
+                break;
+            case 'tool':
+                activeButton.classList.add('border-purple-500', 'text-purple-700', 'bg-purple-50');
+                break;
+        }
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+    }
 }
 
 // Custom Dropdown System
@@ -841,6 +890,7 @@ class CustomDropdown {
         this.hiddenInput = this.container.querySelector('input[type="hidden"]');
         this.selectedText = this.container.querySelector('[data-selected-text]');
         this.selectedIcon = this.container.querySelector('[data-selected-icon]');
+        this.arrow = this.container.querySelector('[data-arrow]');
         
         this.init();
     }
@@ -849,37 +899,47 @@ class CustomDropdown {
         // Toggle dropdown
         this.toggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            this.options.classList.toggle('hidden');
+            this.toggleDropdown();
         });
         
         // Close when clicking outside
         document.addEventListener('click', () => {
-            this.options.classList.add('hidden');
+            this.closeDropdown();
         });
         
         // Handle option selection
-        this.options.querySelectorAll('[data-option]').forEach(option => {
+        this.options.querySelectorAll('.dropdown-option').forEach(option => {
             option.addEventListener('click', () => {
                 const value = option.getAttribute('data-value');
                 const text = option.textContent.trim();
                 const icon = option.getAttribute('data-icon');
                 
-                this.hiddenInput.value = value;
-                this.selectedText.textContent = text;
-                this.selectedIcon.setAttribute('data-icon', icon);
-                
-                this.options.classList.add('hidden');
-                
-                // Trigger change event
-                this.hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                this.setValue(value, text, icon);
+                this.closeDropdown();
             });
         });
+    }
+    
+    toggleDropdown() {
+        this.options.classList.toggle('hidden');
+        this.arrow.style.transform = this.options.classList.contains('hidden') 
+            ? 'rotate(0deg)' 
+            : 'rotate(180deg)';
+    }
+    
+    closeDropdown() {
+        this.options.classList.add('hidden');
+        this.arrow.style.transform = 'rotate(0deg)';
     }
     
     setValue(value, text, icon) {
         if (this.hiddenInput) this.hiddenInput.value = value;
         if (this.selectedText) this.selectedText.textContent = text;
         if (this.selectedIcon && icon) this.selectedIcon.setAttribute('data-icon', icon);
+    }
+    
+    getValue() {
+        return this.hiddenInput ? this.hiddenInput.value : '';
     }
 }
 
@@ -889,7 +949,7 @@ function openEditModal(skillId, skillName, skillType) {
     document.getElementById('edit_skill_name').value = skillName;
     
     // Set dropdown value based on skill type
-    const editDropdown = new CustomDropdown('edit-skill-type-dropdown');
+    const editDropdown = window.editDropdown;
     
     let typeText = '';
     let typeIcon = '';
@@ -918,18 +978,12 @@ function closeEditModal() {
     document.getElementById('editModal').classList.add('hidden');
 }
 
-// Delete Confirmation dengan SweetAlert
+// SweetAlert Delete Confirmation
 function confirmDeleteSkill(skillId, skillName) {
     Swal.fire({
         title: 'Hapus Skill?',
         html: `<div class="text-center">
                 <p class="text-gray-600 mt-2">Skill <strong>"${skillName}"</strong> akan dihapus permanent dari sistem.</p>
-                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-left">
-                    <p class="text-sm text-red-700 font-semibold flex items-center gap-2">
-                        <span class="iconify" data-icon="mdi:alert" data-width="16"></span>
-                        PERINGATAN: Tindakan ini akan berdampak pada semua pengguna!
-                    </p>
-                </div>
                 </div>`,
         icon: 'warning',
         showCancelButton: true,
@@ -940,12 +994,15 @@ function confirmDeleteSkill(skillId, skillName) {
         background: '#ffffff',
         customClass: {
             popup: 'rounded-2xl',
-            title: 'text-xl font-bold text-gray-900',
-            htmlContainer: 'text-left'
+            title: 'text-lg font-semibold',
+            confirmButton: 'px-4 py-2 rounded-lg font-semibold',
+            cancelButton: 'px-4 py-2 rounded-lg font-semibold'
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = `skills.php?delete_id=${skillId}`;
+            // Submit form untuk delete
+            document.getElementById('deleteSkillId').value = skillId;
+            document.getElementById('deleteSkillForm').submit();
         }
     });
 }
@@ -964,37 +1021,38 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Initialize dropdowns when DOM is loaded
+// Initialize semua functionality ketika DOM ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize main dropdown
+    console.log('DOM loaded, initializing components...');
+    
+    // Initialize notification manager
+    window.notificationManager = new NotificationManager();
+    
+    // Initialize dropdowns
     new CustomDropdown('skill-type-dropdown');
+    window.editDropdown = new CustomDropdown('edit-skill-type-dropdown');
     
-    // Initialize edit dropdown
-    new CustomDropdown('edit-skill-type-dropdown');
+    // Set tab pertama sebagai aktif
+    switchTab('technical');
+    
+    // Setup iconify jika needed
+    if (window.iconify) {
+        window.iconify.scan();
+    }
+    
+    console.log('All components initialized');
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Debug: Cek apakah elemen header text ada dan kenapa hidden
-    const headerText = document.querySelector('nav span.text-lg');
-    if (headerText) {
-        console.log('Header text found:', headerText);
-        console.log('Computed display:', window.getComputedStyle(headerText).display);
-        console.log('Classes:', headerText.className);
-    }
+// Fallback: Juga initialize ketika window fully loaded
+window.addEventListener('load', function() {
+    console.log('Window fully loaded');
+    // Pastikan semua berjalan smooth
+    setTimeout(() => {
+        if (window.notificationManager) {
+            window.notificationManager.init();
+        }
+    }, 500);
 });
-
-// Clear notification parameters from URL
-function clearNotificationParams() {
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    if (urlParams.has('success') || urlParams.has('error')) {
-        const newUrl = window.location.pathname;
-        window.history.replaceState({}, '', newUrl);
-    }
-}
-
-// Execute when page loads
-document.addEventListener('DOMContentLoaded', clearNotificationParams);
 </script>
 
 <?php include '../../includes/footer.php'; ?>

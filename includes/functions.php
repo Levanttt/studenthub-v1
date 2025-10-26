@@ -1,4 +1,19 @@
 <?php
+// ✅ FUNCTION UTAMA
+function sanitize($data) {
+    global $conn;
+    return mysqli_real_escape_string($conn, trim(htmlspecialchars(strip_tags($data), ENT_QUOTES, 'UTF-8')));
+}
+
+function isLoggedIn() {
+    return isset($_SESSION['user_id']);
+}
+
+function getUserRole() {
+    return $_SESSION['role'] ?? null;
+}
+
+// ✅ FUNCTION FORMATTING
 function formatText($text) {
     if (empty($text)) return $text;
     return ucfirst(strtolower(trim($text)));
@@ -53,6 +68,7 @@ function getEligibilityBadge($status) {
     return $config;
 }
 
+// ✅ FUNCTION PROFILE VIEWS
 function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other') {
     global $conn;
     
@@ -115,5 +131,36 @@ function getProfileViewsCount($student_id) {
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_assoc()['total_views'];
+}
+
+// ✅ FUNCTION TIME ELAPSED
+function time_elapsed_string($datetime, $full = false) {
+    $now = new DateTime;
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+
+    $string = array(
+        'y' => 'tahun',
+        'm' => 'bulan',
+        'w' => 'minggu',
+        'd' => 'hari',
+        'h' => 'jam',
+        'i' => 'menit',
+        's' => 'detik',
+    );
+    
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? '' : '');
+        } else {
+            unset($string[$k]);
+        }
+    }
+
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ', $string) . ' yang lalu' : 'baru saja';
 }
 ?>

@@ -1,21 +1,7 @@
 <?php
+// HAPUS session_start() dari sini karena sudah ada di config.php
 include 'includes/config.php';
-
-if (!function_exists('sanitize')) {
-    function sanitize($input) {
-        return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
-    }
-}
-if (!function_exists('isLoggedIn')) {
-    function isLoggedIn() {
-        return isset($_SESSION['user_id']);
-    }
-}
-if (!function_exists('getUserRole')) {
-    function getUserRole() {
-        return $_SESSION['role'] ?? null;
-    }
-}
+include 'includes/functions.php';
 
 if (isLoggedIn()) {
     $role = getUserRole();
@@ -38,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($email) || empty($password)) {
         $error = "Email dan password wajib diisi!";
     } else {
-        $stmt = $conn->prepare("SELECT id, email, password, role, name, profile_picture FROM users WHERE email = ?");
+        // TAMBAH verification_status untuk pengecekan mitra industri
+        $stmt = $conn->prepare("SELECT id, email, password, role, name, profile_picture, verification_status FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -47,23 +34,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user = $result->fetch_assoc();
 
             if (password_verify($password, $user['password'])) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['email'] = $user['email'];
-                $_SESSION['role'] = $user['role']; 
-                $_SESSION['name'] = $user['name'];
-                $_SESSION['profile_picture'] = $user['profile_picture'];
-
-                if ($user['role'] == 'student') {
-                    header("Location: dashboard/student/index.php");
-                } elseif ($user['role'] == 'mitra_industri') { 
-                    header("Location: dashboard/mitra-industri/index.php"); 
-                } elseif ($user['role'] == 'admin') {
-                    header("Location: dashboard/admin/index.php"); 
+                
+                // ✅ CEK VERIFIKASI UNTUK MITRA INDUSTRI
+                if ($user['role'] == 'mitra_industri' && $user['verification_status'] != 'verified') {
+                    $status_text = $user['verification_status'] == 'pending' ? 'menunggu verifikasi' : 'ditolak';
+                    $error = "Akun mitra industri Anda {$status_text}. Silakan tunggu verifikasi admin.";
                 } else {
-                    session_destroy(); 
-                    $error = "Role pengguna tidak dikenali.";
+                    // SET SESSION
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['email'] = $user['email'];
+                    $_SESSION['role'] = $user['role']; 
+                    $_SESSION['name'] = $user['name'];
+                    $_SESSION['profile_picture'] = $user['profile_picture'];
+
+                    // REDIRECT BERDASARKAN ROLE
+                    if ($user['role'] == 'student') {
+                        header("Location: dashboard/student/index.php");
+                    } elseif ($user['role'] == 'mitra_industri') { 
+                        header("Location: dashboard/mitra-industri/index.php"); 
+                    } elseif ($user['role'] == 'admin') {
+                        header("Location: dashboard/admin/index.php"); 
+                    } else {
+                        session_destroy(); 
+                        $error = "Role pengguna tidak dikenali.";
+                    }
+                    exit();
                 }
-                exit();
 
             } else {
                 $error = "Password salah!";
@@ -74,12 +70,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
+<!-- HTML tetap sama seperti sebelumnya -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Cakrawala Connect</title> <script src="https://cdn.tailwindcss.com"></script>
+    <title>Login - Cakrawala Connect</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/2/2.1.0/iconify.min.js"></script>
 
     <style>
@@ -105,10 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .auth-height { min-height: calc(100vh - 64px); } 
     </style>
 </head>
-<body class="bg-cakrawala-light-gray"> <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3">
+<body class="bg-cakrawala-light-gray"> 
+    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/cakrawala-connect/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
-                <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> </a>
+                <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala" class="h-6"> 
+                <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> 
+            </a>
             <div class="flex items-center space-x-3">
                 <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
                     <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
@@ -129,7 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-white/20 mb-3">
                         <span class="iconify text-white" data-icon="mdi:login" data-width="24"></span>
                     </div>
-                    <h2 class="text-2xl font-bold">Login Cakrawala Connect</h2> <p class="mt-1 text-blue-100">Masuk ke akun Anda</p>
+                    <h2 class="text-2xl font-bold">Login Cakrawala Connect</h2> 
+                    <p class="mt-1 text-blue-100">Masuk ke akun Anda</p>
                 </div>
 
                 <div class="p-6">
