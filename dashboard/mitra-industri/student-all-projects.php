@@ -33,12 +33,10 @@ try {
     exit();
 }
 
-// Pagination configuration
 $projects_per_page = 6;
 $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $offset = ($current_page - 1) * $projects_per_page;
 
-// Get total projects count
 $total_projects = 0;
 try {
     $count_query = "SELECT COUNT(*) as total FROM projects WHERE student_id = ?";
@@ -52,7 +50,6 @@ try {
     error_log("Error counting projects: " . $e->getMessage());
 }
 
-// Calculate total pages
 $total_pages = ceil($total_projects / $projects_per_page);
 
 $projects = [];
@@ -449,9 +446,7 @@ unset($project);
 </div>
 
 <script>
-// Function to open project detail modal
 function openProjectModal(projectId) {
-    // Show loading
     document.getElementById('modalContent').innerHTML = `
         <div class="flex items-center justify-center p-12">
             <div class="text-center">
@@ -464,7 +459,6 @@ function openProjectModal(projectId) {
     document.getElementById('projectModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     
-    // Load project details via AJAX
     fetch(`project-detail-ajax.php?id=${projectId}&student_id=<?php echo $student_id; ?>`)
         .then(response => response.text())
         .then(html => {
@@ -482,27 +476,23 @@ function openProjectModal(projectId) {
         });
 }
 
-// Function to close project detail modal
 function closeProjectModal() {
     document.getElementById('projectModal').classList.add('hidden');
     document.body.style.overflow = 'auto';
 }
 
-// Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeProjectModal();
     }
 });
 
-// Close modal when clicking outside
 document.getElementById('projectModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeProjectModal();
     }
 });
 
-// Image modal functions (reuse from student-profile.php)
 function openImageModal(imageSrc) {
     const modal = document.createElement('div');
     modal.id = 'imageModal';

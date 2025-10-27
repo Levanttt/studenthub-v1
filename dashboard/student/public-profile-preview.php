@@ -8,8 +8,6 @@ if (!isLoggedIn() || getUserRole() != 'student') {
 }
 
 $student_id = intval($_SESSION['user_id']);
-
-// Query data student
 $student = [];
 try {
     $student_query = "
@@ -32,7 +30,6 @@ try {
     die("Database error");
 }
 
-// Query skills (sama seperti di student-profile.php)
 $all_skills = [
     'technical' => [],
     'soft' => [],
@@ -63,7 +60,6 @@ try {
     $skills_stmt->close();
 } catch (Exception $e) {}
 
-// Query projects (sama seperti di student-profile.php)
 $projects = [];
 try {
     $projects_query = "
@@ -88,7 +84,6 @@ try {
     $projects_stmt->close();
 } catch (Exception $e) {}
 
-// Get skills detail for each project (sama seperti di student-profile.php)
 foreach ($projects as &$project) {
     $project_skills = [];
     try {
@@ -115,8 +110,6 @@ foreach ($projects as &$project) {
 unset($project);
 
 $total_projects = count($projects);
-
-// Query certificates (sama seperti di student-profile.php)
 $certificates = [];
 
 try {
@@ -193,7 +186,7 @@ usort($certificates, function($a, $b) {
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header dengan Back Button -->
+    <!-- Header -->
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
@@ -435,7 +428,7 @@ usort($certificates, function($a, $b) {
                 <?php endif; ?>
             </div>
 
-            <!-- Projects Portfolio (SAMA PERSIS dengan student-profile.php) -->
+            <!-- Projects Portfolio -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
@@ -663,7 +656,7 @@ usort($certificates, function($a, $b) {
                 <?php endif; ?>
             </div>
 
-            <!-- Certificates Section (SAMA PERSIS dengan student-profile.php) -->
+            <!-- Certificates Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mt-8">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
@@ -829,7 +822,7 @@ usort($certificates, function($a, $b) {
     </div>
 </div>
 
-<!-- Image Modal (sama seperti di student-profile.php) -->
+<!-- Image Modal -->
 <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
     <div class="relative max-w-4xl max-h-full mx-4">
         <button onclick="closeImageModal()" 
@@ -841,7 +834,6 @@ usort($certificates, function($a, $b) {
 </div>
 
 <script>
-// JavaScript functions sama persis dengan di student-profile.php
 let currentImageIndex = {};
 
 function changeMainImage(projectId, imageSrc, index) {

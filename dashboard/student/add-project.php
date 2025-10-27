@@ -170,7 +170,6 @@ if ($categories_stmt) {
 }
 
 function handleFileUpload($file, $user_id) {
-    // DEBUG START
     error_log("=== FILE UPLOAD DEBUG START ===");
     error_log("User ID: " . $user_id);
     error_log("File name: " . $file['name']);
@@ -199,17 +198,15 @@ function handleFileUpload($file, $user_id) {
         return ['success' => false, 'error' => 'Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan'];
     }
     
-    // MULTIPLE PATH OPTIONS
     $upload_dir_options = [
         $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/projects/' . $user_id . '/',
         __DIR__ . '/../../../uploads/projects/' . $user_id . '/',
         'D:/LocalXampp/htdocs/cakrawala-connect/uploads/projects/' . $user_id . '/'
     ];
     
-    $upload_dir = $upload_dir_options[0]; // Coba option pertama
+    $upload_dir = $upload_dir_options[0]; 
     error_log("Upload dir: " . $upload_dir);
     
-    // CREATE DIRECTORY
     if (!file_exists($upload_dir)) {
         $created = mkdir($upload_dir, 0755, true);
         error_log("Directory created: " . ($created ? 'YES' : 'NO'));
@@ -217,7 +214,6 @@ function handleFileUpload($file, $user_id) {
         error_log("Directory already exists");
     }
     
-    // CHECK IF DIRECTORY IS WRITABLE
     error_log("Directory writable: " . (is_writable($upload_dir) ? 'YES' : 'NO'));
     
     $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
@@ -226,11 +222,9 @@ function handleFileUpload($file, $user_id) {
     
     error_log("Final file path: " . $file_path);
     
-    // TRY TO MOVE FILE
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
         error_log("SUCCESS: File moved successfully");
         
-        // VERIFY FILE EXISTS AND HAS SIZE
         if (file_exists($file_path)) {
             $file_size = filesize($file_path);
             error_log("File verified - exists, size: " . $file_size . " bytes");
@@ -1064,7 +1058,6 @@ function handleCertificateUpload($file, $user_id) {
 </div>
 
 <script>
-// Custom Dropdown System (TETAP SAMA)
 class CustomDropdown {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
@@ -1112,7 +1105,6 @@ class CustomDropdown {
     }
 }
 
-// Searchable Dropdown System untuk Skills
 class SearchableDropdown {
     constructor() {
         this.selectedSkills = new Set();
@@ -1120,7 +1112,6 @@ class SearchableDropdown {
     }
 
     init() {
-        // Event listeners untuk dropdown toggle
         document.querySelectorAll('.skill-dropdown-toggle').forEach(toggle => {
             toggle.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1129,7 +1120,6 @@ class SearchableDropdown {
             });
         });
 
-        // Event listeners untuk search input
         document.querySelectorAll('.search-input').forEach(input => {
             input.addEventListener('input', (e) => {
                 const category = e.target.getAttribute('data-category');
@@ -1141,7 +1131,6 @@ class SearchableDropdown {
             });
         });
 
-        // Event listeners untuk option items
         document.querySelectorAll('.option-item').forEach(option => {
             option.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1151,7 +1140,6 @@ class SearchableDropdown {
             });
         });
 
-        // Close dropdowns when clicking outside
         document.addEventListener('click', () => {
             this.closeAllDropdowns();
         });
@@ -1198,7 +1186,6 @@ class SearchableDropdown {
 
         this.selectedSkills.add(skillName);
         
-        // Create visual tag
         const container = document.getElementById(`selected-${category}-skills`);
         const tag = document.createElement('span');
         tag.className = `skill-tag ${category}-tag`;
@@ -1210,7 +1197,6 @@ class SearchableDropdown {
         `;
         container.appendChild(tag);
 
-        // Create hidden input
         const hiddenContainer = document.getElementById('skills-hidden-container');
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
@@ -1219,10 +1205,8 @@ class SearchableDropdown {
         hiddenInput.id = `skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`;
         hiddenContainer.appendChild(hiddenInput);
 
-        // Close dropdown
         this.closeAllDropdowns();
 
-        // Add visual feedback
         const dropdownToggle = document.querySelector(`.skill-dropdown-toggle[data-category="${category}"]`);
         dropdownToggle.classList.add('border-green-500', 'bg-green-50');
         setTimeout(() => {
@@ -1233,7 +1217,6 @@ class SearchableDropdown {
     removeSkill(skillName, category) {
         this.selectedSkills.delete(skillName);
         
-        // Remove visual tag
         const container = document.getElementById(`selected-${category}-skills`);
         const tags = container.querySelectorAll('.skill-tag');
         tags.forEach(tag => {
@@ -1242,7 +1225,6 @@ class SearchableDropdown {
             }
         });
 
-        // Remove hidden input
         const hiddenInput = document.getElementById(`skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`);
         if (hiddenInput) {
             hiddenInput.remove();
@@ -1250,19 +1232,15 @@ class SearchableDropdown {
     }
 }
 
-// Initialize systems
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize custom dropdowns
     new CustomDropdown('project-type-dropdown');
     new CustomDropdown('category-dropdown');
     new CustomDropdown('status-dropdown');
     new CustomDropdown('year-dropdown');
     new CustomDropdown('duration-dropdown');
 
-    // Initialize searchable dropdown
     window.searchableDropdown = new SearchableDropdown();
 
-    // Form validation
     document.querySelector('form').addEventListener('submit', function(e) {
         const technicalSkillsContainer = document.getElementById('selected-technical-skills');
         if (technicalSkillsContainer && technicalSkillsContainer.children.length === 0) {
@@ -1273,7 +1251,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // File Input display logic (tetap sama)
     const mainFileInput = document.getElementById('project-image-input');
     const mainFileNamesDisplay = document.getElementById('main-file-names');
 
@@ -1314,7 +1291,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Certificate Upload Logic (tetap sama)
     const certificateInput = document.getElementById('certificate-input');
     const certificateFileNamesDisplay = document.getElementById('certificate-file-names');
     const certificateInfoForm = document.getElementById('certificate-info-form');
@@ -1339,7 +1315,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Drag & Drop functionality (tetap sama)
     function setupDragAndDrop(uploadArea, fileInput, fileNamesDisplay, maxFiles = 1) {
         uploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();

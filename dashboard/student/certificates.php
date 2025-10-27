@@ -9,19 +9,16 @@ if (!isLoggedIn() || getUserRole() != 'student') {
 
 $user_id = $_SESSION['user_id'];
 
-// Handle delete certificate
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'delete_certificate') {
     if (isset($_POST['certificate_id']) && !empty($_POST['certificate_id'])) {
         $certificate_id = intval($_POST['certificate_id']);
         
-        // Cek apakah sertifikat milik user yang login
         $check_stmt = $conn->prepare("SELECT id FROM certificates WHERE id = ? AND student_id = ?");
         $check_stmt->bind_param("ii", $certificate_id, $user_id);
         $check_stmt->execute();
         $check_result = $check_stmt->get_result();
         
         if ($check_result->num_rows > 0) {
-            // Hapus sertifikat
             $delete_stmt = $conn->prepare("DELETE FROM certificates WHERE id = ? AND student_id = ?");
             $delete_stmt->bind_param("ii", $certificate_id, $user_id);
             
@@ -34,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
             $_SESSION['error'] = "Sertifikat tidak ditemukan atau tidak memiliki akses";
         }
         
-        // Redirect ke halaman yang sama untuk menghindari resubmit
         header("Location: certificates.php");
         exit();
     }
@@ -354,7 +350,6 @@ function confirmDeleteCertificate(certificateId) {
         background: '#ffffff'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Submit form untuk delete
             document.getElementById('deleteCertificateId').value = certificateId;
             document.getElementById('deleteCertificateForm').submit();
         }

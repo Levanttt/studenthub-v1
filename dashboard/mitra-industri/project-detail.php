@@ -460,7 +460,6 @@ try {
 </div>
 
 <script>
-// Like functionality - FINAL WORKING VERSION
 let currentLikeState = <?php echo $is_liked ? 'true' : 'false'; ?>;
 
 function toggleLike(projectId) {
@@ -474,7 +473,6 @@ function toggleLike(projectId) {
     
     console.log('🎯 Action to perform:', action);
     
-    // Show loading state
     likeButton.disabled = true;
     const originalText = likeText.textContent;
     likeText.textContent = 'Loading...';
@@ -487,7 +485,6 @@ function toggleLike(projectId) {
         body: `action=${action}&project_id=${projectId}`
     })
     .then(response => {
-        // First, check if response is JSON
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
             throw new Error('Server returned non-JSON response');
@@ -500,7 +497,6 @@ function toggleLike(projectId) {
         likeButton.disabled = false;
         
         if (data.success) {
-            // Update global state dari response server
             currentLikeState = data.new_state;
             updateLikeUI(currentLikeState);
             
@@ -510,7 +506,6 @@ function toggleLike(projectId) {
             console.error('❌ Like action failed:', data.error);
             likeText.textContent = originalText;
             
-            // Force sync dengan server
             if (data.error === 'already_liked' || data.error === 'not_liked') {
                 syncWithServer();
             }
@@ -521,7 +516,6 @@ function toggleLike(projectId) {
         likeButton.disabled = false;
         likeText.textContent = originalText;
         
-        // Try to get error details
         fetch('like-handler.php')
             .then(r => r.text())
             .then(html => {
@@ -530,7 +524,6 @@ function toggleLike(projectId) {
     });
 }
 
-// Sync state dengan server
 function syncWithServer() {
     fetch('like-handler.php')
         .then(response => response.json())
@@ -546,7 +539,6 @@ function syncWithServer() {
         });
 }
 
-// Function to update UI based on state
 function updateLikeUI(isLiked) {
     const likeButton = document.getElementById('likeButton');
     const likeIcon = document.getElementById('likeIcon');
@@ -565,19 +557,16 @@ function updateLikeUI(isLiked) {
     }
 }
 
-// Initialize UI on page load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 Page loaded - Like state:', currentLikeState);
     updateLikeUI(currentLikeState);
 });
 
-// Test function
 function testLike() {
     console.log('🧪 Test like function');
     toggleLike(<?php echo $project_id; ?>);
 }
 
-// Reset all likes
 function resetLikes() {
     if (confirm('Hapus semua like Anda?')) {
         fetch('like-handler.php?reset=1')
@@ -590,12 +579,11 @@ function resetLikes() {
             })
             .catch(error => {
                 console.error('Reset error:', error);
-                location.reload(); // Reload anyway
+                location.reload(); 
             });
     }
 }
 
-// Image Modal functions
 function openImageModal(imageSrc) {
     document.getElementById('modalImage').src = imageSrc;
     document.getElementById('imageModal').classList.remove('hidden');

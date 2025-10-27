@@ -415,86 +415,37 @@ if ($categories_stmt) {
 }
 
 function handleFileUpload($file, $user_id) {
-    // DEBUG START
-    error_log("=== FILE UPLOAD DEBUG START ===");
-    error_log("User ID: " . $user_id);
-    error_log("File name: " . $file['name']);
-    error_log("File size: " . $file['size']);
-    error_log("File tmp_name: " . $file['tmp_name']);
-    error_log("File error: " . $file['error']);
-    
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     $max_size = 5 * 1024 * 1024;
     
     if ($file['size'] > $max_size) {
-        error_log("ERROR: File too large");
         return ['success' => false, 'error' => 'Ukuran file maksimal 5MB'];
     }
     
     if ($file['error'] !== UPLOAD_ERR_OK) {
-        error_log("ERROR: Upload error code: " . $file['error']);
-        return ['success' => false, 'error' => 'Error upload file: ' . $file['error']];
+        return ['success' => false, 'error' => 'Error upload file'];
     }
     
     $file_info = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
-    error_log("MIME type: " . $file_info);
     
     if (!in_array($file_info, $allowed_types)) {
-        error_log("ERROR: Invalid file type");
         return ['success' => false, 'error' => 'Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan'];
     }
     
-    // MULTIPLE PATH OPTIONS
-    $upload_dir_options = [
-        $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/projects/' . $user_id . '/',
-        __DIR__ . '/../../../uploads/projects/' . $user_id . '/',
-        'D:/LocalXampp/htdocs/cakrawala-connect/uploads/projects/' . $user_id . '/'
-    ];
+    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/projects/' . $user_id . '/';
     
-    $upload_dir = $upload_dir_options[0]; // Coba option pertama
-    error_log("Upload dir: " . $upload_dir);
-    
-    // CREATE DIRECTORY
     if (!file_exists($upload_dir)) {
-        $created = mkdir($upload_dir, 0755, true);
-        error_log("Directory created: " . ($created ? 'YES' : 'NO'));
-    } else {
-        error_log("Directory already exists");
+        mkdir($upload_dir, 0755, true);
     }
-    
-    // CHECK IF DIRECTORY IS WRITABLE
-    error_log("Directory writable: " . (is_writable($upload_dir) ? 'YES' : 'NO'));
     
     $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'project_' . time() . '_' . uniqid() . '.' . $file_ext;
     $file_path = $upload_dir . $filename;
     
-    error_log("Final file path: " . $file_path);
-    
-    // TRY TO MOVE FILE
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        error_log("SUCCESS: File moved successfully");
-        
-        // VERIFY FILE EXISTS AND HAS SIZE
-        if (file_exists($file_path)) {
-            $file_size = filesize($file_path);
-            error_log("File verified - exists, size: " . $file_size . " bytes");
-            
-            $web_path = '/cakrawala-connect/uploads/projects/' . $user_id . '/' . $filename;
-            error_log("Web path: " . $web_path);
-            error_log("=== FILE UPLOAD DEBUG END - SUCCESS ===");
-            
-            return ['success' => true, 'file_path' => $web_path];
-        } else {
-            error_log("ERROR: File not found after move_uploaded_file");
-            error_log("=== FILE UPLOAD DEBUG END - FAILED ===");
-            return ['success' => false, 'error' => 'File tidak ditemukan setelah upload'];
-        }
+        $web_path = '/cakrawala-connect/uploads/projects/' . $user_id . '/' . $filename;
+        return ['success' => true, 'file_path' => $web_path];
     } else {
-        $last_error = error_get_last();
-        error_log("ERROR: move_uploaded_file failed");
-        error_log("Last error: " . print_r($last_error, true));
-        error_log("=== FILE UPLOAD DEBUG END - FAILED ===");
         return ['success' => false, 'error' => 'Gagal mengupload file'];
     }
 }
@@ -661,15 +612,15 @@ function handleCertificateUpload($file, $user_id) {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Judul Proyek *</label>
                     <input type="text" name="title" value="<?php echo htmlspecialchars($project['title']); ?>" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                           placeholder="Contoh: Aplikasi E-Commerce dengan Laravel" required maxlength="255">
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                            placeholder="Contoh: Aplikasi E-Commerce dengan Laravel" required maxlength="255">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Proyek *</label>
                     <textarea name="description" rows="6" 
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors resize-none" 
-                              placeholder="Jelaskan proyek menggunakan metode STAR (Situasi, Task, Aksi, Result). Tulis dalam satu paragraf." required><?php echo htmlspecialchars($project['description']); ?></textarea>
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors resize-none" 
+                                placeholder="Jelaskan proyek menggunakan metode STAR (Situasi, Task, Aksi, Result). Tulis dalam satu paragraf." required><?php echo htmlspecialchars($project['description']); ?></textarea>
                 </div>
             </div>
 
@@ -1032,29 +983,29 @@ function handleCertificateUpload($file, $user_id) {
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Repository (Opsional)</label>
                         <input type="url" name="github_url" value="<?php echo htmlspecialchars($project['github_url'] ?? ''); ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                               placeholder="https://github.com/username/repository">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                                placeholder="https://github.com/username/repository">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Link Desain / Mockup (Opsional)</label>
                         <input type="url" name="figma_url" value="<?php echo htmlspecialchars($project['figma_url'] ?? ''); ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                               placeholder="https://figma.com/file/...">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                                placeholder="https://figma.com/file/...">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Project Link Terkait (Opsional)</label>
                         <input type="url" name="demo_url" value="<?php echo htmlspecialchars($project['demo_url'] ?? ''); ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                               placeholder="https://your-demo-site.com">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                                placeholder="https://your-demo-site.com">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Video URL (YouTube, etc.)</label>
                         <input type="url" name="video_url" value="<?php echo htmlspecialchars($project['video_url'] ?? ''); ?>" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                               placeholder="https://youtube.com/watch?v=...">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                                placeholder="https://youtube.com/watch?v=...">
                     </div>
                 </div>
             </div>
@@ -1071,8 +1022,8 @@ function handleCertificateUpload($file, $user_id) {
                         <?php if (!empty($project['image_path'])): ?>
                             <div class="relative group">
                                 <img src="<?php echo htmlspecialchars($project['image_path']); ?>" 
-                                     alt="Current Project Image" 
-                                     class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                                        alt="Current Project Image" 
+                                        class="w-32 h-32 object-cover rounded-lg border border-gray-300">
                                 <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <span class="text-white text-sm">Current</span>
                                 </div>
@@ -1080,7 +1031,7 @@ function handleCertificateUpload($file, $user_id) {
                         <?php endif; ?>
                         <div class="flex-1">
                             <input type="file" name="project_image" accept="image/*" 
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#E0F7FF] file:text-[#2A8FA9] hover:file:bg-[#D0F0FF]">
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#E0F7FF] file:text-[#2A8FA9] hover:file:bg-[#D0F0FF]">
                             <p class="text-xs text-gray-500 mt-2">Format: JPG, PNG, GIF, WebP. Maksimal 5MB</p>
                         </div>
                     </div>
@@ -1097,8 +1048,8 @@ function handleCertificateUpload($file, $user_id) {
                                     <?php if (!$image['is_primary']): ?>
                                         <div class="relative group">
                                             <img src="<?php echo htmlspecialchars($image['image_path']); ?>" 
-                                                 alt="Gallery Image" 
-                                                 class="w-full h-32 object-cover rounded-lg border border-gray-300">
+                                                alt="Gallery Image" 
+                                                class="w-full h-32 object-cover rounded-lg border border-gray-300">
                                             <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <label class="flex items-center gap-1 text-white text-sm cursor-pointer">
                                                     <input type="checkbox" name="delete_images[]" value="<?php echo $image['id']; ?>" class="rounded">
@@ -1114,7 +1065,7 @@ function handleCertificateUpload($file, $user_id) {
 
                     <div>
                         <input type="file" name="project_gallery[]" multiple accept="image/*" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#E0F7FF] file:text-[#2A8FA9] hover:file:bg-[#D0F0FF]">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#E0F7FF] file:text-[#2A8FA9] hover:file:bg-[#D0F0FF]">
                         <p class="text-xs text-gray-500 mt-2">Pilih multiple files untuk upload beberapa gambar sekaligus</p>
                     </div>
                 </div>
@@ -1219,7 +1170,7 @@ function handleCertificateUpload($file, $user_id) {
 
             <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
                 <a href="project-detail.php?id=<?php echo $project_id; ?>" 
-                   class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                     Batal
                 </a>
                 <button type="submit" 

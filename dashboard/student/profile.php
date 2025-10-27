@@ -28,7 +28,6 @@ try {
     error_log("Error fetching specializations: " . $e->getMessage());
 }
 
-// Semester options
 $semesterOptions = [
     '1' => 'Semester 1',
     '2' => 'Semester 2', 
@@ -111,14 +110,12 @@ if ($stmt) {
     $error = "Error preparing user query: " . $conn->error;
 }
 
-// Ambil skills dari project user
 $userSkills = [
     'technical' => [],
     'soft' => [],
     'tool' => []
 ];
 
-// Query untuk mengambil skills dari project user
 $skills_stmt = $conn->prepare("
     SELECT DISTINCT s.name, s.skill_type 
     FROM project_skills ps 
@@ -147,7 +144,6 @@ if ($skills_stmt) {
             }
         }
         
-        // Debug log
         error_log("User {$user_id} - Total skills found: {$total_skills}");
         error_log("Technical: " . count($userSkills['technical']));
         error_log("Soft: " . count($userSkills['soft'])); 
@@ -292,7 +288,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
 
-                // Handle remove CV
                 if (isset($_POST['remove_cv'])) {
                     if (!empty($user['cv_file_path'])) {
                         $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
@@ -313,10 +308,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $_SESSION['name'] = $name;
                             $_SESSION['profile_picture'] = $profile_picture_path;
                             $success = "Profil berhasil diperbarui!";
-                            // Generate new CSRF token setelah success
                             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                             
-                            // Refresh user data
                             $refresh_stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
                             if ($refresh_stmt) {
                                 $refresh_stmt->bind_param("i", $user_id);
@@ -460,7 +453,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     
                                     <p class="text-xs text-gray-500 mt-3">Max. 2MB (JPG, PNG, GIF, WebP)</p>
                                     
-                                    <!-- File name display -->
                                     <div id="profile-picture-name" class="text-sm text-[#2A8FA9] mt-2 hidden"></div>
                                 </div>
                                 
@@ -689,13 +681,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Specializations Section dengan Feedback Visual -->
+                    <!-- Specializations Section -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Spesialisasi / Bidang Fokus</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Pilih hingga 3 bidang spesialisasi</label>
                             
-                            <!-- Dropdown dengan feedback visual -->
+                            <!-- Dropdown -->
                             <div class="relative mb-3">
                                 <select id="specialization-select" 
                                         class="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300 appearance-none bg-white hover:border-green-400">
@@ -711,7 +703,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             
                             <p class="text-gray-500 text-xs mb-3">Pilih dari daftar yang tersedia</p>
                             
-                            <!-- Selected Specializations Display dengan feedback visual -->
+                            <!-- Selected Specializations Display -->
                             <div id="specializations-container" class="flex flex-wrap gap-2 mt-3 min-h-12 p-3 bg-green-50 border border-green-200 rounded-lg transition-colors duration-300">
                                 <?php
                                 if (!empty($user['specializations'])) {
@@ -737,11 +729,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 ?>
                             </div>
                             
-                            <!-- Hidden input untuk menyimpan data -->
                             <input type="hidden" name="specializations" id="specializations-hidden" 
                                 value="<?php echo htmlspecialchars($user['specializations'] ?? ''); ?>">
                             
-                            <!-- Counter dengan progress bar visual -->
+                            <!-- Counter progress bar -->
                             <div class="mt-4 space-y-2">
                                 <div class="flex justify-between items-center">
                                     <p class="text-gray-600 text-sm font-medium">Progress Pemilihan</p>
@@ -758,7 +749,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                             </div>
                             
-                            <!-- Success message ketika sudah memilih -->
+                            <!-- Success message -->
                             <div id="specSuccessMessage" class="hidden mt-3 p-3 bg-green-100 border border-green-300 rounded-lg">
                                 <p class="text-green-700 text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>
@@ -900,7 +891,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- CV Status -->
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                         <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                             <span class="iconify text-purple-600" data-icon="mdi:file-document" data-width="18"></span>
@@ -913,7 +903,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Semester Status -->
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                         <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center">
                             <span class="iconify text-[#2A8FA9]" data-icon="mdi:school" data-width="18"></span>
@@ -1110,7 +1099,6 @@ function updateSpecCounter() {
     }
 }
 
-// CV Drag & Drop functionality
 function initializeCVDragDrop() {
     const cvFileInput = document.getElementById('cv-file-input');
     const cvFileName = document.getElementById('cv-file-name');
@@ -1185,7 +1173,6 @@ function initializeCVDragDrop() {
     }
 }
 
-// Profile Picture Drag & Drop functionality
 function initializeProfilePictureDragDrop() {
     const profilePictureInput = document.getElementById('profile-picture-input');
     const profilePictureName = document.getElementById('profile-picture-name');
@@ -1284,7 +1271,6 @@ function initializeProfilePictureDragDrop() {
     }
 }
 
-// Utility Functions
 function showError(message) {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
@@ -1299,32 +1285,26 @@ function showError(message) {
     }
 }
 
-// Remove CV function
 function removeCV() {
     if (confirm('Hapus CV? File akan dihapus permanent.')) {
-        // Create a hidden input to indicate removal
         const removeInput = document.createElement('input');
         removeInput.type = 'hidden';
         removeInput.name = 'remove_cv';
         removeInput.value = '1';
         document.getElementById('profileForm').appendChild(removeInput);
         
-        // Submit form
         document.getElementById('profileForm').submit();
     }
 }
 
-// Remove profile picture
 function removeProfilePicture() {
     if (confirm('Hapus foto profil?')) {
-        // Create a hidden input to indicate removal
         const removeInput = document.createElement('input');
         removeInput.type = 'hidden';
         removeInput.name = 'remove_profile_picture';
         removeInput.value = '1';
         document.getElementById('profileForm').appendChild(removeInput);
         
-        // Submit form
         document.getElementById('profileForm').submit();
     }
 }

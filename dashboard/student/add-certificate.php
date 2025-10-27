@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 function handleCertificateUpload($file, $user_id) {
     $allowed_types = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-    $max_size = 5 * 1024 * 1024; // 5MB
+    $max_size = 5 * 1024 * 1024; 
     
     if ($file['size'] > $max_size) {
         return ['success' => false, 'error' => 'Ukuran file maksimal 5MB'];

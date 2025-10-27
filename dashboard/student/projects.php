@@ -39,7 +39,6 @@ if (isset($_GET['delete_id'])) {
     $check_stmt->close();
 }
 
-// Get total projects count
 $count_stmt = $conn->prepare("SELECT COUNT(*) as total FROM projects WHERE student_id = ?");
 $count_stmt->bind_param("i", $user_id);
 $count_stmt->execute();
@@ -47,10 +46,8 @@ $count_result = $count_stmt->get_result();
 $total_projects = $count_result->fetch_assoc()['total'];
 $count_stmt->close();
 
-// Calculate total pages
 $total_pages = ceil($total_projects / $projects_per_page);
 
-// Get projects for current page
 $stmt = $conn->prepare("SELECT * FROM projects WHERE student_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?");
 $stmt->bind_param("iii", $user_id, $projects_per_page, $offset);
 $stmt->execute();

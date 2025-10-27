@@ -660,7 +660,7 @@ function confirmDelete() {
             title: 'Hapus Akun Permanent?',
             html: `<div class="text-left">
                     <p class="text-red-600 font-semibold">PERINGATAN: Tindakan ini tidak dapat dibatalkan!</p>
-                   </div>`,
+                    </div>`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -680,9 +680,7 @@ function confirmDelete() {
     }
 }
 
-// Initialize all functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Real-time bio character counter
     const bioTextarea = document.querySelector('textarea[name="bio"]');
     const bioCounter = document.getElementById('bioCounter');
     
@@ -692,7 +690,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Loading state untuk form submission
     const form = document.getElementById('profileForm');
     const submitBtn = document.getElementById('submitBtn');
     

@@ -517,7 +517,6 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                             <div class="mb-1 flex-1 min-h-[96px]">
                                 <p class="text-gray-700 text-sm leading-relaxed break-words">
                                     <?php 
-                                    // Tampilkan bio yang sudah dipotong dengan aman
                                     echo htmlspecialchars($display_bio, ENT_QUOTES, 'UTF-8');
                                     ?>
                                 </p>
@@ -732,7 +731,6 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
 
 <script>
 function scrollSkills(button, scrollAmount) {
-    // Stop event propagation agar tidak trigger click ke parent
     event.stopPropagation();
     event.preventDefault();
     
@@ -745,18 +743,15 @@ function scrollSkills(button, scrollAmount) {
     }
 }
 
-// Update arrow visibility based on scroll position
 function updateArrowVisibility(container, leftButton, rightButton) {
     if (!container || !leftButton || !rightButton) return;
     
-    // Show/hide left button
     if (container.scrollLeft > 0) {
         leftButton.style.opacity = '0.7';
     } else {
         leftButton.style.opacity = '0.3';
     }
     
-    // Show/hide right button
     if (container.scrollLeft < (container.scrollWidth - container.clientWidth - 1)) {
         rightButton.style.opacity = '0.7';
     } else {
@@ -770,9 +765,7 @@ function removeFilter(filterName) {
     window.location.href = url.toString();
 }
 
-// Initialize all functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize arrow visibility for skills
     const talentCards = document.querySelectorAll('.talent-card');
     
     talentCards.forEach(card => {
@@ -781,45 +774,38 @@ document.addEventListener('DOMContentLoaded', function() {
         const rightButton = card.querySelector('.skill-scroll-btn:last-child');
         
         if (skillsContainer && leftButton && rightButton) {
-            // Initial check
             updateArrowVisibility(skillsContainer, leftButton, rightButton);
             
-            // Check on scroll
             skillsContainer.addEventListener('scroll', () => {
                 updateArrowVisibility(skillsContainer, leftButton, rightButton);
             });
         }
     });
 
-    // Search Suggestions functionality
     const searchInput = document.getElementById('main-search');
     const suggestionsBox = document.getElementById('search-suggestions');
     
     if (searchInput && suggestionsBox) {
-        // Show suggestions on focus
         searchInput.addEventListener('focus', function() {
             if (this.value.length === 0) {
                 suggestionsBox.classList.remove('hidden');
             }
         });
         
-        // Show suggestions on input
         searchInput.addEventListener('input', function() {
             if (this.value.length > 0) {
                 suggestionsBox.classList.remove('hidden');
             } else {
-                suggestionsBox.classList.remove('hidden'); // Tetap tampilkan saat kosong
+                suggestionsBox.classList.remove('hidden'); 
             }
         });
         
-        // Hide suggestions when clicking outside
         document.addEventListener('click', function(e) {
             if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
                 suggestionsBox.classList.add('hidden');
             }
         });
         
-        // Handle suggestion clicks
         const suggestionTags = document.querySelectorAll('.suggestion-tag');
         suggestionTags.forEach(tag => {
             tag.addEventListener('click', function() {
@@ -829,7 +815,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Submit form on Enter
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 suggestionsBox.classList.add('hidden');
@@ -838,13 +823,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Real-time search dengan debounce
     let searchTimeout;
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                // Bisa ditambahkan real-time search AJAX di sini
             }, 500);
         });
     }
