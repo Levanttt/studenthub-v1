@@ -141,13 +141,14 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                 <p class="text-gray-600 text-sm">Kelola sertifikat</p>
             </a>
             
-            <!-- Skills Management -->
-            <a href="skills.php" class="group bg-gradient-to-br from-[#E0F7FF] to-[#F0FAFD] rounded-2xl p-6 text-center border-2 border-[#E0F7FF] hover:border-[#51A3B9] transition-all duration-300 transform hover:scale-[1.02]">
+            <!-- Public Profile Preview -->
+            <a href="public-profile-preview.php?id=<?php echo $user_id; ?>" 
+            class="group bg-gradient-to-br from-[#E0F7FF] to-[#F0FAFD] rounded-2xl p-6 text-center border-2 border-[#E0F7FF] hover:border-[#51A3B9] transition-all duration-300 transform hover:scale-[1.02]">
                 <div class="text-[#4CA1B6] mb-3 group-hover:scale-110 transition-transform duration-300 flex justify-center">
-                    <span class="iconify" data-icon="mdi:tag-multiple" data-width="48"></span>
+                    <span class="iconify" data-icon="mdi:account-search" data-width="48"></span>
                 </div>
-                <h3 class="text-[#2A8FA9] font-semibold mb-1">Kelola Skill</h3>
-                <p class="text-gray-600 text-sm">Tambah keterampilan</p>
+                <h3 class="text-[#2A8FA9] font-semibold mb-1">Lihat Profil Publik</h3>
+                <p class="text-gray-600 text-sm">Preview profil kamu</p>
             </a>
         </div>
     </div>

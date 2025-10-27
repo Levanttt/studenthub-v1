@@ -373,20 +373,6 @@ $student = $student_result->fetch_assoc();
             </a>
         </div>
         <?php endif; ?>
-
-        <!-- Bottom Action -->
-        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="text-center sm:text-left">
-                    <h3 class="text-lg font-bold text-[#2A8FA9]">Mau menambah proyek?</h3>
-                    <p class="text-gray-600">Tingkatkan portofolio kamu dengan proyek-proyek terbaru</p>
-                </div>
-                <a href="add-project.php" class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:from-[#409BB2] hover:to-[#489EB7] transition-all duration-300 flex items-center gap-2 shadow-md whitespace-nowrap">
-                    <span class="iconify" data-icon="mdi:plus-circle" data-width="20"></span>
-                    Tambah Proyek Baru
-                </a>
-            </div>
-        </div>
     <?php endif; ?>
 </div>
 

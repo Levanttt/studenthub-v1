@@ -2,26 +2,19 @@
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-if (!isLoggedIn() || getUserRole() != 'mitra_industri') {
+if (!isLoggedIn() || getUserRole() != 'student') {
     header("Location: ../../login.php");
     exit();
 }
 
-if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: index.php");
-    exit();
-}
+$student_id = intval($_SESSION['user_id']);
 
-$student_id = intval($_GET['id']);
-$viewer_id = $_SESSION['user_id'];
-
-recordProfileView($student_id, $viewer_id, 'mitra_industri');
-
+// Query data student
 $student = [];
 try {
     $student_query = "
         SELECT id, name, email, profile_picture, phone, major, bio, specializations, 
-                cv_file_path, linkedin, created_at, semester  -- TAMBAH semester DI SINI
+                cv_file_path, linkedin, created_at, semester
         FROM users 
         WHERE id = ? AND role = 'student'
     ";
@@ -33,14 +26,13 @@ try {
     $stmt->close();
     
     if (!$student) {
-        header("Location: index.php?error=student_not_found");
-        exit();
+        die("Student not found");
     }
 } catch (Exception $e) {
-    header("Location: index.php?error=database_error");
-    exit();
+    die("Database error");
 }
 
+// Query skills (sama seperti di student-profile.php)
 $all_skills = [
     'technical' => [],
     'soft' => [],
@@ -71,6 +63,7 @@ try {
     $skills_stmt->close();
 } catch (Exception $e) {}
 
+// Query projects (sama seperti di student-profile.php)
 $projects = [];
 try {
     $projects_query = "
@@ -85,6 +78,7 @@ try {
         WHERE p.student_id = ?
         GROUP BY p.id
         ORDER BY p.project_year DESC, p.created_at DESC
+        LIMIT 2
     ";
     $projects_stmt = $conn->prepare($projects_query);
     $projects_stmt->bind_param("i", $student_id);
@@ -94,6 +88,7 @@ try {
     $projects_stmt->close();
 } catch (Exception $e) {}
 
+// Get skills detail for each project (sama seperti di student-profile.php)
 foreach ($projects as &$project) {
     $project_skills = [];
     try {
@@ -117,10 +112,11 @@ foreach ($projects as &$project) {
     
     $project['skills_detail'] = $project_skills;
 }
-unset($project); 
+unset($project);
 
 $total_projects = count($projects);
 
+// Query certificates (sama seperti di student-profile.php)
 $certificates = [];
 
 try {
@@ -140,6 +136,7 @@ try {
         FROM certificates c
         WHERE c.student_id = ?
         ORDER BY c.issue_date DESC
+        LIMIT 4
     ";
     
     $standalone_stmt = $conn->prepare($standalone_certs_query);
@@ -152,9 +149,7 @@ try {
         }
         $standalone_stmt->close();
     }
-} catch (Exception $e) {
-    error_log("Error fetching standalone certificates: " . $e->getMessage());
-}
+} catch (Exception $e) {}
 
 try {
     $project_certs_query = "
@@ -175,6 +170,7 @@ try {
         AND p.certificate_path IS NOT NULL 
         AND p.certificate_path != ''
         ORDER BY p.created_at DESC
+        LIMIT 4
     ";
     
     $project_certs_stmt = $conn->prepare($project_certs_query);
@@ -187,9 +183,7 @@ try {
         }
         $project_certs_stmt->close();
     }
-} catch (Exception $e) {
-    error_log("Error fetching project certificates: " . $e->getMessage());
-}
+} catch (Exception $e) {}
 
 usort($certificates, function($a, $b) {
     return strtotime($b['issue_date']) - strtotime($a['issue_date']);
@@ -199,25 +193,45 @@ usort($certificates, function($a, $b) {
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
+    <!-- Header dengan Back Button -->
     <div class="mb-8">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
                 <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:account-circle" data-width="32"></span>
-                    Profil Talenta
+                    <span class="iconify" data-icon="mdi:account-eye" data-width="32"></span>
+                    Preview Profil Publik
                 </h1>
-                <p class="text-gray-600 mt-2">Lihat detail lengkap talenta dan portofolio project mereka</p>
+                <p class="text-gray-600 mt-2">Ini adalah tampilan profil kamu yang dilihat oleh mitra industri</p>
             </div>
-            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
-                <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                Kembali ke Pencarian
-            </a>
+            <div class="flex gap-3">
+                <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
+                    Kembali ke Dashboard
+                </a>
+                <button onclick="window.print()" class="bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors duration-300 border border-gray-300 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:printer" data-width="18"></span>
+                    Print
+                </button>
+            </div>
+        </div>
+        
+        <!-- Info Box -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <span class="iconify text-blue-600 mt-0.5" data-icon="mdi:information" data-width="20"></span>
+                <div>
+                    <h3 class="font-semibold text-blue-900">Tips Profil Menarik</h3>
+                    <p class="text-blue-700 text-sm mt-1">
+                        Pastikan foto profil profesional, deskripsi diri lengkap, dan project terbaru sudah diupload 
+                        untuk meningkatkan peluang dilirik mitra industri.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <!-- Sidebar - Profile Info -->
+        <!-- Sidebar - Profile Info (sama seperti sebelumnya) -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-8">
                 <!-- Profile Photo & Basic Info -->
@@ -314,7 +328,7 @@ usort($certificates, function($a, $b) {
                         <?php if (!empty($student['phone'])): ?>
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                             <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:school" data-width="18"></span>
+                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:phone" data-width="18"></span>
                             </div>
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm text-gray-600">Nomor Telepon</p>
@@ -346,7 +360,7 @@ usort($certificates, function($a, $b) {
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['technical'] as $skill): ?>
                                     <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs" 
-                                            title="Digunakan di <?php echo $skill['project_count']; ?> project">
+                                        title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
                                 <?php endforeach; ?>
@@ -367,7 +381,7 @@ usort($certificates, function($a, $b) {
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['soft'] as $skill): ?>
                                     <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs"
-                                            title="Digunakan di <?php echo $skill['project_count']; ?> project">
+                                        title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
                                 <?php endforeach; ?>
@@ -388,7 +402,7 @@ usort($certificates, function($a, $b) {
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['tool'] as $skill): ?>
                                     <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs"
-                                            title="Digunakan di <?php echo $skill['project_count']; ?> project">
+                                        title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
                                 <?php endforeach; ?>
@@ -414,11 +428,18 @@ usort($certificates, function($a, $b) {
                         <?php echo nl2br(htmlspecialchars($student['bio'])); ?>
                     </div>
                 <?php else: ?>
-                    <p class="text-gray-500 italic">Mahasiswa ini belum menambahkan deskripsi tentang diri mereka.</p>
+                    <div class="text-center py-8 bg-gray-50 rounded-xl">
+                        <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:text-box-remove" data-width="48"></span>
+                        <h3 class="text-lg font-bold text-gray-600 mb-2">Deskripsi Belum Tersedia</h3>
+                        <p class="text-gray-500 text-sm">Tambahkan deskripsi diri untuk membuat profil lebih menarik</p>
+                        <a href="profile.php" class="inline-block mt-3 bg-[#51A3B9] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors text-sm">
+                            Edit Profil
+                        </a>
+                    </div>
                 <?php endif; ?>
             </div>
 
-            <!-- Projects Portfolio -->
+            <!-- Projects Portfolio (SAMA PERSIS dengan student-profile.php) -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
@@ -426,15 +447,13 @@ usort($certificates, function($a, $b) {
                         Portofolio Project
                     </h2>
                     <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1 rounded-full text-sm font-semibold">
-                        <?php echo $total_projects; ?> Project
+                        <?php echo $total_projects; ?> Project Ditampilkan
                     </span>
                 </div>
 
                 <?php if ($total_projects > 0): ?>
                     <div class="space-y-6">
-                        <?php 
-                        $display_projects = array_slice($projects, 0, 2);
-                        foreach ($display_projects as $project): ?>
+                        <?php foreach ($projects as $project): ?>
                             <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 project-card">
                                 <!-- Project Header -->
                                 <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
@@ -572,7 +591,7 @@ usort($certificates, function($a, $b) {
                                                                 <?php foreach ($all_project_images as $index => $image): ?>
                                                                     <img src="<?php echo htmlspecialchars($image); ?>" 
                                                                         alt="Thumbnail <?php echo $index + 1; ?>" 
-                                                                        class="w-16 h-16 object-cover rounded border-2 cursor-pointer transition-all <?php echo $index === 0 ? 'border-cyan-500' : 'border-gray-300'; ?>"
+                                                                        class="w-16 h-16 object-cover rounded border-2 cursor-pointer transition-all <?php echo $index === 0 ? 'border-[#2A8FA9]' : 'border-gray-300'; ?>"
                                                                         onclick="changeMainImage(<?php echo $project['id']; ?>, '<?php echo htmlspecialchars($image); ?>', <?php echo $index; ?>)"
                                                                         data-project-id="<?php echo $project['id']; ?>"
                                                                         data-image-index="<?php echo $index; ?>">
@@ -626,27 +645,29 @@ usort($certificates, function($a, $b) {
                         <?php endforeach; ?>
                     </div>
 
-                    <!-- Tombol Lihat Semua Project jika lebih dari 2 -->
-                    <?php if ($total_projects > 2): ?>
+                    <!-- Tombol Lihat Semua Project -->
                     <div class="text-center mt-8 pt-6 border-t border-gray-200">
-                        <a href="student-all-projects.php?id=<?php echo $student_id; ?>" 
+                        <a href="projects.php" 
                             class="bg-[#E0F7FF] text-[#2A8FA9] px-8 py-3 rounded-xl font-bold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 inline-flex items-center gap-2">
                             <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
-                            Lihat Semua Project (<?php echo $total_projects; ?>)
+                            Kelola Semua Project
                         </a>
                     </div>
-                    <?php endif; ?>
 
                 <?php else: ?>
                     <div class="text-center py-12 bg-gray-50 rounded-xl">
                         <span class="iconify text-gray-400 mx-auto mb-4" data-icon="mdi:folder-open" data-width="64"></span>
                         <h3 class="text-xl font-bold text-blue-900 mb-2">Belum Ada Project</h3>
-                        <p class="text-gray-600 max-w-md mx-auto">Mahasiswa ini belum menambahkan project ke portofolio mereka.</p>
+                        <p class="text-gray-600 max-w-md mx-auto">Tambahkan project untuk membangun portofolio yang menarik bagi mitra industri.</p>
+                        <a href="add-project.php" class="inline-block mt-4 bg-[#51A3B9] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
+                            <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>
+                            Tambah Project Pertama
+                        </a>
                     </div>
                 <?php endif; ?>
             </div>
 
-            <!-- Certificates Section -->
+            <!-- Certificates Section (SAMA PERSIS dengan student-profile.php) -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mt-8">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
@@ -801,7 +822,10 @@ usort($certificates, function($a, $b) {
                     <div class="text-center py-8 bg-gray-50 rounded-xl">
                         <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:certificate-outline" data-width="48"></span>
                         <h3 class="text-lg font-bold text-blue-900 mb-2">Belum Ada Sertifikat</h3>
-                        <p class="text-gray-600 text-sm">Mahasiswa ini belum menambahkan sertifikat atau sertifikasi.</p>
+                        <p class="text-gray-600 text-sm">Tambahkan sertifikat untuk meningkatkan kredibilitas profil kamu di mata mitra industri.</p>
+                        <a href="certificates.php" class="inline-block mt-4 bg-[#51A3B9] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors text-sm">
+                            Tambah Sertifikat
+                        </a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -809,7 +833,7 @@ usort($certificates, function($a, $b) {
     </div>
 </div>
 
-<!-- Image Modal -->
+<!-- Image Modal (sama seperti di student-profile.php) -->
 <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
     <div class="relative max-w-4xl max-h-full mx-4">
         <button onclick="closeImageModal()" 
@@ -821,20 +845,18 @@ usort($certificates, function($a, $b) {
 </div>
 
 <script>
+// JavaScript functions sama persis dengan di student-profile.php
 let currentImageIndex = {};
 
 function changeMainImage(projectId, imageSrc, index) {
     document.getElementById('mainImage-' + projectId).src = imageSrc;
-    
     currentImageIndex[projectId] = index;
-    
     updateThumbnailBorders(projectId, index);
 }
 
 function prevImage(projectId, totalImages) {
     let currentIndex = currentImageIndex[projectId] || 0;
     let newIndex = (currentIndex - 1 + totalImages) % totalImages;
-    
     const thumbnails = document.querySelectorAll(`img[data-project-id="${projectId}"]`);
     if (thumbnails[newIndex]) {
         changeMainImage(projectId, thumbnails[newIndex].src, newIndex);
@@ -844,7 +866,6 @@ function prevImage(projectId, totalImages) {
 function nextImage(projectId, totalImages) {
     let currentIndex = currentImageIndex[projectId] || 0;
     let newIndex = (currentIndex + 1) % totalImages;
-    
     const thumbnails = document.querySelectorAll(`img[data-project-id="${projectId}"]`);
     if (thumbnails[newIndex]) {
         changeMainImage(projectId, thumbnails[newIndex].src, newIndex);
@@ -857,10 +878,8 @@ function updateThumbnailBorders(projectId, activeIndex) {
         if (index === activeIndex) {
             thumb.classList.remove('border-gray-300');
             thumb.classList.add('border-[#2A8FA9]');
-            thumb.classList.add('thumbnail-active');
         } else {
             thumb.classList.remove('border-[#2A8FA9]');
-            thumb.classList.remove('thumbnail-active');
             thumb.classList.add('border-gray-300');
         }
     });
@@ -901,8 +920,7 @@ document.getElementById('imageModal').addEventListener('click', function(e) {
 function scrollCertificates(direction) {
     const container = document.getElementById('certificates-scroll');
     if (!container) return;
-    
-    const scrollAmount = 320; 
+    const scrollAmount = 320;
     const currentScroll = container.scrollLeft;
     
     if (direction === 'left') {
@@ -917,40 +935,6 @@ function scrollCertificates(direction) {
         });
     }
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    const certificatesScroll = document.getElementById('certificates-scroll');
-    if (certificatesScroll) {
-        let isDown = false;
-        let startX;
-        let scrollLeft;
-
-        certificatesScroll.addEventListener('mousedown', (e) => {
-            isDown = true;
-            certificatesScroll.classList.add('active');
-            startX = e.pageX - certificatesScroll.offsetLeft;
-            scrollLeft = certificatesScroll.scrollLeft;
-        });
-
-        certificatesScroll.addEventListener('mouseleave', () => {
-            isDown = false;
-            certificatesScroll.classList.remove('active');
-        });
-
-        certificatesScroll.addEventListener('mouseup', () => {
-            isDown = false;
-            certificatesScroll.classList.remove('active');
-        });
-
-        certificatesScroll.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - certificatesScroll.offsetLeft;
-            const walk = (x - startX) * 2;
-            certificatesScroll.scrollLeft = scrollLeft - walk;
-        });
-    }
-});
 </script>
 
 <style>
@@ -965,6 +949,13 @@ document.addEventListener('DOMContentLoaded', function() {
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
