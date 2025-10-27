@@ -13,7 +13,6 @@ $user_name = $_SESSION['user_name'] ?? 'Admin';
 $success = '';
 $error = '';
 
-// Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? '';
     
@@ -46,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     
-    // Handle edit skill
     elseif ($action == 'edit_skill') {
         $skill_id = intval($_POST['skill_id']);
         $skill_name = sanitize($_POST['edit_skill_name']);
@@ -78,11 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Handle delete skill
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
     
-    // Check if skill is used in any projects
     $check_usage = $conn->prepare("SELECT ps.id FROM project_skills ps WHERE ps.skill_id = ? LIMIT 1");
     $check_usage->bind_param("i", $delete_id);
     $check_usage->execute();
@@ -91,7 +87,6 @@ if (isset($_GET['delete_id'])) {
     if ($usage_result->num_rows > 0) {
         $error = "Tidak dapat menghapus skill karena sedang digunakan dalam proyek!";
     } else {
-        // Get skill name for success message
         $skill_info_stmt = $conn->prepare("SELECT name FROM skills WHERE id = ?");
         $skill_info_stmt->bind_param("i", $delete_id);
         $skill_info_stmt->execute();
@@ -118,7 +113,6 @@ if (isset($_GET['delete_id'])) {
     $check_usage->close();
 }
 
-// Ambil data skills
 $skills_by_category = [
     'technical' => [],
     'soft' => [],
@@ -178,7 +172,6 @@ if ($skills_stmt) {
 .soft-badge { background-color: #dcfce7; color: #166534; }
 .tool-badge { background-color: #f3e8ff; color: #7e22ce; }
 
-/* Tab System - FIXED dengan !important */
 .tab-button {
     flex: 1;
     padding: 12px 16px;
@@ -193,39 +186,35 @@ if ($skills_stmt) {
     cursor: pointer;
 }
 
-/* Default State */
 .tab-button {
     border-bottom-color: transparent !important;
-    color: #6b7280 !important; /* text-gray-500 */
+    color: #6b7280 !important;
     background-color: transparent !important;
 }
 
-/* Active States dengan !important */
 .tab-button.active.technical {
     border-bottom-color: #3b82f6 !important;
-    color: #1e40af !important; /* text-blue-700 */
-    background-color: #eff6ff !important; /* bg-blue-50 */
+    color: #1e40af !important; 
+    background-color: #eff6ff !important; 
 }
 
 .tab-button.active.soft {
     border-bottom-color: #10b981 !important;
-    color: #166534 !important; /* text-green-700 */
-    background-color: #f0fdf4 !important; /* bg-green-50 */
+    color: #166534 !important; 
+    background-color: #f0fdf4 !important;
 }
 
 .tab-button.active.tool {
     border-bottom-color: #8b5cf6 !important;
-    color: #7e22ce !important; /* text-purple-700 */
-    background-color: #faf5ff !important; /* bg-purple-50 */
+    color: #7e22ce !important;
+    background-color: #faf5ff !important; 
 }
 
-/* Icon Colors */
 .tab-button .iconify.text-blue-600 { color: #2563eb !important; }
 .tab-button .iconify.text-green-600 { color: #059669 !important; }
 .tab-button .iconify.text-purple-600 { color: #7c3aed !important; }
 .tab-button .iconify.text-gray-500 { color: #6b7280 !important; }
 
-/* Count Badge Colors */
 .tab-button .tab-count.bg-blue-200 { background-color: #bfdbfe !important; }
 .tab-button .tab-count.text-blue-800 { color: #1e40af !important; }
 .tab-button .tab-count.bg-green-200 { background-color: #bbf7d0 !important; }
@@ -267,7 +256,6 @@ if ($skills_stmt) {
     }
 }
 
-/* Fix untuk hidden modal */
 .modal-overlay.hidden {
     display: none !important;
 }
@@ -276,7 +264,6 @@ if ($skills_stmt) {
     display: none !important;
 }
 
-/* Custom Dropdown Styles */
 .custom-dropdown {
     position: relative;
 }
@@ -399,7 +386,7 @@ if ($skills_stmt) {
                             placeholder="Contoh: React, Leadership, Figma" required>
                     </div>
     
-                    <!-- Custom Dropdown untuk Kategori Skill -->
+                    <!-- Dropdown Kategori Skill -->
                     <div class="custom-dropdown" id="skill-type-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Skill *</label>
                         
@@ -462,7 +449,7 @@ if ($skills_stmt) {
         <!-- Skills List -->
         <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <!-- Tabs Navigation - Improved Structure -->
+                <!-- Tabs Navigation -->
                 <div class="flex border-b border-gray-200 mb-6">
                     <button type="button" 
                             class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 transition-colors flex items-center justify-center gap-2 border-blue-500 text-blue-700 bg-blue-50"
@@ -643,11 +630,11 @@ if ($skills_stmt) {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nama Skill</label>
                     <input type="text" name="edit_skill_name" id="edit_skill_name" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
-                           required>
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-[#2A8FA9] transition-colors" 
+                            required>
                 </div>
                 
-                <!-- Custom Dropdown untuk Edit Kategori Skill -->
+                <!-- Edit Kategori Skill -->
                 <div class="custom-dropdown" id="edit-skill-type-dropdown">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Skill</label>
                     
@@ -690,18 +677,16 @@ if ($skills_stmt) {
     </div>
 </div>
 
-<!-- Hidden form untuk delete -->
 <form id="deleteSkillForm" method="GET" style="display: none;">
     <input type="hidden" name="delete_id" id="deleteSkillId">
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// Notification Manager Class
 class NotificationManager {
     constructor() {
-        this.notificationTimeout = 5000; // 5 detik
-        this.fadeOutDuration = 500; // 0.5 detik
+        this.notificationTimeout = 5000; 
+        this.fadeOutDuration = 500; 
         this.maxNotifications = 1;
         this.init();
     }
@@ -715,12 +700,10 @@ class NotificationManager {
         this.setupMutationObserver();
     }
     
-    // Pastikan hanya ada 1 notifikasi
     ensureSingleNotification() {
         const notifications = this.getAllNotifications();
         
         if (notifications.length > this.maxNotifications) {
-            // Hapus notifikasi tambahan, sisakan hanya 1
             for (let i = this.maxNotifications; i < notifications.length; i++) {
                 notifications[i].remove();
             }
@@ -728,27 +711,22 @@ class NotificationManager {
         }
     }
     
-    // Setup auto hide untuk notifikasi
     setupAutoHide() {
         const notifications = this.getAllNotifications();
         
         notifications.forEach(notification => {
-            // Set timeout untuk auto hide
             const timeoutId = setTimeout(() => {
                 this.hideNotification(notification);
             }, this.notificationTimeout);
             
-            // Simpan timeout ID di element untuk bisa di-cancel jika needed
             notification.dataset.timeoutId = timeoutId;
         });
     }
     
-    // Tambahkan close button manual
     addCloseButtons() {
         const notifications = this.getAllNotifications();
         
         notifications.forEach(notification => {
-            // Skip jika sudah ada close button
             if (notification.querySelector('.notification-close')) return;
             
             const closeButton = document.createElement('button');
@@ -758,14 +736,12 @@ class NotificationManager {
             closeButton.setAttribute('aria-label', 'Tutup notifikasi');
             
             closeButton.addEventListener('click', () => {
-                // Cancel auto hide timeout
                 if (notification.dataset.timeoutId) {
                     clearTimeout(parseInt(notification.dataset.timeoutId));
                 }
                 this.hideNotification(notification);
             });
             
-            // Style notification container
             notification.style.display = 'flex';
             notification.style.alignItems = 'center';
             notification.style.justifyContent = 'space-between';
@@ -773,15 +749,12 @@ class NotificationManager {
         });
     }
     
-    // Animasi hide notification
     hideNotification(notification) {
         if (!notification || !notification.parentNode) return;
         
-        // Add fade-out class
         notification.style.opacity = '0';
         notification.style.transition = `opacity ${this.fadeOutDuration}ms ease`;
         
-        // Remove after fade out
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();
@@ -790,7 +763,6 @@ class NotificationManager {
         }, this.fadeOutDuration);
     }
     
-    // Clear URL parameters untuk prevent duplicate notifications on refresh
     clearURLParams() {
         const url = new URL(window.location);
         const params = new URLSearchParams(url.search);
@@ -798,12 +770,10 @@ class NotificationManager {
         const hadNotification = params.has('success') || params.has('error');
         
         if (hadNotification) {
-            // Hapus parameter notifikasi
             params.delete('success');
             params.delete('error');
             params.delete('skill');
             
-            // Update URL tanpa reload
             const newUrl = `${url.pathname}${params.toString() ? '?' + params.toString() : ''}`;
             window.history.replaceState({}, '', newUrl);
             
@@ -835,7 +805,6 @@ class NotificationManager {
         });
     }
     
-    // Helper: Get all notifications
     getAllNotifications() {
         return Array.from(document.querySelectorAll('.bg-green-50, .bg-red-50'))
                     .filter(el => el.closest('body')); 
@@ -865,28 +834,22 @@ class NotificationManager {
 function switchTab(tabName) {
     console.log('Switching to tab:', tabName);
     
-    // 1. Handle tab contents
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.add('hidden');
     });
     document.getElementById(`${tabName}-tab`)?.classList.remove('hidden');
     
-    // 2. Reset all buttons
     document.querySelectorAll('.tab-button').forEach(button => {
-        // Remove all active classes
         button.classList.remove('active', 'technical', 'soft', 'tool');
         
-        // Reset to default state
         button.classList.add('border-transparent', 'text-gray-500');
         
-        // Reset icon
         const icon = button.querySelector('.iconify');
         if (icon) {
             icon.classList.remove('text-blue-600', 'text-green-600', 'text-purple-600');
             icon.classList.add('text-gray-500');
         }
         
-        // Reset count badge
         const count = button.querySelector('.tab-count');
         if (count) {
             count.classList.remove('bg-blue-200', 'text-blue-800', 'bg-green-200', 'text-green-800', 'bg-purple-200', 'text-purple-800');
@@ -894,15 +857,11 @@ function switchTab(tabName) {
         }
     });
     
-    // 3. Style active button
     const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
     if (activeButton) {
         activeButton.classList.add('active', tabName);
-        
-        // Remove default classes
         activeButton.classList.remove('border-transparent', 'text-gray-500');
-        
-        // Set specific colors via CSS classes
+
         switch(tabName) {
             case 'technical':
                 activeButton.querySelector('.iconify')?.classList.replace('text-gray-500', 'text-blue-600');
@@ -942,18 +901,15 @@ class CustomDropdown {
     }
     
     init() {
-        // Toggle dropdown
         this.toggle.addEventListener('click', (e) => {
             e.stopPropagation();
             this.toggleDropdown();
         });
         
-        // Close when clicking outside
         document.addEventListener('click', () => {
             this.closeDropdown();
         });
         
-        // Handle option selection
         this.options.querySelectorAll('.dropdown-option').forEach(option => {
             option.addEventListener('click', () => {
                 const value = option.getAttribute('data-value');
@@ -989,12 +945,10 @@ class CustomDropdown {
     }
 }
 
-// Edit Modal Functions
 function openEditModal(skillId, skillName, skillType) {
     document.getElementById('edit_skill_id').value = skillId;
     document.getElementById('edit_skill_name').value = skillName;
     
-    // Set dropdown value based on skill type
     const editDropdown = window.editDropdown;
     
     let typeText = '';
@@ -1024,7 +978,6 @@ function closeEditModal() {
     document.getElementById('editModal').classList.add('hidden');
 }
 
-// SweetAlert Delete Confirmation
 function confirmDeleteSkill(skillId, skillName) {
     Swal.fire({
         title: 'Hapus Skill?',
@@ -1046,42 +999,34 @@ function confirmDeleteSkill(skillId, skillName) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            // Submit form untuk delete
             document.getElementById('deleteSkillId').value = skillId;
             document.getElementById('deleteSkillForm').submit();
         }
     });
 }
 
-// Close modal when clicking outside
 document.getElementById('editModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeEditModal();
     }
 });
 
-// Close modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeEditModal();
     }
 });
 
-// Initialize semua functionality ketika DOM ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing components...');
     
-    // Initialize notification manager
     window.notificationManager = new NotificationManager();
     
-    // Initialize dropdowns
     new CustomDropdown('skill-type-dropdown');
     window.editDropdown = new CustomDropdown('edit-skill-type-dropdown');
     
-    // Set tab pertama sebagai aktif
     switchTab('technical');
     
-    // Setup iconify jika needed
     if (window.iconify) {
         window.iconify.scan();
     }
@@ -1089,10 +1034,8 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('All components initialized');
 });
 
-// Fallback: Juga initialize ketika window fully loaded
 window.addEventListener('load', function() {
     console.log('Window fully loaded');
-    // Pastikan semua berjalan smooth
     setTimeout(() => {
         if (window.notificationManager) {
             window.notificationManager.init();

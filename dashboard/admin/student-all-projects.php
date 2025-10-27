@@ -390,7 +390,7 @@ unset($project);
                 Sebelumnya
             </a>
 
-            <!-- Page Info (Hidden on desktop since it's in header) -->
+            <!-- Page Info -->
             <div class="hidden sm:flex items-center gap-2 bg-[#E0F7FF] rounded-xl px-6 py-3">
                 <span class="text-[#2A8FA9] font-bold">Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?></span>
             </div>
@@ -431,14 +431,12 @@ function closeImageModal() {
     document.body.style.overflow = 'auto';
 }
 
-// Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeImageModal();
     }
 });
 
-// Close modal when clicking outside
 document.getElementById('imageModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeImageModal();

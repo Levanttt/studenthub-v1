@@ -297,7 +297,6 @@ usort($certificates, function($a, $b) {
                     </h3>
                     
                     <div class="space-y-3">
-                        <!-- Email -->
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                             <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
                                 <span class="iconify text-[#2A8FA9]" data-icon="mdi:email" data-width="18"></span>
@@ -310,8 +309,6 @@ usort($certificates, function($a, $b) {
                                 </a>
                             </div>
                         </div>
-                        
-                        <!-- Phone -->
                         <?php if (!empty($student['phone'])): ?>
                         <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                             <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
@@ -403,7 +400,6 @@ usort($certificates, function($a, $b) {
 
         <!-- Main Content -->
         <div class="lg:col-span-3">
-            <!-- Bio Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:account-circle" data-width="24"></span>
@@ -419,7 +415,6 @@ usort($certificates, function($a, $b) {
                 <?php endif; ?>
             </div>
 
-            <!-- Projects Portfolio -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
@@ -437,7 +432,6 @@ usort($certificates, function($a, $b) {
                         $display_projects = array_slice($projects, 0, 2);
                         foreach ($display_projects as $project): ?>
                             <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 project-card">
-                                <!-- Project Header -->
                                 <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
                                     <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                                         <div class="flex-1">
@@ -467,7 +461,6 @@ usort($certificates, function($a, $b) {
                                             </div>
                                         </div>
                                         
-                                        <!-- Project Links -->
                                         <?php if (!empty($project['github_url']) || !empty($project['demo_url']) || !empty($project['figma_url'])): ?>
                                         <div class="flex flex-wrap gap-2">
                                             <?php if (!empty($project['github_url'])): ?>
@@ -503,7 +496,6 @@ usort($certificates, function($a, $b) {
 
                                 <!-- Project Content -->
                                 <div class="p-6">
-                                    <!-- Project Description -->
                                     <?php if (!empty($project['description'])): ?>
                                         <div class="mb-4">
                                             <h4 class="font-semibold text-gray-800 mb-2">Deskripsi Project</h4>
@@ -511,7 +503,6 @@ usort($certificates, function($a, $b) {
                                         </div>
                                     <?php endif; ?>
 
-                                    <!-- Project Skills -->
                                     <?php if (!empty($project['skills_detail'])): ?>
                                         <div class="mb-4">
                                             <h4 class="font-semibold text-gray-800 mb-2">Teknologi & Tools</h4>
@@ -550,7 +541,6 @@ usort($certificates, function($a, $b) {
                                             <div class="relative">
                                                 <!-- Gallery Container -->
                                                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                                    <!-- Main Image Display -->
                                                     <div class="mb-4 flex justify-center">
                                                         <img id="mainImage-<?php echo $project['id']; ?>" 
                                                             src="<?php echo htmlspecialchars($all_project_images[0]); ?>" 
@@ -660,7 +650,6 @@ usort($certificates, function($a, $b) {
 
                 <?php if (!empty($certificates)): ?>
                     <div class="relative">
-                        <!-- Certificates Horizontal Scroll -->
                         <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" id="certificates-scroll">
                             <?php foreach ($certificates as $cert): ?>
                                 <div class="flex-shrink-0 w-80 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 group relative certificate-card flex flex-col">

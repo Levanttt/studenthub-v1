@@ -10,12 +10,10 @@ if (!isLoggedIn() || getUserRole() != 'admin') {
 $success = '';
 $error = '';
 
-// Pagination setup
 $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $mitra_per_page = 10;
 $offset = ($current_page - 1) * $mitra_per_page;
 
-// Handle verification status update via AJAX
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_verification') {
     header('Content-Type: application/json');
     
@@ -62,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     exit;
 }
 
-// Fetch total mitra count for pagination
 $total_mitra = 0;
 $count_query = "SELECT COUNT(*) as total FROM users WHERE role = 'mitra_industri'";
 $count_result = $conn->query($count_query);
@@ -70,10 +67,8 @@ if ($count_result) {
     $total_mitra = $count_result->fetch_assoc()['total'];
 }
 
-// Calculate total pages
 $total_pages = ceil($total_mitra / $mitra_per_page);
 
-// Fetch mitra with pagination
 $mitra = [];
 $mitra_query = "
     SELECT id, name, email, company_name, position, verification_status, created_at 
@@ -91,7 +86,6 @@ while ($m = $mitra_result->fetch_assoc()) {
 }
 $mitra_stmt->close();
 
-// Stats
 $verified_mitra = array_filter($mitra, function($m) {
     return $m['verification_status'] == 'verified';
 });
@@ -246,14 +240,13 @@ $rejected_mitra = array_filter($mitra, function($m) {
                                     ?>
                                     
                                     <div class="relative" id="status-container-<?php echo $m['id']; ?>">
-                                        <!-- Icon indicator -->
                                         <span class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none z-10 status-icon">
                                             <span class="iconify <?php echo $config['iconColor']; ?>" 
                                                 data-icon="<?php echo $config['icon']; ?>" 
                                                 data-width="14"></span>
                                         </span>
                                         
-                                        <!-- Native Select dengan styling -->
+                                        <!-- Native Select -->
                                         <select onchange="updateVerificationStatus(<?php echo $m['id']; ?>, this.value, this)" 
                                                 class="status-select bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-8 pr-8 py-2 rounded-lg text-xs font-semibold w-full appearance-none cursor-pointer transition-colors duration-300 flex items-center gap-2"
                                                 data-current-status="<?php echo $current_status; ?>">
@@ -262,7 +255,6 @@ $rejected_mitra = array_filter($mitra, function($m) {
                                             <option value="rejected" <?php echo $current_status == 'rejected' ? 'selected' : ''; ?>>REJECTED</option>
                                         </select>
                                         
-                                        <!-- Chevron icon -->
                                         <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
                                             <span class="iconify text-[#2A8FA9]" data-icon="mdi:chevron-down" data-width="14"></span>
                                         </span>
@@ -297,7 +289,7 @@ $rejected_mitra = array_filter($mitra, function($m) {
                     <!-- First Page -->
                     <?php if ($current_page > 1): ?>
                         <a href="?page=1" 
-                           class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
+                            class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
                             <span class="iconify" data-icon="mdi:chevron-double-left" data-width="14"></span>
                         </a>
                     <?php endif; ?>
@@ -305,7 +297,7 @@ $rejected_mitra = array_filter($mitra, function($m) {
                     <!-- Previous Page -->
                     <?php if ($current_page > 1): ?>
                         <a href="?page=<?php echo $current_page - 1; ?>" 
-                           class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
+                            class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
                             <span class="iconify" data-icon="mdi:chevron-left" data-width="14"></span>
                         </a>
                     <?php endif; ?>
@@ -318,7 +310,7 @@ $rejected_mitra = array_filter($mitra, function($m) {
                     for ($i = $start_page; $i <= $end_page; $i++):
                     ?>
                         <a href="?page=<?php echo $i; ?>" 
-                           class="flex items-center justify-center w-8 h-8 rounded font-medium transition-colors duration-300 text-sm <?php echo $i == $current_page ? 'bg-[#51A3B9] text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'; ?>">
+                            class="flex items-center justify-center w-8 h-8 rounded font-medium transition-colors duration-300 text-sm <?php echo $i == $current_page ? 'bg-[#51A3B9] text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'; ?>">
                             <?php echo $i; ?>
                         </a>
                     <?php endfor; ?>
@@ -326,7 +318,7 @@ $rejected_mitra = array_filter($mitra, function($m) {
                     <!-- Next Page -->
                     <?php if ($current_page < $total_pages): ?>
                         <a href="?page=<?php echo $current_page + 1; ?>" 
-                           class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
+                            class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
                             <span class="iconify" data-icon="mdi:chevron-right" data-width="14"></span>
                         </a>
                     <?php endif; ?>
@@ -334,7 +326,7 @@ $rejected_mitra = array_filter($mitra, function($m) {
                     <!-- Last Page -->
                     <?php if ($current_page < $total_pages): ?>
                         <a href="?page=<?php echo $total_pages; ?>" 
-                           class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
+                            class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
                             <span class="iconify" data-icon="mdi:chevron-double-right" data-width="14"></span>
                         </a>
                     <?php endif; ?>

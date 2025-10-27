@@ -10,7 +10,6 @@ if (!isLoggedIn() || getUserRole() != 'admin') {
 $success = '';
 $error = '';
 
-// Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = $_POST['action'] ?? '';
     
@@ -37,13 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     
-    // Handle edit specialization
     elseif ($action == 'edit_specialization') {
         $id = intval($_POST['id']);
         $name = sanitize($_POST['name']);
         
         if (!empty($name) && $id > 0) {
-            // Check if name already exists (excluding current record)
             $check_stmt = $conn->prepare("SELECT id FROM specializations WHERE name = ? AND id != ?");
             $check_stmt->bind_param("si", $name, $id);
             $check_stmt->execute();
@@ -63,18 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
     
-    // Handle delete specialization
     elseif ($action == 'delete_specialization') {
         $id = intval($_POST['id']);
         $name = sanitize($_POST['name']);
         
         if ($id > 0) {
-            // Check if specialization is being used in any projects or users
-            // Perbaikan query untuk pengecekan usage
             $user_count = 0;
             $project_count = 0;
             
-            // Cek di user_specializations
             $check_user = $conn->prepare("SELECT COUNT(*) as count FROM user_specializations WHERE specialization_id = ?");
             if ($check_user) {
                 $check_user->bind_param("i", $id);
@@ -85,8 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
                 $check_user->close();
             }
-            
-            // Cek di project_specializations  
+             
             $check_project = $conn->prepare("SELECT COUNT(*) as count FROM project_specializations WHERE specialization_id = ?");
             if ($check_project) {
                 $check_project->bind_param("i", $id);
@@ -114,7 +106,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch specializations only
 $specializations = [];
 $specializations_result = $conn->query("SELECT * FROM specializations ORDER BY name");
 while ($specialization = $specializations_result->fetch_assoc()) {
@@ -279,7 +270,6 @@ while ($specialization = $specializations_result->fetch_assoc()) {
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// Edit Modal Functions
 function openEditModal(id, name) {
     document.getElementById('editId').value = id;
     document.getElementById('editName').value = name;
@@ -290,7 +280,6 @@ function closeEditModal() {
     document.getElementById('editModal').classList.add('hidden');
 }
 
-// SweetAlert Delete Confirmation
 function confirmDeleteSpecialization(specializationId, specializationName) {
     Swal.fire({
         title: 'Hapus Spesialisasi?',
@@ -312,7 +301,6 @@ function confirmDeleteSpecialization(specializationId, specializationName) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            // Submit form untuk delete
             document.getElementById('deleteSpecializationId').value = specializationId;
             document.getElementById('deleteSpecializationName').value = specializationName;
             document.getElementById('deleteSpecializationForm').submit();
@@ -320,7 +308,6 @@ function confirmDeleteSpecialization(specializationId, specializationName) {
     });
 }
 
-// Close modals when clicking outside
 document.addEventListener('click', function(event) {
     const editModal = document.getElementById('editModal');
     
@@ -329,7 +316,6 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Close modals with Escape key
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeEditModal();

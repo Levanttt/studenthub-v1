@@ -7,31 +7,26 @@ if (!isLoggedIn() || getUserRole() != 'admin') {
     exit();
 }
 
-// Variabel untuk search dan filter
 $search = $_GET['search'] ?? '';
 $major = $_GET['major'] ?? '';
 $semester = $_GET['semester'] ?? '';
 $eligibility_filter = $_GET['eligibility_status'] ?? '';
 
-// Pagination setup
 $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $students_per_page = 10;
 $offset = ($current_page - 1) * $students_per_page;
 
-// Inisialisasi variabel
 $total_students = 0;
 $total_pages = 0;
 $students = [];
 $daftar_major = [];
 
-// Ambil daftar major unik untuk dropdown filter
 $major_query = "SELECT DISTINCT major FROM users WHERE major IS NOT NULL AND major != '' ORDER BY major";
 $major_result = $conn->query($major_query);
 if ($major_result) {
     $daftar_major = $major_result->fetch_all(MYSQLI_ASSOC);
 }
 
-// Query dasar untuk mengambil data mahasiswa
 $query = "SELECT id, nim, name, email, major, semester, eligibility_status, created_at FROM users WHERE role = 'student'";
 $count_query = "SELECT COUNT(*) as total FROM users WHERE role = 'student'";
 
@@ -45,7 +40,6 @@ $params = [];
 $types = "";
 $where_conditions = [];
 
-// Filter search (nama, nim, email)
 if (!empty($search)) {
     $where_conditions[] = "(name LIKE ? OR nim LIKE ? OR email LIKE ?)";
     $search_term = "%" . $search . "%";
@@ -53,35 +47,30 @@ if (!empty($search)) {
     $types .= "sss";
 }
 
-// Filter major
 if (!empty($major)) {
     $where_conditions[] = "major = ?";
     $params[] = $major;
     $types .= "s";
 }
 
-// Filter semester
 if (!empty($semester)) {
     $where_conditions[] = "semester = ?";
     $params[] = $semester;
     $types .= "s";
 }
 
-// Filter eligibility status
 if (!empty($eligibility_filter)) {
     $where_conditions[] = "eligibility_status = ?";
     $params[] = $eligibility_filter;
     $types .= "s";
 }
 
-// Gabungkan kondisi WHERE
 if (!empty($where_conditions)) {
     $where_clause = " AND " . implode(" AND ", $where_conditions);
     $query .= $where_clause;
     $count_query .= $where_clause;
 }
 
-// Hitung total students
 $count_stmt = $conn->prepare($count_query);
 if ($count_stmt) {
     if (!empty($params)) {
@@ -96,14 +85,12 @@ if ($count_stmt) {
     $count_stmt->close();
 }
 
-// Query untuk data students dengan pagination
 $query .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
 $pagination_params = $params;
 $pagination_params[] = $students_per_page;
 $pagination_params[] = $offset;
 $pagination_types = $types . "ii";
 
-// Ambil data students
 $stmt = $conn->prepare($query);
 if ($stmt) {
     if (!empty($pagination_params)) {
@@ -116,7 +103,6 @@ if ($stmt) {
     $stmt->close();
 }
 
-// AJAX update eligibility status 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_eligibility') {
     header('Content-Type: application/json');
     
@@ -163,7 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
-// Stats untuk dashboard
 $stats = [];
 $stats_query = "
     SELECT 
@@ -407,7 +392,7 @@ if ($stats_result) {
                                                 data-width="14"></span>
                                         </span>
                                         
-                                        <!-- Native Select dengan styling -->
+                                        <!-- Native Select -->
                                         <select onchange="updateEligibilityStatus(<?php echo $student['id']; ?>, this.value, this)" 
                                                 class="status-select bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-8 pr-8 py-2 rounded-lg text-xs font-semibold w-full appearance-none cursor-pointer transition-colors duration-300 flex items-center gap-2"
                                                 data-current-status="<?php echo $current_status; ?>">
@@ -416,7 +401,6 @@ if ($stats_result) {
                                             <option value="not_eligible" <?php echo $current_status == 'not_eligible' ? 'selected' : ''; ?>>NOT ELIGIBLE</option>
                                         </select>
                                         
-                                        <!-- Chevron icon -->
                                         <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
                                             <span class="iconify text-[#2A8FA9]" data-icon="mdi:chevron-down" data-width="14"></span>
                                         </span>
@@ -451,7 +435,7 @@ if ($stats_result) {
                     <!-- First Page -->
                     <?php if ($current_page > 1): ?>
                         <a href="?page=1&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
-                           class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
+                            class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
                             <span class="iconify" data-icon="mdi:chevron-double-left" data-width="14"></span>
                         </a>
                     <?php endif; ?>
@@ -459,7 +443,7 @@ if ($stats_result) {
                     <!-- Previous Page -->
                     <?php if ($current_page > 1): ?>
                         <a href="?page=<?php echo $current_page - 1; ?>&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
-                           class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
+                            class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
                             <span class="iconify" data-icon="mdi:chevron-left" data-width="14"></span>
                         </a>
                     <?php endif; ?>
@@ -472,7 +456,7 @@ if ($stats_result) {
                     for ($i = $start_page; $i <= $end_page; $i++):
                     ?>
                         <a href="?page=<?php echo $i; ?>&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
-                           class="flex items-center justify-center w-8 h-8 rounded font-medium transition-colors duration-300 text-sm <?php echo $i == $current_page ? 'bg-[#51A3B9] text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'; ?>">
+                            class="flex items-center justify-center w-8 h-8 rounded font-medium transition-colors duration-300 text-sm <?php echo $i == $current_page ? 'bg-[#51A3B9] text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'; ?>">
                             <?php echo $i; ?>
                         </a>
                     <?php endfor; ?>
@@ -480,7 +464,7 @@ if ($stats_result) {
                     <!-- Next Page -->
                     <?php if ($current_page < $total_pages): ?>
                         <a href="?page=<?php echo $current_page + 1; ?>&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
-                           class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
+                            class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
                             <span class="iconify" data-icon="mdi:chevron-right" data-width="14"></span>
                         </a>
                     <?php endif; ?>
@@ -488,7 +472,7 @@ if ($stats_result) {
                     <!-- Last Page -->
                     <?php if ($current_page < $total_pages): ?>
                         <a href="?page=<?php echo $total_pages; ?>&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
-                           class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
+                            class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
                             <span class="iconify" data-icon="mdi:chevron-double-right" data-width="14"></span>
                         </a>
                     <?php endif; ?>
@@ -642,17 +626,12 @@ const STATUS_CONFIG = {
 };
 
 function updateEligibilityStatus(userId, newStatus, selectElement) {
-    console.log('🔄 Updating user:', userId, 'to:', newStatus);
-    
-    // Simpan element references
     const parentDiv = selectElement.parentElement;
     const iconElement = parentDiv.querySelector('.status-icon .iconify');
     
-    // Disable sementara
     selectElement.disabled = true;
     selectElement.style.opacity = '0.6';
     
-    // Prepare form data
     const formData = new URLSearchParams();
     formData.append('action', 'update_eligibility');
     formData.append('user_id', userId);
@@ -675,34 +654,26 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
         if (data.success) {
             console.log('✅ Status updated successfully');
             
-            // 1. Update selected option
             Array.from(selectElement.options).forEach(option => {
                 option.selected = (option.value === newStatus);
             });
             
-            // 2. Update data attribute
             selectElement.setAttribute('data-current-status', newStatus);
             
-            // 3. Update icon secara realtime
             if (iconElement) {
                 const config = STATUS_CONFIG[newStatus];
                 if (config) {
-                    // Update icon dan color
                     iconElement.setAttribute('data-icon', config.icon);
                     iconElement.className = `iconify ${config.iconColor}`;
                     
-                    // Force iconify to reload the icon
                     if (window.Iconify && window.Iconify.replace) {
                         window.Iconify.replace(iconElement);
                     } else if (window.iconify && window.iconify.replace) {
                         window.iconify.replace(iconElement);
                     }
-                    
-                    console.log('🎨 Icon updated to:', config.icon);
                 }
             }
             
-            // Success animation
             selectElement.classList.add('ring-2', 'ring-[#51A3B9]', 'scale-105');
             setTimeout(() => {
                 selectElement.classList.remove('ring-2', 'ring-[#51A3B9]', 'scale-105');
@@ -719,21 +690,17 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
         alert('Error saat update: ' + error.message);
     })
     .finally(() => {
-        // Enable kembali
         selectElement.disabled = false;
         selectElement.style.opacity = '1';
     });
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Admin dashboard loaded');
     console.log('📋 Status config:', STATUS_CONFIG);
 });
 
-// Function to open student profile modal
 function openStudentProfileModal(studentId) {
-    // Show loading
     document.getElementById('studentModalContent').innerHTML = `
         <div class="flex items-center justify-center p-12">
             <div class="text-center">
@@ -746,7 +713,6 @@ function openStudentProfileModal(studentId) {
     document.getElementById('studentProfileModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     
-    // Load student profile via AJAX
     fetch(`student-profile-modal.php?id=${studentId}`)
         .then(response => {
             if (!response.ok) {
@@ -774,20 +740,17 @@ function openStudentProfileModal(studentId) {
         });
 }
 
-// Function to close student profile modal
 function closeStudentProfileModal() {
     document.getElementById('studentProfileModal').classList.add('hidden');
     document.body.style.overflow = 'auto';
 }
 
-// Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeStudentProfileModal();
     }
 });
 
-// Close modal when clicking outside
 document.getElementById('studentProfileModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeStudentProfileModal();
