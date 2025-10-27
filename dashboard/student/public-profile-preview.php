@@ -208,10 +208,6 @@ usort($certificates, function($a, $b) {
                     <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
                     Kembali ke Dashboard
                 </a>
-                <button onclick="window.print()" class="bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors duration-300 border border-gray-300 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:printer" data-width="18"></span>
-                    Print
-                </button>
             </div>
         </div>
         
@@ -223,7 +219,7 @@ usort($certificates, function($a, $b) {
                     <h3 class="font-semibold text-blue-900">Tips Profil Menarik</h3>
                     <p class="text-blue-700 text-sm mt-1">
                         Pastikan foto profil profesional, deskripsi diri lengkap, dan project terbaru sudah diupload 
-                        untuk meningkatkan peluang dilirik mitra industri.
+                        untuk meningkatkan peluang dilirik oleh mitra industri.
                     </p>
                 </div>
             </div>
@@ -231,7 +227,7 @@ usort($certificates, function($a, $b) {
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <!-- Sidebar - Profile Info (sama seperti sebelumnya) -->
+        <!-- Sidebar - Profile Info -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-8">
                 <!-- Profile Photo & Basic Info -->

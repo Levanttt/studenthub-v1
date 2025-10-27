@@ -328,7 +328,7 @@ if (isLoggedIn()) {
                         <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
                     </svg>
                 </div>
-                <div class="text-5xl font-bold gradient-text mb-2">50+</div>
+                <div class="text-5xl font-bold gradient-text mb-2">850+</div>
                 <div class="text-gray-600 font-semibold">Mitra Industri</div>
             </div>
             <div class="text-center scroll-reveal feature-card bg-gradient-to-br from-[#E8F5E9] to-white p-8 rounded-xl border-2 border-green-500/10" style="transition-delay: 0.2s;">

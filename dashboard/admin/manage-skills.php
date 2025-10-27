@@ -178,26 +178,62 @@ if ($skills_stmt) {
 .soft-badge { background-color: #dcfce7; color: #166534; }
 .tool-badge { background-color: #f3e8ff; color: #7e22ce; }
 
-.tab-button.active {
-    border-bottom-color: #3b82f6;
-    color: #1e40af;
-    background-color: #eff6ff;
+/* Tab System - FIXED dengan !important */
+.tab-button {
+    flex: 1;
+    padding: 12px 16px;
+    text-align: center;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
 }
 
-.tab-button.active[data-tab="technical"] {
-    border-bottom-color: #3b82f6;
-    color: #1e40af;
+/* Default State */
+.tab-button {
+    border-bottom-color: transparent !important;
+    color: #6b7280 !important; /* text-gray-500 */
+    background-color: transparent !important;
 }
 
-.tab-button.active[data-tab="soft"] {
-    border-bottom-color: #10b981;
-    color: #166534;
+/* Active States dengan !important */
+.tab-button.active.technical {
+    border-bottom-color: #3b82f6 !important;
+    color: #1e40af !important; /* text-blue-700 */
+    background-color: #eff6ff !important; /* bg-blue-50 */
 }
 
-.tab-button.active[data-tab="tool"] {
-    border-bottom-color: #8b5cf6;
-    color: #7e22ce;
+.tab-button.active.soft {
+    border-bottom-color: #10b981 !important;
+    color: #166534 !important; /* text-green-700 */
+    background-color: #f0fdf4 !important; /* bg-green-50 */
 }
+
+.tab-button.active.tool {
+    border-bottom-color: #8b5cf6 !important;
+    color: #7e22ce !important; /* text-purple-700 */
+    background-color: #faf5ff !important; /* bg-purple-50 */
+}
+
+/* Icon Colors */
+.tab-button .iconify.text-blue-600 { color: #2563eb !important; }
+.tab-button .iconify.text-green-600 { color: #059669 !important; }
+.tab-button .iconify.text-purple-600 { color: #7c3aed !important; }
+.tab-button .iconify.text-gray-500 { color: #6b7280 !important; }
+
+/* Count Badge Colors */
+.tab-button .tab-count.bg-blue-200 { background-color: #bfdbfe !important; }
+.tab-button .tab-count.text-blue-800 { color: #1e40af !important; }
+.tab-button .tab-count.bg-green-200 { background-color: #bbf7d0 !important; }
+.tab-button .tab-count.text-green-800 { color: #166534 !important; }
+.tab-button .tab-count.bg-purple-200 { background-color: #e9d5ff !important; }
+.tab-button .tab-count.text-purple-800 { color: #6b21a8 !important; }
+.tab-button .tab-count.bg-gray-200 { background-color: #e5e7eb !important; }
+.tab-button .tab-count.text-gray-800 { color: #1f2937 !important; }
 
 .modal-overlay {
     position: fixed;
@@ -426,33 +462,33 @@ if ($skills_stmt) {
         <!-- Skills List -->
         <div class="lg:col-span-2">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <!-- Tabs Navigation -->
+                <!-- Tabs Navigation - Improved Structure -->
                 <div class="flex border-b border-gray-200 mb-6">
                     <button type="button" 
-                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 transition-colors flex items-center justify-center gap-2 active border-blue-500 text-blue-700 bg-blue-50"
+                            class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 transition-colors flex items-center justify-center gap-2 border-blue-500 text-blue-700 bg-blue-50"
                             data-tab="technical"
                             onclick="switchTab('technical')">
-                        <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
+                        <span class="iconify text-blue-600" data-icon="mdi:code-braces" data-width="20"></span>
                         Technical
-                        <span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['technical']); ?></span>
+                        <span class="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full tab-count"><?php echo count($skills_by_category['technical']); ?></span>
                     </button>
                     
                     <button type="button" 
                             class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center gap-2"
                             data-tab="soft"
                             onclick="switchTab('soft')">
-                        <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
+                        <span class="iconify text-gray-500" data-icon="mdi:account-group" data-width="20"></span>
                         Soft Skills
-                        <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['soft']); ?></span>
+                        <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full tab-count"><?php echo count($skills_by_category['soft']); ?></span>
                     </button>
                     
                     <button type="button" 
                             class="tab-button flex-1 py-3 px-4 text-center font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center gap-2"
                             data-tab="tool"
                             onclick="switchTab('tool')">
-                        <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
+                        <span class="iconify text-gray-500" data-icon="mdi:tools" data-width="20"></span>
                         Tools
-                        <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full"><?php echo count($skills_by_category['tool']); ?></span>
+                        <span class="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full tab-count"><?php echo count($skills_by_category['tool']); ?></span>
                     </button>
                 </div>
                 <!-- Tab Contents -->
@@ -775,18 +811,16 @@ class NotificationManager {
         }
     }
     
-    // Setup mutation observer untuk handle dynamic content
     setupMutationObserver() {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === 1 && // Element node
+                    if (node.nodeType === 1 && 
                         (node.classList.contains('bg-green-50') || 
-                         node.classList.contains('bg-red-50') ||
-                         node.querySelector('.bg-green-50') || 
-                         node.querySelector('.bg-red-50'))) {
+                        node.classList.contains('bg-red-50') ||
+                        node.querySelector('.bg-green-50') || 
+                        node.querySelector('.bg-red-50'))) {
                         console.log('New notification detected');
-                        // Tunggu sebentar lalu re-initialize
                         setTimeout(() => {
                             this.init();
                         }, 100);
@@ -795,7 +829,6 @@ class NotificationManager {
             });
         });
         
-        // Start observing
         observer.observe(document.body, {
             childList: true,
             subtree: true
@@ -805,17 +838,14 @@ class NotificationManager {
     // Helper: Get all notifications
     getAllNotifications() {
         return Array.from(document.querySelectorAll('.bg-green-50, .bg-red-50'))
-                    .filter(el => el.closest('body')); // Pastikan element masih di DOM
+                    .filter(el => el.closest('body')); 
     }
     
-    // Method untuk manually show notification (jika needed)
     showNotification(message, type = 'success') {
-        // Hapus notifikasi existing dulu
         this.getAllNotifications().forEach(notification => {
             this.hideNotification(notification);
         });
         
-        // Buat notifikasi baru
         const notification = document.createElement('div');
         notification.className = `mb-6 ${type === 'success' ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'} px-4 py-3 rounded-lg flex items-center gap-2`;
         notification.innerHTML = `
@@ -823,60 +853,76 @@ class NotificationManager {
             ${message}
         `;
         
-        // Tambahkan ke DOM
         const container = document.querySelector('.max-w-7xl.mx-auto .px-4') || document.body;
         container.insertBefore(notification, container.firstChild);
         
-        // Re-initialize untuk setup auto-hide dan close button
         setTimeout(() => {
             this.init();
         }, 100);
     }
 }
 
-// Tab System
 function switchTab(tabName) {
     console.log('Switching to tab:', tabName);
     
-    // Hide all tab contents
+    // 1. Handle tab contents
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.add('hidden');
     });
+    document.getElementById(`${tabName}-tab`)?.classList.remove('hidden');
     
-    // Remove active class from all buttons
+    // 2. Reset all buttons
     document.querySelectorAll('.tab-button').forEach(button => {
-        button.classList.remove('active', 'border-blue-500', 'text-blue-700', 'bg-blue-50');
+        // Remove all active classes
+        button.classList.remove('active', 'technical', 'soft', 'tool');
+        
+        // Reset to default state
         button.classList.add('border-transparent', 'text-gray-500');
+        
+        // Reset icon
+        const icon = button.querySelector('.iconify');
+        if (icon) {
+            icon.classList.remove('text-blue-600', 'text-green-600', 'text-purple-600');
+            icon.classList.add('text-gray-500');
+        }
+        
+        // Reset count badge
+        const count = button.querySelector('.tab-count');
+        if (count) {
+            count.classList.remove('bg-blue-200', 'text-blue-800', 'bg-green-200', 'text-green-800', 'bg-purple-200', 'text-purple-800');
+            count.classList.add('bg-gray-200', 'text-gray-800');
+        }
     });
     
-    // Show selected tab content
-    const targetTab = document.getElementById(`${tabName}-tab`);
-    if (targetTab) {
-        targetTab.classList.remove('hidden');
-    }
-    
-    // Add active class to clicked button
+    // 3. Style active button
     const activeButton = document.querySelector(`[data-tab="${tabName}"]`);
     if (activeButton) {
-        activeButton.classList.add('active');
+        activeButton.classList.add('active', tabName);
         
-        // Set styling berdasarkan tab
+        // Remove default classes
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+        
+        // Set specific colors via CSS classes
         switch(tabName) {
             case 'technical':
-                activeButton.classList.add('border-blue-500', 'text-blue-700', 'bg-blue-50');
+                activeButton.querySelector('.iconify')?.classList.replace('text-gray-500', 'text-blue-600');
+                activeButton.querySelector('.tab-count')?.classList.replace('bg-gray-200', 'bg-blue-200');
+                activeButton.querySelector('.tab-count')?.classList.replace('text-gray-800', 'text-blue-800');
                 break;
             case 'soft':
-                activeButton.classList.add('border-green-500', 'text-green-700', 'bg-green-50');
+                activeButton.querySelector('.iconify')?.classList.replace('text-gray-500', 'text-green-600');
+                activeButton.querySelector('.tab-count')?.classList.replace('bg-gray-200', 'bg-green-200');
+                activeButton.querySelector('.tab-count')?.classList.replace('text-gray-800', 'text-green-800');
                 break;
             case 'tool':
-                activeButton.classList.add('border-purple-500', 'text-purple-700', 'bg-purple-50');
+                activeButton.querySelector('.iconify')?.classList.replace('text-gray-500', 'text-purple-600');
+                activeButton.querySelector('.tab-count')?.classList.replace('bg-gray-200', 'bg-purple-200');
+                activeButton.querySelector('.tab-count')?.classList.replace('text-gray-800', 'text-purple-800');
                 break;
         }
-        activeButton.classList.remove('border-transparent', 'text-gray-500');
     }
 }
 
-// Custom Dropdown System
 class CustomDropdown {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
