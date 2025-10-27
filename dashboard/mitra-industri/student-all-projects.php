@@ -33,6 +33,28 @@ try {
     exit();
 }
 
+// Pagination configuration
+$projects_per_page = 6;
+$current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($current_page - 1) * $projects_per_page;
+
+// Get total projects count
+$total_projects = 0;
+try {
+    $count_query = "SELECT COUNT(*) as total FROM projects WHERE student_id = ?";
+    $count_stmt = $conn->prepare($count_query);
+    $count_stmt->bind_param("i", $student_id);
+    $count_stmt->execute();
+    $count_result = $count_stmt->get_result();
+    $total_projects = $count_result->fetch_assoc()['total'];
+    $count_stmt->close();
+} catch (Exception $e) {
+    error_log("Error counting projects: " . $e->getMessage());
+}
+
+// Calculate total pages
+$total_pages = ceil($total_projects / $projects_per_page);
+
 $projects = [];
 try {
     $projects_query = "
@@ -48,9 +70,10 @@ try {
         WHERE p.student_id = ?
         GROUP BY p.id
         ORDER BY p.project_year DESC, p.created_at DESC
+        LIMIT ? OFFSET ?
     ";
     $projects_stmt = $conn->prepare($projects_query);
-    $projects_stmt->bind_param("i", $student_id);
+    $projects_stmt->bind_param("iii", $student_id, $projects_per_page, $offset);
     $projects_stmt->execute();
     $projects_result = $projects_stmt->get_result();
     $projects = $projects_result->fetch_all(MYSQLI_ASSOC);
@@ -85,8 +108,6 @@ foreach ($projects as &$project) {
     $project['skills_detail'] = $project_skills;
 }
 unset($project); 
-
-$total_projects = count($projects);
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -198,6 +219,13 @@ $total_projects = count($projects);
             </div>
         </div>
     <?php else: ?>
+        <!-- Page Info for Mobile -->
+        <?php if ($total_pages > 1): ?>
+        <div class="sm:hidden mb-6 bg-[#E0F7FF] rounded-xl p-4 text-center border border-[#51A3B9] border-opacity-30">
+            <span class="text-[#2A8FA9] font-bold">Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?></span>
+        </div>
+        <?php endif; ?>
+
         <!-- Projects Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <?php foreach ($projects as $project): ?>
@@ -375,6 +403,30 @@ $total_projects = count($projects);
             </div>
             <?php endforeach; ?>
         </div>
+        
+        <!-- Pagination Navigation -->
+        <?php if ($total_pages > 1): ?>
+        <div class="flex justify-center items-center space-x-4 mt-8 mb-8">
+            <!-- Previous Button -->
+            <a href="?id=<?php echo $student_id; ?>&page=<?php echo max(1, $current_page - 1); ?>" 
+            class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == 1 ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                <span class="iconify" data-icon="mdi:chevron-left" data-width="20"></span>
+                Sebelumnya
+            </a>
+
+            <!-- Page Info (Hidden on desktop since it's in header) -->
+            <div class="hidden sm:flex items-center gap-2 bg-[#E0F7FF] rounded-xl px-6 py-3">
+                <span class="text-[#2A8FA9] font-bold">Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?></span>
+            </div>
+
+            <!-- Next Button -->
+            <a href="?id=<?php echo $student_id; ?>&page=<?php echo min($total_pages, $current_page + 1); ?>" 
+            class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == $total_pages ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                Selanjutnya
+                <span class="iconify" data-icon="mdi:chevron-right" data-width="20"></span>
+            </a>
+        </div>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 

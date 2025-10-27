@@ -11,6 +11,10 @@ $user_id = $_SESSION['user_id'];
 $success = '';
 $error = '';
 
+$projects_per_page = 6;
+$current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($current_page - 1) * $projects_per_page;
+
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
     
@@ -35,12 +39,23 @@ if (isset($_GET['delete_id'])) {
     $check_stmt->close();
 }
 
-$stmt = $conn->prepare("SELECT * FROM projects WHERE student_id = ? ORDER BY created_at DESC");
-$stmt->bind_param("i", $user_id);
+// Get total projects count
+$count_stmt = $conn->prepare("SELECT COUNT(*) as total FROM projects WHERE student_id = ?");
+$count_stmt->bind_param("i", $user_id);
+$count_stmt->execute();
+$count_result = $count_stmt->get_result();
+$total_projects = $count_result->fetch_assoc()['total'];
+$count_stmt->close();
+
+// Calculate total pages
+$total_pages = ceil($total_projects / $projects_per_page);
+
+// Get projects for current page
+$stmt = $conn->prepare("SELECT * FROM projects WHERE student_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?");
+$stmt->bind_param("iii", $user_id, $projects_per_page, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
 $projects = $result->fetch_all(MYSQLI_ASSOC);
-$total_projects = count($projects);
 
 $student_stmt = $conn->prepare("SELECT name FROM users WHERE id = ?");
 $student_stmt->bind_param("i", $user_id);
@@ -110,8 +125,6 @@ $student = $student_result->fetch_assoc();
                         <p class="text-[#409BB2]">Total proyek yang telah kamu upload</p>
                     </div>
                 </div>
-                <?php if ($total_projects > 0): ?>
-                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -337,6 +350,30 @@ $student = $student_result->fetch_assoc();
             <?php endforeach; ?>
         </div>
         
+        <!-- Pagination Navigation -->
+        <?php if ($total_pages > 1): ?>
+        <div class="flex justify-center items-center space-x-4 mt-8 mb-8">
+            <!-- Previous Button -->
+            <a href="?page=<?php echo max(1, $current_page - 1); ?>" 
+            class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == 1 ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                <span class="iconify" data-icon="mdi:chevron-left" data-width="20"></span>
+                Sebelumnya
+            </a>
+
+            <!-- Page Info -->
+            <div class="flex items-center gap-2 bg-[#E0F7FF] rounded-xl px-6 py-3">
+                <span class="text-[#2A8FA9] font-bold">Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?></span>
+            </div>
+
+            <!-- Next Button -->
+            <a href="?page=<?php echo min($total_pages, $current_page + 1); ?>" 
+            class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == $total_pages ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                Selanjutnya
+                <span class="iconify" data-icon="mdi:chevron-right" data-width="20"></span>
+            </a>
+        </div>
+        <?php endif; ?>
+
         <!-- Bottom Action -->
         <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">

@@ -1,5 +1,6 @@
 <?php
 include '../../includes/config.php';
+include '../../includes/functions.php';
 
 if (!isLoggedIn() || getUserRole() != 'student') {
     header("Location: ../../login.php");

@@ -7,7 +7,6 @@ if (!isLoggedIn() || getUserRole() != 'mitra_industri') {
     exit();
 }
 
-// 2. Ambil ID student dari parameter URL
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: index.php");
     exit();
@@ -18,12 +17,11 @@ $viewer_id = $_SESSION['user_id'];
 
 recordProfileView($student_id, $viewer_id, 'mitra_industri');
 
-// 3. Ambil data student - TAMBAH KOLOM SEMESTER
 $student = [];
 try {
     $student_query = "
         SELECT id, name, email, profile_picture, phone, major, bio, specializations, 
-               cv_file_path, linkedin, created_at, semester  -- TAMBAH semester DI SINI
+                cv_file_path, linkedin, created_at, semester  -- TAMBAH semester DI SINI
         FROM users 
         WHERE id = ? AND role = 'student'
     ";
@@ -43,7 +41,6 @@ try {
     exit();
 }
 
-// 4. Ambil semua skills student (agregat dari semua project)
 $all_skills = [
     'technical' => [],
     'soft' => [],
@@ -74,7 +71,6 @@ try {
     $skills_stmt->close();
 } catch (Exception $e) {}
 
-// 5. Ambil semua projects student dengan gambar
 $projects = [];
 try {
     $projects_query = "
@@ -98,7 +94,6 @@ try {
     $projects_stmt->close();
 } catch (Exception $e) {}
 
-// 6. Ambil skills untuk setiap project secara detail
 foreach ($projects as &$project) {
     $project_skills = [];
     try {
@@ -124,10 +119,8 @@ foreach ($projects as &$project) {
 }
 unset($project); 
 
-// 7. Hitung total projects
 $total_projects = count($projects);
 
-// 8. Ambil semua sertifikat student dari berbagai sumber
 $certificates = [];
 
 try {
@@ -282,8 +275,8 @@ usort($certificates, function($a, $b) {
                     
                     <?php if (!empty($student['linkedin'])): ?>
                         <a href="<?php echo htmlspecialchars($student['linkedin']); ?>" 
-                           target="_blank"
-                           class="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
+                            target="_blank"
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
                             <span class="iconify" data-icon="mdi:linkedin" data-width="18"></span>
                             LinkedIn Profile
                         </a>
@@ -306,7 +299,7 @@ usort($certificates, function($a, $b) {
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm text-gray-600">Email</p>
                                 <a href="mailto:<?php echo htmlspecialchars($student['email']); ?>" 
-                                   class="text-[#2A8FA9] hover:text-[#409BB2] font-medium text-sm truncate block">
+                                    class="text-[#2A8FA9] hover:text-[#409BB2] font-medium text-sm truncate block">
                                     <?php echo htmlspecialchars($student['email']); ?>
                                 </a>
                             </div>
@@ -361,7 +354,7 @@ usort($certificates, function($a, $b) {
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['technical'] as $skill): ?>
                                     <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs" 
-                                          title="Digunakan di <?php echo $skill['project_count']; ?> project">
+                                            title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
                                 <?php endforeach; ?>
@@ -382,7 +375,7 @@ usort($certificates, function($a, $b) {
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['soft'] as $skill): ?>
                                     <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs"
-                                          title="Digunakan di <?php echo $skill['project_count']; ?> project">
+                                            title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
                                 <?php endforeach; ?>
@@ -403,7 +396,7 @@ usort($certificates, function($a, $b) {
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['tool'] as $skill): ?>
                                     <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs"
-                                          title="Digunakan di <?php echo $skill['project_count']; ?> project">
+                                            title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
                                 <?php endforeach; ?>
@@ -448,7 +441,6 @@ usort($certificates, function($a, $b) {
                 <?php if ($total_projects > 0): ?>
                     <div class="space-y-6">
                         <?php 
-                        // Batasi hanya 2 project pertama
                         $display_projects = array_slice($projects, 0, 2);
                         foreach ($display_projects as $project): ?>
                             <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 project-card">
@@ -487,8 +479,8 @@ usort($certificates, function($a, $b) {
                                         <div class="flex flex-wrap gap-2">
                                             <?php if (!empty($project['github_url'])): ?>
                                                 <a href="<?php echo htmlspecialchars($project['github_url']); ?>" 
-                                                   target="_blank"
-                                                   class="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-colors flex items-center gap-1">
+                                                    target="_blank"
+                                                    class="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-colors flex items-center gap-1">
                                                     <span class="iconify" data-icon="mdi:github" data-width="14"></span>
                                                     Code
                                                 </a>
@@ -496,8 +488,8 @@ usort($certificates, function($a, $b) {
                                             
                                             <?php if (!empty($project['demo_url'])): ?>
                                                 <a href="<?php echo htmlspecialchars($project['demo_url']); ?>" 
-                                                   target="_blank"
-                                                   class="bg-cyan-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-cyan-600 transition-colors flex items-center gap-1">
+                                                    target="_blank"
+                                                    class="bg-cyan-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-cyan-600 transition-colors flex items-center gap-1">
                                                     <span class="iconify" data-icon="mdi:play" data-width="14"></span>
                                                     Link Project
                                                 </a>
@@ -505,8 +497,8 @@ usort($certificates, function($a, $b) {
                                             
                                             <?php if (!empty($project['figma_url'])): ?>
                                                 <a href="<?php echo htmlspecialchars($project['figma_url']); ?>" 
-                                                   target="_blank"
-                                                   class="bg-purple-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-purple-600 transition-colors flex items-center gap-1">
+                                                    target="_blank"
+                                                    class="bg-purple-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-purple-600 transition-colors flex items-center gap-1">
                                                     <span class="iconify" data-icon="mdi:palette" data-width="14"></span>
                                                     Design
                                                 </a>
@@ -548,7 +540,6 @@ usort($certificates, function($a, $b) {
 
                                     <!-- Project Images Gallery -->
                                     <?php 
-                                    // Gabungkan gambar utama dengan gallery images
                                     $all_project_images = [];
                                     if (!empty($project['image_path'])) {
                                         $all_project_images[] = $project['image_path'];
@@ -557,7 +548,7 @@ usort($certificates, function($a, $b) {
                                         $gallery_images = explode('|||', $project['gallery_images']);
                                         $all_project_images = array_merge($all_project_images, $gallery_images);
                                     }
-                                    $all_project_images = array_unique(array_filter($all_project_images)); // Hapus duplikat dan empty
+                                    $all_project_images = array_unique(array_filter($all_project_images)); 
                                     ?>
 
                                     <?php if (!empty($all_project_images)): ?>
@@ -569,10 +560,10 @@ usort($certificates, function($a, $b) {
                                                     <!-- Main Image Display -->
                                                     <div class="mb-4 flex justify-center">
                                                         <img id="mainImage-<?php echo $project['id']; ?>" 
-                                                             src="<?php echo htmlspecialchars($all_project_images[0]); ?>" 
-                                                             alt="Project Image" 
-                                                             class="max-w-full max-h-80 object-contain rounded-lg border border-gray-300 cursor-pointer"
-                                                             onclick="openImageModal('<?php echo htmlspecialchars($all_project_images[0]); ?>')">
+                                                            src="<?php echo htmlspecialchars($all_project_images[0]); ?>" 
+                                                            alt="Project Image" 
+                                                            class="max-w-full max-h-80 object-contain rounded-lg border border-gray-300 cursor-pointer"
+                                                            onclick="openImageModal('<?php echo htmlspecialchars($all_project_images[0]); ?>')">
                                                     </div>
                                                     
                                                     <!-- Navigation & Thumbnails -->
@@ -588,11 +579,11 @@ usort($certificates, function($a, $b) {
                                                             <div class="flex gap-2 overflow-x-auto py-2 px-4 justify-center flex-1 max-w-2xl">
                                                                 <?php foreach ($all_project_images as $index => $image): ?>
                                                                     <img src="<?php echo htmlspecialchars($image); ?>" 
-                                                                         alt="Thumbnail <?php echo $index + 1; ?>" 
-                                                                         class="w-16 h-16 object-cover rounded border-2 cursor-pointer transition-all <?php echo $index === 0 ? 'border-cyan-500' : 'border-gray-300'; ?>"
-                                                                         onclick="changeMainImage(<?php echo $project['id']; ?>, '<?php echo htmlspecialchars($image); ?>', <?php echo $index; ?>)"
-                                                                         data-project-id="<?php echo $project['id']; ?>"
-                                                                         data-image-index="<?php echo $index; ?>">
+                                                                        alt="Thumbnail <?php echo $index + 1; ?>" 
+                                                                        class="w-16 h-16 object-cover rounded border-2 cursor-pointer transition-all <?php echo $index === 0 ? 'border-cyan-500' : 'border-gray-300'; ?>"
+                                                                        onclick="changeMainImage(<?php echo $project['id']; ?>, '<?php echo htmlspecialchars($image); ?>', <?php echo $index; ?>)"
+                                                                        data-project-id="<?php echo $project['id']; ?>"
+                                                                        data-image-index="<?php echo $index; ?>">
                                                                 <?php endforeach; ?>
                                                             </div>
                                                             
@@ -647,7 +638,7 @@ usort($certificates, function($a, $b) {
                     <?php if ($total_projects > 2): ?>
                     <div class="text-center mt-8 pt-6 border-t border-gray-200">
                         <a href="student-all-projects.php?id=<?php echo $student_id; ?>" 
-                           class="bg-[#E0F7FF] text-[#2A8FA9] px-8 py-3 rounded-xl font-bold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 inline-flex items-center gap-2">
+                            class="bg-[#E0F7FF] text-[#2A8FA9] px-8 py-3 rounded-xl font-bold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 inline-flex items-center gap-2">
                             <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
                             Lihat Semua Project (<?php echo $total_projects; ?>)
                         </a>
@@ -676,14 +667,13 @@ usort($certificates, function($a, $b) {
                 </div>
 
                 <?php if (!empty($certificates)): ?>
-                    <!-- Horizontal Scroll Container -->
                     <div class="relative">
                         <!-- Certificates Horizontal Scroll -->
                         <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" id="certificates-scroll">
                             <?php foreach ($certificates as $cert): ?>
                                 <div class="flex-shrink-0 w-80 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 group relative certificate-card flex flex-col">
                                     
-                                    <!-- Compact Badge dengan Tooltip di pojok kanan atas -->
+                                    <!-- Compact Badge -->
                                     <div class="absolute top-3 right-3">
                                         <?php if ($cert['source_type'] == 'project'): ?>
                                             <div class="relative group/badge">
@@ -752,18 +742,17 @@ usort($certificates, function($a, $b) {
                                         </div>
                                     <?php endif; ?>
 
-                                    <!-- Action Buttons - SELALU DI BAWAH -->
+                                    <!-- Action Buttons -->
                                     <div class="mt-auto pt-4">
                                         <div class="flex gap-2">
                                             <?php if (!empty($cert['image_path'])): ?>
                                                 <?php
-                                                // Cek tipe file
                                                 $file_extension = strtolower(pathinfo($cert['image_path'], PATHINFO_EXTENSION));
                                                 $is_pdf = $file_extension === 'pdf';
                                                 ?>
                                                 
                                                 <?php if ($is_pdf): ?>
-                                                    <!-- Untuk PDF, buka di tab baru -->
+                                                    <!-- Untuk PDF -->
                                                     <a href="<?php echo htmlspecialchars($cert['image_path']); ?>" 
                                                     target="_blank"
                                                     class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
@@ -771,7 +760,7 @@ usort($certificates, function($a, $b) {
                                                         Lihat
                                                     </a>
                                                 <?php else: ?>
-                                                    <!-- Untuk images, buka di modal -->
+                                                    <!-- Untuk images -->
                                                     <button onclick="openImageModal('<?php echo htmlspecialchars($cert['image_path']); ?>')"
                                                             class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
                                                         <span class="iconify" data-icon="mdi:eye" data-width="14"></span>
@@ -794,7 +783,6 @@ usort($certificates, function($a, $b) {
                             <?php endforeach; ?>
                         </div>
 
-                        <!-- Navigation Arrows dengan transparansi -->
                         <?php if (count($certificates) > 2): ?>
                         <button onclick="scrollCertificates('left')" 
                                 class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white/70 border border-gray-300/50 rounded-full p-2 shadow-lg hover:bg-white hover:border-gray-300 transition-all duration-300 z-10 hidden md:flex items-center justify-center backdrop-blur-sm">
@@ -807,7 +795,6 @@ usort($certificates, function($a, $b) {
                         <?php endif; ?>
                     </div>
                     
-                    <!-- Scroll Indicator untuk Mobile -->
                     <?php if (count($certificates) > 2): ?>
                     <div class="flex justify-center mt-4 md:hidden">
                         <div class="flex gap-1">
@@ -842,17 +829,13 @@ usort($certificates, function($a, $b) {
 </div>
 
 <script>
-// Gallery Navigation Functions
 let currentImageIndex = {};
 
 function changeMainImage(projectId, imageSrc, index) {
-    // Update main image
     document.getElementById('mainImage-' + projectId).src = imageSrc;
     
-    // Update current index
     currentImageIndex[projectId] = index;
     
-    // Update thumbnail borders
     updateThumbnailBorders(projectId, index);
 }
 
@@ -860,7 +843,6 @@ function prevImage(projectId, totalImages) {
     let currentIndex = currentImageIndex[projectId] || 0;
     let newIndex = (currentIndex - 1 + totalImages) % totalImages;
     
-    // Get the image source from thumbnail
     const thumbnails = document.querySelectorAll(`img[data-project-id="${projectId}"]`);
     if (thumbnails[newIndex]) {
         changeMainImage(projectId, thumbnails[newIndex].src, newIndex);
@@ -871,7 +853,6 @@ function nextImage(projectId, totalImages) {
     let currentIndex = currentImageIndex[projectId] || 0;
     let newIndex = (currentIndex + 1) % totalImages;
     
-    // Get the image source from thumbnail
     const thumbnails = document.querySelectorAll(`img[data-project-id="${projectId}"]`);
     if (thumbnails[newIndex]) {
         changeMainImage(projectId, thumbnails[newIndex].src, newIndex);
@@ -893,7 +874,6 @@ function updateThumbnailBorders(projectId, activeIndex) {
     });
 }
 
-// Initialize first image as active for each project
 document.addEventListener('DOMContentLoaded', function() {
     const projects = document.querySelectorAll('[id^="mainImage-"]');
     projects.forEach(mainImage => {
@@ -903,7 +883,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Image Modal Functions
 function openImageModal(imageSrc) {
     document.getElementById('modalImage').src = imageSrc;
     document.getElementById('imageModal').classList.remove('hidden');
@@ -915,26 +894,23 @@ function closeImageModal() {
     document.body.style.overflow = 'auto';
 }
 
-// Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeImageModal();
     }
 });
 
-// Close modal when clicking outside image
 document.getElementById('imageModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeImageModal();
     }
 });
 
-// Certificates Horizontal Scroll - FIXED
 function scrollCertificates(direction) {
     const container = document.getElementById('certificates-scroll');
     if (!container) return;
     
-    const scrollAmount = 320; // Sesuaikan dengan lebar card + gap
+    const scrollAmount = 320; 
     const currentScroll = container.scrollLeft;
     
     if (direction === 'left') {
@@ -950,11 +926,9 @@ function scrollCertificates(direction) {
     }
 }
 
-// Initialize certificates scroll on load
 document.addEventListener('DOMContentLoaded', function() {
     const certificatesScroll = document.getElementById('certificates-scroll');
     if (certificatesScroll) {
-        // Add touch scrolling for mobile
         let isDown = false;
         let startX;
         let scrollLeft;

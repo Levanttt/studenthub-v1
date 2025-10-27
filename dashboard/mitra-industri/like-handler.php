@@ -4,7 +4,6 @@ ini_set('display_errors', 0);
 
 header('Content-Type: application/json');
 
-// Function untuk handle response
 function jsonResponse($data) {
     echo json_encode($data);
     exit();

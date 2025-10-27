@@ -7,10 +7,8 @@ if (!isLoggedIn() || getUserRole() != 'admin') {
     exit();
 }
 
-// Stats untuk dashboard - DENGAN ERROR HANDLING
 $stats = [];
 
-// Total Mahasiswa
 $students_query = "SELECT COUNT(*) as total FROM users WHERE role = 'student'";
 $students_result = $conn->query($students_query);
 if ($students_result) {
@@ -19,7 +17,6 @@ if ($students_result) {
     $stats['total_students'] = 0;
 }
 
-// Mahasiswa Eligible
 $eligible_query = "SELECT COUNT(*) as total FROM users WHERE role = 'student' AND eligibility_status = 'eligible'";
 $eligible_result = $conn->query($eligible_query);
 if ($eligible_result) {
@@ -28,7 +25,6 @@ if ($eligible_result) {
     $stats['eligible_students'] = 0;
 }
 
-// Total Mitra Industri
 $mitra_query = "SELECT COUNT(*) as total FROM users WHERE role = 'mitra_industri'";
 $mitra_result = $conn->query($mitra_query);
 if ($mitra_result) {
@@ -37,7 +33,6 @@ if ($mitra_result) {
     $stats['total_mitra'] = 0;
 }
 
-// Mitra Terverifikasi
 $verified_mitra_query = "SELECT COUNT(*) as total FROM users WHERE role = 'mitra_industri' AND verification_status = 'verified'";
 $verified_mitra_result = $conn->query($verified_mitra_query);
 if ($verified_mitra_result) {
@@ -46,7 +41,6 @@ if ($verified_mitra_result) {
     $stats['verified_mitra'] = 0;
 }
 
-// Total Proyek
 $projects_query = "SELECT COUNT(*) as total FROM projects";
 $projects_result = $conn->query($projects_query);
 if ($projects_result) {
@@ -55,23 +49,27 @@ if ($projects_result) {
     $stats['total_projects'] = 0;
 }
 
-// Recent Activities
 $recent_activities = [];
-$activities_query = "
-    SELECT 'student' as type, name, created_at FROM users WHERE role = 'student' ORDER BY created_at DESC LIMIT 3
-    UNION ALL
-    SELECT 'project' as type, title as name, created_at FROM projects ORDER BY created_at DESC LIMIT 3
-    UNION ALL
-    SELECT 'mitra' as type, name, created_at FROM users WHERE role = 'mitra_industri' ORDER BY created_at DESC LIMIT 3
-    ORDER BY created_at DESC LIMIT 5
-";
 
-$activities_result = $conn->query($activities_query);
-if ($activities_result) {
-    while ($activity = $activities_result->fetch_assoc()) {
-        $recent_activities[] = $activity;
+$students_act = $conn->query("SELECT 'student' as type, name, created_at FROM users WHERE role = 'student' ORDER BY created_at DESC LIMIT 3");
+if ($students_act) {
+    while ($row = $students_act->fetch_assoc()) {
+        $recent_activities[] = $row;
     }
 }
+
+$mitra_act = $conn->query("SELECT 'mitra' as type, name, created_at FROM users WHERE role = 'mitra_industri' ORDER BY created_at DESC LIMIT 3");
+if ($mitra_act) {
+    while ($row = $mitra_act->fetch_assoc()) {
+        $recent_activities[] = $row;
+    }
+}
+
+usort($recent_activities, function($a, $b) {
+    return strtotime($b['created_at']) - strtotime($a['created_at']);
+});
+
+$recent_activities = array_slice($recent_activities, 0, 5);
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -90,7 +88,7 @@ if ($activities_result) {
         </div>
     </div>
 
-    <!-- Main Stats - Clean & Simple -->
+    <!-- Main Stats -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Total Mahasiswa -->
         <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
@@ -131,7 +129,6 @@ if ($activities_result) {
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Quick Actions - Takes 2 columns -->
         <div class="lg:col-span-2">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -166,15 +163,15 @@ if ($activities_result) {
                         </div>
                     </a>
 
-                    <!-- Data Master -->
+                    <!-- Kelola spesialisasi -->
                     <a href="manage-data.php" class="group bg-white border-2 border-gray-200 hover:border-indigo-500 rounded-xl p-5 transition-all duration-200 hover:shadow-md">
                         <div class="flex items-start gap-4">
                             <div class="bg-indigo-50 group-hover:bg-indigo-100 p-3 rounded-lg transition-colors">
-                                <span class="iconify text-indigo-600" data-icon="mdi:database-cog" data-width="24"></span>
+                                <span class="iconify text-indigo-600" data-icon="mdi:certificate" data-width="24"></span>
                             </div>
                             <div>
-                                <h3 class="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">Data Master</h3>
-                                <p class="text-sm text-gray-600">Kelola skills & kategori</p>
+                                <h3 class="font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">Kelola Spesialisasi</h3>
+                                <p class="text-sm text-gray-600">Tambah & edit spesialisasi</p>
                             </div>
                         </div>
                     </a>
@@ -195,7 +192,7 @@ if ($activities_result) {
             </div>
         </div>
 
-        <!-- Recent Activities - Takes 1 column -->
+        <!-- Recent Activities -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -214,14 +211,7 @@ if ($activities_result) {
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-semibold text-gray-900 truncate"><?php echo htmlspecialchars($activity['name']); ?></p>
                                         <p class="text-xs text-gray-500">Mahasiswa baru mendaftar</p>
-                                    </div>
-                                <?php elseif ($activity['type'] == 'project'): ?>
-                                    <div class="bg-green-500 p-2 rounded-lg flex-shrink-0">
-                                        <span class="iconify text-white" data-icon="mdi:folder-plus" data-width="16"></span>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold text-gray-900 truncate"><?php echo htmlspecialchars($activity['name']); ?></p>
-                                        <p class="text-xs text-gray-500">Proyek baru ditambahkan</p>
+                                        <p class="text-xs text-gray-400 mt-1"><?php echo date('d M Y H:i', strtotime($activity['created_at'])); ?></p>
                                     </div>
                                 <?php elseif ($activity['type'] == 'mitra'): ?>
                                     <div class="bg-orange-500 p-2 rounded-lg flex-shrink-0">
@@ -230,6 +220,7 @@ if ($activities_result) {
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-semibold text-gray-900 truncate"><?php echo htmlspecialchars($activity['name']); ?></p>
                                         <p class="text-xs text-gray-500">Mitra baru mendaftar</p>
+                                        <p class="text-xs text-gray-400 mt-1"><?php echo date('d M Y H:i', strtotime($activity['created_at'])); ?></p>
                                     </div>
                                 <?php endif; ?>
                             </div>

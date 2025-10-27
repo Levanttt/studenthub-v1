@@ -91,17 +91,30 @@
                             <?php endif; ?>
                             <span class="text-sm font-medium text-gray-700 sm:hidden lg:inline-block">
                                 <?php echo htmlspecialchars($_SESSION['name'] ?? 'User'); ?>
+                                <?php if($current_role === 'admin'): ?>
+                                    <span class="text-xs text-gray-500 block">Admin</span>
+                                <?php endif; ?>
                             </span>
                             <span class="iconify text-gray-500" data-icon="mdi:chevron-down" data-width="16"></span>
                         </button>
 
-                        <div class="dropdown-menu absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                            <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/profile.php"
-                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
-                                <span class="iconify" data-icon="mdi:account-cog" data-width="16"></span>
-                                Profile
-                            </a>
-                            <hr class="my-1">
+                        <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                            <?php if($current_role !== 'admin'): ?>
+                                <!-- Profile link hanya untuk student dan mitra -->
+                                <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/profile.php"
+                                    class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <span class="iconify" data-icon="mdi:account-cog" data-width="16"></span>
+                                    Profile
+                                </a>
+                                <hr class="my-1">
+                            <?php else: ?>
+                                <!-- Untuk admin, tampilkan info role saja -->
+                                <div class="px-3 py-2 text-xs text-gray-500 border-b">
+                                    <p class="font-medium"><?php echo htmlspecialchars($_SESSION['name'] ?? 'Admin'); ?></p>
+                                    <p>Role: Administrator</p>
+                                </div>
+                            <?php endif; ?>
+                            
                             <button onclick="confirmLogout()"
                                     class="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
                                 <span class="iconify" data-icon="mdi:logout" data-width="16"></span>

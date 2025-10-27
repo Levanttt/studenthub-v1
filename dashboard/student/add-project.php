@@ -1,5 +1,6 @@
 <?php
 include '../../includes/config.php';
+include '../../includes/functions.php';
 
 if (!isLoggedIn() || getUserRole() != 'student') {
     header("Location: ../../login.php");
@@ -169,30 +170,86 @@ if ($categories_stmt) {
 }
 
 function handleFileUpload($file, $user_id) {
+    // DEBUG START
+    error_log("=== FILE UPLOAD DEBUG START ===");
+    error_log("User ID: " . $user_id);
+    error_log("File name: " . $file['name']);
+    error_log("File size: " . $file['size']);
+    error_log("File tmp_name: " . $file['tmp_name']);
+    error_log("File error: " . $file['error']);
+    
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     $max_size = 5 * 1024 * 1024;
     
     if ($file['size'] > $max_size) {
+        error_log("ERROR: File too large");
         return ['success' => false, 'error' => 'Ukuran file maksimal 5MB'];
     }
     
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        error_log("ERROR: Upload error code: " . $file['error']);
+        return ['success' => false, 'error' => 'Error upload file: ' . $file['error']];
+    }
+    
     $file_info = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file['tmp_name']);
+    error_log("MIME type: " . $file_info);
+    
     if (!in_array($file_info, $allowed_types)) {
+        error_log("ERROR: Invalid file type");
         return ['success' => false, 'error' => 'Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan'];
     }
     
-    $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/projects/' . $user_id . '/';
+    // MULTIPLE PATH OPTIONS
+    $upload_dir_options = [
+        $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/projects/' . $user_id . '/',
+        __DIR__ . '/../../../uploads/projects/' . $user_id . '/',
+        'D:/LocalXampp/htdocs/cakrawala-connect/uploads/projects/' . $user_id . '/'
+    ];
+    
+    $upload_dir = $upload_dir_options[0]; // Coba option pertama
+    error_log("Upload dir: " . $upload_dir);
+    
+    // CREATE DIRECTORY
     if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0755, true);
+        $created = mkdir($upload_dir, 0755, true);
+        error_log("Directory created: " . ($created ? 'YES' : 'NO'));
+    } else {
+        error_log("Directory already exists");
     }
+    
+    // CHECK IF DIRECTORY IS WRITABLE
+    error_log("Directory writable: " . (is_writable($upload_dir) ? 'YES' : 'NO'));
     
     $file_ext = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'project_' . time() . '_' . uniqid() . '.' . $file_ext;
     $file_path = $upload_dir . $filename;
     
+    error_log("Final file path: " . $file_path);
+    
+    // TRY TO MOVE FILE
     if (move_uploaded_file($file['tmp_name'], $file_path)) {
-        return ['success' => true, 'file_path' => '/cakrawala-connect/uploads/projects/' . $user_id . '/' . $filename];
+        error_log("SUCCESS: File moved successfully");
+        
+        // VERIFY FILE EXISTS AND HAS SIZE
+        if (file_exists($file_path)) {
+            $file_size = filesize($file_path);
+            error_log("File verified - exists, size: " . $file_size . " bytes");
+            
+            $web_path = '/cakrawala-connect/uploads/projects/' . $user_id . '/' . $filename;
+            error_log("Web path: " . $web_path);
+            error_log("=== FILE UPLOAD DEBUG END - SUCCESS ===");
+            
+            return ['success' => true, 'file_path' => $web_path];
+        } else {
+            error_log("ERROR: File not found after move_uploaded_file");
+            error_log("=== FILE UPLOAD DEBUG END - FAILED ===");
+            return ['success' => false, 'error' => 'File tidak ditemukan setelah upload'];
+        }
     } else {
+        $last_error = error_get_last();
+        error_log("ERROR: move_uploaded_file failed");
+        error_log("Last error: " . print_r($last_error, true));
+        error_log("=== FILE UPLOAD DEBUG END - FAILED ===");
         return ['success' => false, 'error' => 'Gagal mengupload file'];
     }
 }
@@ -211,6 +268,7 @@ function handleCertificateUpload($file, $user_id) {
     }
     
     $upload_dir = $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect/uploads/certificates/' . $user_id . '/';
+    
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0755, true);
     }
