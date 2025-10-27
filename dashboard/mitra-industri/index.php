@@ -207,7 +207,7 @@ function shortenName($full_name, $max_length = 20) {
     return $shortened;
 }
 
-function shortenBio($bio, $max_length = 180) {
+function shortenBio($bio, $max_length = 140) {
     if (empty($bio) || trim($bio) === '') {
         return 'Mahasiswa ini belum menambahkan bio.';
     }
@@ -216,14 +216,17 @@ function shortenBio($bio, $max_length = 180) {
         return $bio;
     }
     
-    if (strlen($bio) <= $max_length) {
-        return $bio;
+    $clean_bio = trim(strip_tags($bio));
+    
+    if (strlen($clean_bio) <= $max_length) {
+        return $clean_bio;
     }
     
-    $shortened = substr($bio, 0, $max_length);
+    $shortened = substr($clean_bio, 0, $max_length);
+    
     $last_space = strrpos($shortened, ' ');
     
-    if ($last_space !== false) {
+    if ($last_space !== false && $last_space > $max_length - 20) {
         $shortened = substr($shortened, 0, $last_space);
     }
     
@@ -511,9 +514,12 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                                 </div>
                             </div>
 
-                            <div class="mb-1">
-                                <p class="text-gray-700 text-sm line-clamp-4 leading-relaxed">
-                                    <?php echo htmlspecialchars($display_bio); ?>
+                            <div class="mb-1 flex-1 min-h-[96px]">
+                                <p class="text-gray-700 text-sm leading-relaxed break-words">
+                                    <?php 
+                                    // Tampilkan bio yang sudah dipotong dengan aman
+                                    echo htmlspecialchars($display_bio, ENT_QUOTES, 'UTF-8');
+                                    ?>
                                 </p>
                             </div>
                         </a>

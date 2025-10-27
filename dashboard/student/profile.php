@@ -668,6 +668,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
+                    <!-- Bio Section -->
+                    <div class="space-y-4">
+                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Tentang Saya</h3>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Bio / Deskripsi Diri</label>
+                            <div class="relative">
+                                <span class="absolute top-3 left-3 text-gray-400">
+                                    <span class="iconify" data-icon="mdi:text" data-width="20"></span>
+                                </span>
+                                <textarea name="bio" rows="5" 
+                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none" 
+                                            placeholder="Ceritakan tentang diri kamu, minat, keterampilan, dan tujuan karir..." 
+                                            maxlength="500"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
+                            </div>
+                            <div class="flex justify-between items-center mt-1">
+                                <p class="text-gray-500 text-xs">Rekomendasi: 150-300 karakter</p>
+                                <p class="text-gray-500 text-xs" id="bioCounter"><?php echo strlen($user['bio'] ?? ''); ?>/500</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Specializations Section dengan Feedback Visual -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Spesialisasi / Bidang Fokus</h3>
@@ -825,27 +846,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Bio Section -->
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Tentang Saya</h3>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Bio / Deskripsi Diri</label>
-                            <div class="relative">
-                                <span class="absolute top-3 left-3 text-gray-400">
-                                    <span class="iconify" data-icon="mdi:text" data-width="20"></span>
-                                </span>
-                                <textarea name="bio" rows="5" 
-                                          class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none" 
-                                          placeholder="Ceritakan tentang diri kamu, minat, keterampilan, dan tujuan karir..." 
-                                          maxlength="500"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
-                            </div>
-                            <div class="flex justify-between items-center mt-1">
-                                <p class="text-gray-500 text-xs">Rekomendasi: 150-300 karakter</p>
-                                <p class="text-gray-500 text-xs" id="bioCounter"><?php echo strlen($user['bio'] ?? ''); ?>/500</p>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
                         <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#2A8FA9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md" id="submitBtn">
@@ -998,7 +998,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </div>
 
 <script>
-// Specializations Management dengan Feedback Visual
 let specializationCount = <?php echo !empty($user['specializations']) ? count(explode(',', $user['specializations'])) : 0; ?>;
 
 function addSpecialization() {
@@ -1009,7 +1008,6 @@ function addSpecialization() {
     
     if (specializationCount >= 3) {
         showError('Maksimal 3 spesialisasi yang dapat dipilih');
-        // Feedback visual untuk max limit
         select.classList.add('border-red-500', 'bg-red-50');
         setTimeout(() => {
             select.classList.remove('border-red-500', 'bg-red-50');
@@ -1017,13 +1015,11 @@ function addSpecialization() {
         return;
     }
     
-    // Check if already exists
     const existingSpecs = Array.from(document.querySelectorAll('.specialization-tag'))
         .map(tag => tag.textContent.replace('×', '').replace('check-circle', '').trim());
     
     if (existingSpecs.includes(specText)) {
         showError('Spesialisasi sudah dipilih');
-        // Feedback visual untuk duplikat
         select.classList.add('border-yellow-500', 'bg-yellow-50');
         setTimeout(() => {
             select.classList.remove('border-yellow-500', 'bg-yellow-50');
@@ -1031,7 +1027,6 @@ function addSpecialization() {
         return;
     }
     
-    // Create tag dengan animasi
     const container = document.getElementById('specializations-container');
     const tag = document.createElement('span');
     tag.className = 'specialization-tag bg-green-500 text-white px-3 py-2 rounded-full text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-200 animate-pulse';
@@ -1045,7 +1040,6 @@ function addSpecialization() {
     
     container.appendChild(tag);
     
-    // Hapus placeholder text jika ada
     const placeholder = container.querySelector('p.text-gray-500');
     if (placeholder) {
         placeholder.remove();
@@ -1053,7 +1047,6 @@ function addSpecialization() {
     
     updateSpecializationsHidden();
     
-    // Reset select dengan feedback
     select.value = '';
     select.classList.add('border-green-500', 'bg-green-50');
     setTimeout(() => {
@@ -1063,7 +1056,6 @@ function addSpecialization() {
     specializationCount++;
     updateSpecCounter();
     
-    // Show success message jika sudah memilih minimal 1
     if (specializationCount >= 1) {
         document.getElementById('specSuccessMessage').classList.remove('hidden');
     }
@@ -1072,7 +1064,6 @@ function addSpecialization() {
 function removeSpecialization(button) {
     const tag = button.parentElement;
     
-    // Animasi sebelum remove
     tag.classList.add('opacity-0', 'scale-95');
     setTimeout(() => {
         tag.remove();
@@ -1080,10 +1071,8 @@ function removeSpecialization(button) {
         updateSpecializationsHidden();
         updateSpecCounter();
         
-        // Hide success message jika tidak ada spesialisasi
         if (specializationCount === 0) {
             document.getElementById('specSuccessMessage').classList.add('hidden');
-            // Tambahkan placeholder kembali
             const container = document.getElementById('specializations-container');
             const placeholder = document.createElement('p');
             placeholder.className = 'text-gray-500 text-sm flex items-center gap-2';
@@ -1107,11 +1096,9 @@ function updateSpecCounter() {
     
     counter.textContent = `${specializationCount}/3`;
     
-    // Update progress bar
     const progressPercentage = (specializationCount / 3) * 100;
     progressBar.style.width = `${progressPercentage}%`;
     
-    // Update progress bar color based on count
     if (specializationCount === 0) {
         progressBar.className = 'bg-gray-400 h-2 rounded-full transition-all duration-500 ease-out';
     } else if (specializationCount === 1) {
@@ -1130,12 +1117,10 @@ function initializeCVDragDrop() {
     const cvDropZone = document.getElementById('cv-drop-zone');
     
     if (cvDropZone) {
-        // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             cvDropZone.addEventListener(eventName, preventDefaults, false);
         });
         
-        // Highlight drop zone when item is dragged over it
         ['dragenter', 'dragover'].forEach(eventName => {
             cvDropZone.addEventListener(eventName, highlightCV, false);
         });
@@ -1144,13 +1129,7 @@ function initializeCVDragDrop() {
             cvDropZone.addEventListener(eventName, unhighlightCV, false);
         });
         
-        // Handle dropped files
         cvDropZone.addEventListener('drop', handleCVDrop, false);
-        
-        // Click to select file
-        cvDropZone.addEventListener('click', function() {
-            cvFileInput.click();
-        });
     }
     
     function preventDefaults(e) {
@@ -1176,32 +1155,27 @@ function initializeCVDragDrop() {
     }
     
     function handleCVFileSelection(file) {
-        // Validate file type
         if (file.type !== 'application/pdf') {
             showError('Hanya file PDF yang diizinkan untuk CV');
             return;
         }
         
-        // Validate file size (2MB)
         if (file.size > 2 * 1024 * 1024) {
             showError('Ukuran file CV maksimal 2MB');
             return;
         }
         
-        // Update file name display
         if (cvFileName) {
             cvFileName.textContent = file.name;
             cvFileName.classList.remove('text-gray-500');
             cvFileName.classList.add('text-[#2A8FA9]');
         }
         
-        // Set file to input
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         cvFileInput.files = dataTransfer.files;
     }
     
-    // CV file input change event
     if (cvFileInput && cvFileName) {
         cvFileInput.addEventListener('change', function(e) {
             if (this.files.length > 0) {
@@ -1218,12 +1192,10 @@ function initializeProfilePictureDragDrop() {
     const dropZone = document.querySelector('.border-dashed');
     
     if (dropZone) {
-        // Prevent default drag behaviors
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
         });
         
-        // Highlight drop zone when item is dragged over it
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, highlight, false);
         });
@@ -1232,13 +1204,7 @@ function initializeProfilePictureDragDrop() {
             dropZone.addEventListener(eventName, unhighlight, false);
         });
         
-        // Handle dropped files
         dropZone.addEventListener('drop', handleDrop, false);
-
-        // Click to select file
-        dropZone.addEventListener('click', function() {
-            profilePictureInput.click();
-        });
     }
     
     function preventDefaults(e) {
@@ -1264,9 +1230,8 @@ function initializeProfilePictureDragDrop() {
     }
     
     function handleFileSelection(file) {
-        // Validate file type and size
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        const maxSize = 2 * 1024 * 1024; // 2MB
+        const maxSize = 2 * 1024 * 1024;
         
         if (!allowedTypes.includes(file.type)) {
             showError('Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan');
@@ -1278,18 +1243,15 @@ function initializeProfilePictureDragDrop() {
             return;
         }
         
-        // Show file name
         if (profilePictureName) {
             profilePictureName.textContent = 'File terpilih: ' + file.name;
             profilePictureName.classList.remove('hidden');
         }
         
-        // Set file to input
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         profilePictureInput.files = dataTransfer.files;
         
-        // Preview image
         const reader = new FileReader();
         reader.onload = function(e) {
             const profileContainer = document.querySelector('.flex-shrink-0 .relative.group');
@@ -1297,7 +1259,6 @@ function initializeProfilePictureDragDrop() {
                 let profilePic = profileContainer.querySelector('img');
                 
                 if (!profilePic) {
-                    // If no img exists (using default icon), replace the icon with image
                     const defaultIcon = profileContainer.querySelector('.bg-gradient-to-br');
                     if (defaultIcon) {
                         profilePic = document.createElement('img');
@@ -1307,7 +1268,6 @@ function initializeProfilePictureDragDrop() {
                         defaultIcon.parentNode.replaceChild(profilePic, defaultIcon);
                     }
                 } else {
-                    // If img exists, just update the src
                     profilePic.src = e.target.result;
                 }
             }

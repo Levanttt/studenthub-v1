@@ -15,7 +15,6 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Get mitra_industri data
 $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
 if ($stmt) {
     $stmt->bind_param("i", $user_id);
@@ -27,7 +26,6 @@ if ($stmt) {
     $error = "Error preparing user query: " . $conn->error;
 }
 
-// Handle profile picture upload (sama seperti student)
 function handleProfilePictureUpload($file, $user_id) {
     $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     $max_size = 2 * 1024 * 1024; 
@@ -58,13 +56,10 @@ function handleProfilePictureUpload($file, $user_id) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Validasi CSRF token
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         $error = "Token keamanan tidak valid";
     } else {
-        // Handle delete account
         if (isset($_POST['delete_account'])) {
-            // Hapus profile picture jika ada
             if (!empty($user['profile_picture'])) {
                 $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
                 if (file_exists($old_picture_path)) {
@@ -72,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
             
-            // Hapus akun
             $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
             if ($stmt) {
                 $stmt->bind_param("i", $user_id);
@@ -89,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $error = "Error preparing delete query: " . $conn->error;
             }
         } else {
-            // Handle update profile
             $name = sanitize($_POST['name']);
             $company = sanitize($_POST['company'] ?? '');
             $position = sanitize($_POST['position'] ?? '');
@@ -97,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $linkedin = sanitize($_POST['linkedin'] ?? '');
             $phone = sanitize($_POST['phone'] ?? '');
 
-            // Validasi
             if (empty($name)) {
                 $error = "Nama lengkap wajib diisi";
             } elseif (strlen($name) > 100) {
@@ -105,7 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             if (empty($error)) {
-                // Validasi URL LinkedIn
                 if (!empty($linkedin)) {
                     if (!filter_var($linkedin, FILTER_VALIDATE_URL)) {
                         $error = "URL LinkedIn tidak valid";
@@ -116,25 +107,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
 
-                // Validasi bio
                 if (strlen($bio) > 500) {
                     $error = "Bio terlalu panjang (maksimal 500 karakter)";
                 }
 
-                // Validasi phone
                 if (!empty($phone) && !preg_match('/^[0-9+\-\s()]{10,20}$/', $phone)) {
                     $error = "Format nomor telepon tidak valid";
                 }
             }
 
             if (empty($error)) {
-                // Handle profile picture upload
                 $profile_picture_path = $user['profile_picture'] ?? '';
                 
                 if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
                     $upload_result = handleProfilePictureUpload($_FILES['profile_picture'], $user_id);
                     if ($upload_result['success']) {
-                        // Delete old profile picture if exists
                         if (!empty($user['profile_picture'])) {
                             $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
                             if (file_exists($old_picture_path)) {
@@ -147,7 +134,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
 
-                // Handle remove profile picture
                 if (isset($_POST['remove_profile_picture'])) {
                     if (!empty($user['profile_picture'])) {
                         $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
@@ -159,7 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
 
                 if (empty($error)) {
-                    // Update query untuk mitra_industri
                     $stmt = $conn->prepare("UPDATE users SET name = ?, company_name = ?, position = ?, bio = ?, linkedin = ?, phone = ?, profile_picture = ? WHERE id = ?");
                     if ($stmt) {
                         $stmt->bind_param("sssssssi", $name, $company, $position, $bio, $linkedin, $phone, $profile_picture_path, $user_id);
@@ -168,10 +153,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $_SESSION['name'] = $name;
                             $_SESSION['profile_picture'] = $profile_picture_path;
                             $success = "Profil berhasil diperbarui!";
-                            // Generate new CSRF token
                             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
                             
-                            // Refresh user data
                             $refresh_stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
                             if ($refresh_stmt) {
                                 $refresh_stmt->bind_param("i", $user_id);
@@ -542,10 +525,6 @@ function initializeProfilePictureDragDrop() {
         });
         
         dropZone.addEventListener('drop', handleDrop, false);
-
-        dropZone.addEventListener('click', function() {
-            profilePictureInput.click();
-        });
     }
     
     function preventDefaults(e) {
@@ -572,7 +551,7 @@ function initializeProfilePictureDragDrop() {
     
     function handleFileSelection(file) {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        const maxSize = 2 * 1024 * 1024; 
+        const maxSize = 2 * 1024 * 1024;
         
         if (!allowedTypes.includes(file.type)) {
             showError('Hanya file gambar (JPG, PNG, GIF, WebP) yang diizinkan');
@@ -605,7 +584,7 @@ function initializeProfilePictureDragDrop() {
                         profilePic = document.createElement('img');
                         profilePic.src = e.target.result;
                         profilePic.alt = 'Profile Picture';
-                        profilePic.className = 'w-36 h-36 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg';
+                        profilePic.className = 'w-32 h-32 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg';
                         defaultIcon.parentNode.replaceChild(profilePic, defaultIcon);
                     }
                 } else {

@@ -323,7 +323,7 @@ if ($stats_result) {
             <!-- Action Buttons -->
             <div class="flex justify-end space-x-4 pt-4">
                 <button type="submit" class="bg-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 shadow-sm flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:filter-apply" data-width="20"></span>
+                    <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
                     Terapkan Filter
                 </button>
                 <a href="students.php" class="bg-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center gap-2">
@@ -360,74 +360,82 @@ if ($stats_result) {
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Program Studi</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Semester</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">Profil</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-44">Status</th>
                     </tr>
                 </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php if (count($students) > 0): ?>
-                            <?php foreach ($students as $index => $student): ?>
-                                <tr class="hover:bg-gray-50 transition-colors duration-200" data-student-id="<?php echo $student['id']; ?>">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-left pl-5">
-                                        <?php echo $offset + $index + 1; ?>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <?php echo htmlspecialchars($student['nim'] ?? '-'); ?>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                                        <?php echo htmlspecialchars($student['name']); ?>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                                        <?php echo htmlspecialchars($student['email']); ?>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                                        <?php echo htmlspecialchars($student['major'] ?? '-'); ?>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-center">
-                                        <?php echo htmlspecialchars($student['semester'] ?? '-'); ?>
-                                    </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <?php
-                                        $current_status = $student['eligibility_status'] ?? 'pending';
-                                        $statusConfig = getEligibilityBadge($current_status);
-                                        ?>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <?php if (count($students) > 0): ?>
+                        <?php foreach ($students as $index => $student): ?>
+                            <tr class="hover:bg-gray-50 transition-colors duration-200" data-student-id="<?php echo $student['id']; ?>">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-left pl-5">
+                                    <?php echo $offset + $index + 1; ?>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <?php echo htmlspecialchars($student['nim'] ?? '-'); ?>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                    <?php echo htmlspecialchars($student['name']); ?>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                                    <?php echo htmlspecialchars($student['email']); ?>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                                    <?php echo htmlspecialchars($student['major'] ?? '-'); ?>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-center">
+                                    <?php echo htmlspecialchars($student['semester'] ?? '-'); ?>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <a href="student-profile.php?id=<?php echo $student['id']; ?>" 
+                                            class="bg-[#E0F7FF] text-[#2A8FA9] px-4 py-2 rounded-lg text-xs font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2 w-full justify-center">
+                                        <span class="iconify" data-icon="mdi:eye" data-width="14"></span>
+                                        Lihat Profil
+                                    </a>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <?php
+                                    $current_status = $student['eligibility_status'] ?? 'pending';
+                                    $statusConfig = getEligibilityBadge($current_status);
+                                    ?>
+                                    
+                                    <div class="relative" id="status-container-<?php echo $student['id']; ?>">
+                                        <!-- Icon indicator -->
+                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none z-10 status-icon">
+                                            <span class="iconify <?php echo $statusConfig['iconColor']; ?>" 
+                                                data-icon="<?php echo $statusConfig['icon']; ?>" 
+                                                data-width="14"></span>
+                                        </span>
                                         
-                                        <div class="relative" id="status-container-<?php echo $student['id']; ?>">
-                                            <!-- Icon indicator -->
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none z-10 status-icon">
-                                                <span class="iconify <?php echo $statusConfig['iconColor']; ?>" 
-                                                    data-icon="<?php echo $statusConfig['icon']; ?>" 
-                                                    data-width="14"></span>
-                                            </span>
-                                            
-                                            <!-- Native Select dengan styling -->
-                                            <select onchange="updateEligibilityStatus(<?php echo $student['id']; ?>, this.value, this)" 
-                                                    class="status-select bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-8 pr-8 py-2 rounded-lg text-xs font-semibold w-full appearance-none cursor-pointer transition-colors duration-300 flex items-center gap-2"
-                                                    data-current-status="<?php echo $current_status; ?>">
-                                                <option value="pending" <?php echo $current_status == 'pending' ? 'selected' : ''; ?>>PENDING</option>
-                                                <option value="eligible" <?php echo $current_status == 'eligible' ? 'selected' : ''; ?>>ELIGIBLE</option>
-                                                <option value="not_eligible" <?php echo $current_status == 'not_eligible' ? 'selected' : ''; ?>>NOT ELIGIBLE</option>
-                                            </select>
-                                            
-                                            <!-- Chevron icon -->
-                                            <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:chevron-down" data-width="14"></span>
-                                            </span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="7" class="px-6 py-12 text-center">
-                                    <div class="text-gray-500 flex flex-col items-center">
-                                        <span class="iconify text-gray-400 mb-3" data-icon="mdi:account-search" data-width="48"></span>
-                                        <p class="text-lg font-medium text-gray-900 mb-2">Tidak ada data mahasiswa</p>
-                                        <p class="text-gray-600">Coba ubah filter pencarian Anda.</p>
+                                        <!-- Native Select dengan styling -->
+                                        <select onchange="updateEligibilityStatus(<?php echo $student['id']; ?>, this.value, this)" 
+                                                class="status-select bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-8 pr-8 py-2 rounded-lg text-xs font-semibold w-full appearance-none cursor-pointer transition-colors duration-300 flex items-center gap-2"
+                                                data-current-status="<?php echo $current_status; ?>">
+                                            <option value="pending" <?php echo $current_status == 'pending' ? 'selected' : ''; ?>>PENDING</option>
+                                            <option value="eligible" <?php echo $current_status == 'eligible' ? 'selected' : ''; ?>>ELIGIBLE</option>
+                                            <option value="not_eligible" <?php echo $current_status == 'not_eligible' ? 'selected' : ''; ?>>NOT ELIGIBLE</option>
+                                        </select>
+                                        
+                                        <!-- Chevron icon -->
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                                            <span class="iconify text-[#2A8FA9]" data-icon="mdi:chevron-down" data-width="14"></span>
+                                        </span>
                                     </div>
                                 </td>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="8" class="px-6 py-12 text-center">
+                                <div class="text-gray-500 flex flex-col items-center">
+                                    <span class="iconify text-gray-400 mb-3" data-icon="mdi:account-search" data-width="48"></span>
+                                    <p class="text-lg font-medium text-gray-900 mb-2">Tidak ada data mahasiswa</p>
+                                    <p class="text-gray-600">Coba ubah filter pencarian Anda.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
             </table>
         </div>
 
@@ -539,6 +547,82 @@ th:nth-child(7), td:nth-child(7) { width: 176px; }
     color: #1f2937;
     padding: 8px;
 }
+
+.student-profile-modal {
+    background: white;
+    border-radius: 1rem;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #E0F7FF 0%, #B8E6F5 100%);
+    padding: 1.5rem;
+    border-bottom: 1px solid #51A3B9;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.skill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0.125rem;
+}
+
+.skill-technical {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+    border: 1px solid #BFDBFE;
+}
+
+.skill-soft {
+    background-color: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #A7F3D0;
+}
+
+.skill-tool {
+    background-color: #EDE9FE;
+    color: #5B21B6;
+    border: 1px solid #DDD6FE;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.stat-card {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2A8FA9;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #64748B;
+    margin-top: 0.25rem;
+}
 </style>
 
 <script>
@@ -645,6 +729,69 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Admin dashboard loaded');
     console.log('📋 Status config:', STATUS_CONFIG);
+});
+
+// Function to open student profile modal
+function openStudentProfileModal(studentId) {
+    // Show loading
+    document.getElementById('studentModalContent').innerHTML = `
+        <div class="flex items-center justify-center p-12">
+            <div class="text-center">
+                <span class="iconify text-[#2A8FA9] animate-spin" data-icon="mdi:loading" data-width="32"></span>
+                <p class="text-gray-600 mt-2">Memuat profil mahasiswa...</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('studentProfileModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Load student profile via AJAX
+    fetch(`student-profile-modal.php?id=${studentId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('studentModalContent').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading student profile:', error);
+            document.getElementById('studentModalContent').innerHTML = `
+                <div class="flex items-center justify-center p-12">
+                    <div class="text-center">
+                        <span class="iconify text-red-400" data-icon="mdi:alert-circle" data-width="48"></span>
+                        <p class="text-gray-600 mt-2">Gagal memuat profil mahasiswa.</p>
+                        <button onclick="closeStudentProfileModal()" 
+                                class="mt-4 bg-[#2A8FA9] text-white px-4 py-2 rounded-lg hover:bg-[#51A3B9] transition-colors">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+}
+
+// Function to close student profile modal
+function closeStudentProfileModal() {
+    document.getElementById('studentProfileModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeStudentProfileModal();
+    }
+});
+
+// Close modal when clicking outside
+document.getElementById('studentProfileModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeStudentProfileModal();
+    }
 });
 </script>
 

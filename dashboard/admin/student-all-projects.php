@@ -1,14 +1,17 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include '../../includes/config.php';
 include '../../includes/functions.php';
 
-if (!isLoggedIn() || getUserRole() != 'mitra_industri') {
+if (!isLoggedIn() || getUserRole() != 'admin') {
     header("Location: ../../login.php");
     exit();
 }
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: index.php");
+    header("Location: students.php");
     exit();
 }
 
@@ -25,20 +28,18 @@ try {
     $stmt->close();
     
     if (!$student) {
-        header("Location: index.php?error=student_not_found");
+        header("Location: students.php?error=student_not_found");
         exit();
     }
 } catch (Exception $e) {
-    header("Location: index.php?error=database_error");
+    header("Location: students.php?error=database_error");
     exit();
 }
 
-// Pagination configuration
 $projects_per_page = 6;
 $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $offset = ($current_page - 1) * $projects_per_page;
 
-// Get total projects count
 $total_projects = 0;
 try {
     $count_query = "SELECT COUNT(*) as total FROM projects WHERE student_id = ?";
@@ -52,7 +53,6 @@ try {
     error_log("Error counting projects: " . $e->getMessage());
 }
 
-// Calculate total pages
 $total_pages = ceil($total_projects / $projects_per_page);
 
 $projects = [];
@@ -166,15 +166,10 @@ unset($project);
                 </p>
             </div>
             <div class="flex flex-col sm:flex-row gap-3">
-                <a href="index.php" 
-                class="bg-gray-100 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:home" data-width="18"></span>
-                    Kembali Ke Pencarian
-                </a>
-                <a href="student-profile.php?id=<?php echo $student_id; ?>" 
+                <a href="students.php" 
                 class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                    Kembali ke Profil
+                    Kembali Ke Profile
                 </a>
             </div>
         </div>
@@ -203,17 +198,17 @@ unset($project);
                 </div>
                 <h3 class="text-2xl font-bold text-[#2A8FA9] mb-3">Belum Ada Project</h3>
                 <p class="text-gray-600 mb-2">Mahasiswa ini belum menambahkan project ke portofolio mereka.</p>
-                <p class="text-gray-500 text-sm mb-8">Silakan kembali untuk melihat talenta lainnya</p>
+                <p class="text-gray-500 text-sm mb-8">Silakan kembali untuk melihat mahasiswa lainnya</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="student-profile.php?id=<?php echo $student_id; ?>" 
                         class="bg-[#2A8FA9] text-white px-8 py-4 rounded-xl font-bold hover:bg-[#409BB2] transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
                         <span class="iconify" data-icon="mdi:account-circle" data-width="20"></span>
                         Kembali ke Profil
                     </a>
-                    <a href="index.php" 
+                    <a href="students.php" 
                         class="bg-gray-100 text-gray-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2">
-                        <span class="iconify" data-icon="mdi:search" data-width="20"></span>
-                        Cari Talenta Lain
+                        <span class="iconify" data-icon="mdi:account-multiple" data-width="20"></span>
+                        Lihat Mahasiswa Lain
                     </a>
                 </div>
             </div>
@@ -277,7 +272,7 @@ unset($project);
                         ];
 
                         $enum_category = $project['category']; 
-                        $category_name = $category_mapping[$enum_category] ?? formatText($enum_category);
+                        $category_name = $category_mapping[$enum_category] ?? $enum_category;
                         ?>
                         <span class="bg-white/90 text-[#2A8FA9] px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
                             <?php echo htmlspecialchars($category_name); ?>
@@ -297,28 +292,11 @@ unset($project);
                         </div>
                         
                         <!-- Skills Tags -->
-                        <?php 
-                        $skills_stmt = $conn->prepare("
-                            SELECT s.name, s.skill_type 
-                            FROM skills s 
-                            JOIN project_skills ps ON s.id = ps.skill_id 
-                            WHERE ps.project_id = ?
-                        ");
-                        $skills_stmt->bind_param("i", $project['id']);
-                        $skills_stmt->execute();
-                        $skills_result = $skills_stmt->get_result();
-                        $all_skills = [];
-                        while ($skill = $skills_result->fetch_assoc()) {
-                            $all_skills[] = $skill;
-                        }
-                        $skills_stmt->close();
-
-                        if (!empty($all_skills)): 
-                        ?>
+                        <?php if (!empty($project['skills_detail'])): ?>
                         <div class="flex flex-wrap gap-1 mb-3">
                             <?php 
-                            $displaySkills = array_slice($all_skills, 0, 5);
-                            $totalSkills = count($all_skills);
+                            $displaySkills = array_slice($project['skills_detail'], 0, 5);
+                            $totalSkills = count($project['skills_detail']);
                             $remaining = $totalSkills - 5;
                             
                             foreach($displaySkills as $skill): 
@@ -356,8 +334,6 @@ unset($project);
                                 <?php echo date('M Y', strtotime($project['created_at'])); ?>
                             </span>
                         </div>
-                        
-                        
                     </div>
                 </a>
                 
@@ -384,7 +360,7 @@ unset($project);
                             <a href="<?php echo htmlspecialchars($project['demo_url']); ?>" 
                             target="_blank"
                             class="hover:text-[#2A8FA9] transition-colors p-2 bg-white rounded-lg border border-gray-200 shadow-sm"
-                            title="Link Terkait">
+                            title="Live Demo">
                                 <span class="iconify" data-icon="mdi:web" data-width="16"></span>
                             </a>
                             <?php endif; ?>
@@ -430,102 +406,44 @@ unset($project);
     <?php endif; ?>
 </div>
 
-<!-- Project Detail Modal -->
-<div id="projectModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        <div class="relative">
-            <!-- Close Button -->
-            <button onclick="closeProjectModal()" 
-                    class="absolute top-4 right-4 z-10 bg-white/90 text-gray-600 hover:text-gray-800 p-2 rounded-full transition-colors">
-                <span class="iconify" data-icon="mdi:close" data-width="24"></span>
-            </button>
-            
-            <!-- Modal Content will be loaded here -->
-            <div id="modalContent" class="overflow-y-auto max-h-[90vh]">
-                <!-- Content will be loaded via AJAX -->
-            </div>
-        </div>
+<!-- Image Modal -->
+<div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+    <div class="relative max-w-4xl max-h-full">
+        <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
+            <span class="iconify" data-icon="mdi:close" data-width="32"></span>
+        </button>
+        <img id="modalImage" src="" alt="Project Image" class="max-w-full max-h-full object-contain">
     </div>
 </div>
 
 <script>
-// Function to open project detail modal
-function openProjectModal(projectId) {
-    // Show loading
-    document.getElementById('modalContent').innerHTML = `
-        <div class="flex items-center justify-center p-12">
-            <div class="text-center">
-                <span class="iconify text-gray-400 animate-spin" data-icon="mdi:loading" data-width="32"></span>
-                <p class="text-gray-600 mt-2">Memuat detail project...</p>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('projectModal').classList.remove('hidden');
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    modalImage.src = imageSrc;
+    modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    
-    // Load project details via AJAX
-    fetch(`project-detail-ajax.php?id=${projectId}&student_id=<?php echo $student_id; ?>`)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('modalContent').innerHTML = html;
-        })
-        .catch(error => {
-            document.getElementById('modalContent').innerHTML = `
-                <div class="flex items-center justify-center p-12">
-                    <div class="text-center">
-                        <span class="iconify text-red-400" data-icon="mdi:alert-circle" data-width="48"></span>
-                        <p class="text-gray-600 mt-2">Gagal memuat detail project.</p>
-                    </div>
-                </div>
-            `;
-        });
 }
 
-// Function to close project detail modal
-function closeProjectModal() {
-    document.getElementById('projectModal').classList.add('hidden');
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.add('hidden');
     document.body.style.overflow = 'auto';
 }
 
 // Close modal on ESC key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closeProjectModal();
+        closeImageModal();
     }
 });
 
 // Close modal when clicking outside
-document.getElementById('projectModal').addEventListener('click', function(e) {
+document.getElementById('imageModal').addEventListener('click', function(e) {
     if (e.target === this) {
-        closeProjectModal();
+        closeImageModal();
     }
 });
-
-// Image modal functions (reuse from student-profile.php)
-function openImageModal(imageSrc) {
-    const modal = document.createElement('div');
-    modal.id = 'imageModal';
-    modal.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4';
-    modal.innerHTML = `
-        <div class="relative max-w-4xl max-h-full">
-            <button onclick="closeImageModal()" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
-                <span class="iconify" data-icon="mdi:close" data-width="32"></span>
-            </button>
-            <img src="${imageSrc}" alt="Project Image" class="max-w-full max-h-full object-contain">
-        </div>
-    `;
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-}
-
-function closeImageModal() {
-    const modal = document.getElementById('imageModal');
-    if (modal) {
-        modal.remove();
-    }
-    document.body.style.overflow = 'auto';
-}
 </script>
 
 <?php include '../../includes/footer.php'; ?>
