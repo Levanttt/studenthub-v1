@@ -1,5 +1,4 @@
 <?php
-// ✅ FUNCTION UTAMA
 function sanitize($data) {
     global $conn;
     return mysqli_real_escape_string($conn, trim(htmlspecialchars(strip_tags($data), ENT_QUOTES, 'UTF-8')));
@@ -13,7 +12,6 @@ function getUserRole() {
     return $_SESSION['role'] ?? null;
 }
 
-// ✅ FUNCTION FORMATTING
 function formatText($text) {
     if (empty($text)) return $text;
     return ucfirst(strtolower(trim($text)));
@@ -68,7 +66,6 @@ function getEligibilityBadge($status) {
     return $config;
 }
 
-// ✅ FUNCTION PROFILE VIEWS
 function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other') {
     global $conn;
     
@@ -133,7 +130,6 @@ function getProfileViewsCount($student_id) {
     return $result->fetch_assoc()['total_views'];
 }
 
-// ✅ FUNCTION TIME ELAPSED
 function time_elapsed_string($datetime, $full = false) {
     $now = new DateTime;
     $ago = new DateTime($datetime);

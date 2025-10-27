@@ -77,8 +77,8 @@ $dashboard_url = $is_logged_in ? "/cakrawala-connect/dashboard/{$folder_name}/in
             <a href="<?php echo $dashboard_url; ?>"
                 class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" 
-                     alt="Logo Universitas Cakrawala"
-                     class="h-6">
+                    alt="Logo Universitas Cakrawala"
+                    class="h-6">
                 <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline-block">
                     Cakrawala Connect
                 </span>
@@ -91,8 +91,8 @@ $dashboard_url = $is_logged_in ? "/cakrawala-connect/dashboard/{$folder_name}/in
                         <button id="profile-toggle" class="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors">
                             <?php if(!empty($profile_picture)): ?>
                                 <img src="<?php echo htmlspecialchars($profile_picture); ?>"
-                                     alt="Profile"
-                                     class="w-8 h-8 rounded-full object-cover border-2 border-cakrawala-primary shadow-sm">
+                                    alt="Profile"
+                                    class="w-8 h-8 rounded-full object-cover border-2 border-cakrawala-primary shadow-sm">
                             <?php else: ?>
                                 <div class="w-8 h-8 rounded-full bg-cakrawala-primary flex items-center justify-center shadow-sm">
                                     <span class="iconify text-white" data-icon="mdi:account" data-width="18"></span>
@@ -126,12 +126,12 @@ $dashboard_url = $is_logged_in ? "/cakrawala-connect/dashboard/{$folder_name}/in
                 <?php else: ?>
                     <div class="flex items-center space-x-3">
                         <a href="/cakrawala-connect/register.php" 
-                           class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
+                            class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
                             <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
                             Daftar
                         </a>
                         <a href="/cakrawala-connect/login.php" 
-                           class="bg-cakrawala-primary text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
+                            class="bg-cakrawala-primary text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
                             <span class="iconify" data-icon="mdi:login" data-width="16"></span>
                             Login
                         </a>
@@ -293,7 +293,7 @@ $dashboard_url = $is_logged_in ? "/cakrawala-connect/dashboard/{$folder_name}/in
         </div>
     </main>
 
-   <!-- Footer Manual -->
+    <!-- Footer -->
     <footer class="bg-[#E0F2F7] border-t border-[#ABD0D8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"> 
             <div class="flex flex-col md:flex-row justify-between items-start gap-6"> 

@@ -36,9 +36,7 @@ $semesterOptions = [
     '5' => 'Semester 5',
     '6' => 'Semester 6',
     '7' => 'Semester 7',
-    '8' => 'Semester 8',
-    'fresh_graduate' => 'Fresh Graduate',
-    'graduated' => 'Sudah Lulus'
+    '8' => 'Semester 8'
 ];
 
 function handleProfilePictureUpload($file, $user_id) {

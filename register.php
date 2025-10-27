@@ -130,9 +130,7 @@ $semesterOptions = [
     '5' => 'Semester 5',
     '6' => 'Semester 6',
     '7' => 'Semester 7',
-    '8' => 'Semester 8',
-    'fresh_graduate' => 'Fresh Graduate',
-    'graduated' => 'Sudah Lulus'
+    '8' => 'Semester 8'
 ];
 ?>
 <!DOCTYPE html>
@@ -232,8 +230,8 @@ $semesterOptions = [
                                         <span class="iconify" data-icon="mdi:account" data-width="18"></span>
                                     </span>
                                     <input type="text" name="name" value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>"
-                                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                           placeholder="Masukkan nama lengkap" required>
+                                            class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                            placeholder="Masukkan nama lengkap" required>
                                 </div>
                             </div>
                             <div>
@@ -243,8 +241,8 @@ $semesterOptions = [
                                         <span class="iconify" data-icon="mdi:email" data-width="18"></span>
                                     </span>
                                     <input type="email" name="email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
-                                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                           placeholder="Masukkan email" required>
+                                            class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                            placeholder="Masukkan email" required>
                                 </div>
                             </div>
                         </div>
@@ -256,11 +254,11 @@ $semesterOptions = [
                                     <span class="iconify" data-icon="mdi:phone" data-width="18"></span>
                                 </span>
                                 <input type="tel" name="phone" value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>"
-                                       class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                       placeholder="Contoh: 081234567890" 
-                                       pattern="^[0-9+\-\s()]{10,20}$"
-                                       title="Format: +62xxx atau 08xxx"
-                                       maxlength="20" required>
+                                        class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                        placeholder="Contoh: 081234567890" 
+                                        pattern="^[0-9+\-\s()]{10,20}$"
+                                        title="Format: +62xxx atau 08xxx"
+                                        maxlength="20" required>
                             </div>
                         </div>
 
@@ -289,7 +287,6 @@ $semesterOptions = [
                                     Informasi Akademik
                                 </h3>
                                 <div class="space-y-4">
-                                    <!-- Tambahkan field NIM di sini -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">
                                             NIM (Nomor Induk Mahasiswa) <span class="text-red-500">*</span>
@@ -392,9 +389,9 @@ $semesterOptions = [
                                                 <span class="iconify" data-icon="mdi:office-building" data-width="18"></span>
                                             </span>
                                             <input type="text" name="company_name"
-                                                   value="<?php echo isset($_POST['company_name']) ? htmlspecialchars($_POST['company_name']) : ''; ?>"
-                                                   class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                                   placeholder="Nama perusahaan/organisasi Anda">
+                                                    value="<?php echo isset($_POST['company_name']) ? htmlspecialchars($_POST['company_name']) : ''; ?>"
+                                                    class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                                    placeholder="Nama perusahaan/organisasi Anda">
                                         </div>
                                     </div>
                                     <div>
@@ -406,9 +403,9 @@ $semesterOptions = [
                                                 <span class="iconify" data-icon="mdi:badge-account" data-width="18"></span>
                                             </span>
                                             <input type="text" name="position"
-                                                   value="<?php echo isset($_POST['position']) ? htmlspecialchars($_POST['position']) : ''; ?>"
-                                                   class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                                   placeholder="Contoh: HR Manager, Tech Lead">
+                                                    value="<?php echo isset($_POST['position']) ? htmlspecialchars($_POST['position']) : ''; ?>"
+                                                    class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                                    placeholder="Contoh: HR Manager, Tech Lead">
                                         </div>
                                     </div>
                                     <div>
@@ -420,9 +417,9 @@ $semesterOptions = [
                                                 <span class="iconify" data-icon="mdi:web" data-width="18"></span>
                                             </span>
                                             <input type="url" name="company_website"
-                                                   value="<?php echo isset($_POST['company_website']) ? htmlspecialchars($_POST['company_website']) : ''; ?>"
-                                                   class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                                   placeholder="https://perusahaananda.com">
+                                                    value="<?php echo isset($_POST['company_website']) ? htmlspecialchars($_POST['company_website']) : ''; ?>"
+                                                    class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                                    placeholder="https://perusahaananda.com">
                                         </div>
                                     </div>
                                 </div>
@@ -437,8 +434,8 @@ $semesterOptions = [
                                         <span class="iconify" data-icon="mdi:lock" data-width="18"></span>
                                     </span>
                                     <input type="password" name="password"
-                                           class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                           placeholder="Minimal 6 karakter" required>
+                                            class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                            placeholder="Minimal 6 karakter" required>
                                 </div>
                             </div>
                             <div>

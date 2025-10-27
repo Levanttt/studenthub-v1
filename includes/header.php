@@ -100,7 +100,6 @@
 
                         <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                             <?php if($current_role !== 'admin'): ?>
-                                <!-- Profile link hanya untuk student dan mitra -->
                                 <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/profile.php"
                                     class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                                     <span class="iconify" data-icon="mdi:account-cog" data-width="16"></span>
@@ -108,7 +107,6 @@
                                 </a>
                                 <hr class="my-1">
                             <?php else: ?>
-                                <!-- Untuk admin, tampilkan info role saja -->
                                 <div class="px-3 py-2 text-xs text-gray-500 border-b">
                                     <p class="font-medium"><?php echo htmlspecialchars($_SESSION['name'] ?? 'Admin'); ?></p>
                                     <p>Role: Administrator</p>

@@ -2,7 +2,6 @@
 include 'includes/config.php';
 include 'includes/functions.php';
 
-// Redirect jika sudah login
 if (isLoggedIn()) {
     $role = getUserRole();
     $role_folder_map = [
@@ -117,7 +116,6 @@ if (isLoggedIn()) {
         transform: translateY(0);
     }
     
-    /* Particle Container */
     .particle-container {
         position: absolute;
         width: 100%;
@@ -132,7 +130,6 @@ if (isLoggedIn()) {
         pointer-events: none;
     }
     
-    /* Animated shapes */
     .shape {
         position: absolute;
         opacity: 0.1;
@@ -156,7 +153,6 @@ if (isLoggedIn()) {
         border-bottom: 50px solid rgba(255, 255, 255, 0.2);
     }
     
-    /* Decorative pattern */
     .pattern-dots {
         background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
         background-size: 20px 20px;
@@ -173,16 +169,9 @@ if (isLoggedIn()) {
 
 <!-- Hero Section with Particles -->
 <section class="relative bg-gradient-to-br from-[#2A8FA9] via-[#409BB2] to-[#2A8FA9] text-white py-20 overflow-hidden">
-    <!-- Particle Container -->
     <div class="particle-container" id="particles"></div>
-    
-    <!-- Mesh Gradient Overlay -->
     <div class="absolute inset-0 mesh-gradient"></div>
-    
-    <!-- Pattern Overlay -->
     <div class="absolute inset-0 pattern-dots"></div>
-    
-    <!-- Animated Shapes -->
     <div class="shape shape-circle w-32 h-32 top-20 left-10 animate-float" style="animation-duration: 6s;"></div>
     <div class="shape shape-square w-24 h-24 top-40 right-20 animate-float" style="animation-duration: 8s; animation-delay: 1s;"></div>
     <div class="shape shape-circle w-40 h-40 bottom-20 left-1/4 animate-float" style="animation-duration: 7s; animation-delay: 2s;"></div>
@@ -200,12 +189,12 @@ if (isLoggedIn()) {
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
                     <a href="/cakrawala-connect/register.php" 
-                       class="group bg-[#F9A825] hover:bg-[#F57F17] text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-center relative overflow-hidden">
+                        class="group bg-[#F9A825] hover:bg-[#F57F17] text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-center relative overflow-hidden">
                         <span class="relative z-10">Daftar Sekarang</span>
                         <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
                     </a>
                     <a href="/cakrawala-connect/login.php" 
-                       class="group bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 border border-white/30 text-center">
+                        class="group bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 border border-white/30 text-center">
                         <span class="relative z-10">Login</span>
                     </a>
                 </div>
@@ -219,7 +208,7 @@ if (isLoggedIn()) {
                             <!-- Students Side -->
                             <div class="absolute left-0 top-1/2 transform -translate-y-1/2">
                                 <div class="relative">
-                                    <!-- Student utama - TANPA animasi pulse -->
+                                    <!-- Student utama -->
                                     <div class="w-20 h-20 bg-[#F9A825] rounded-full flex items-center justify-center shadow-lg">
                                         <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
@@ -227,7 +216,7 @@ if (isLoggedIn()) {
                                     </div>
                                     <div class="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full border-2 border-white"></div>
                                 </div>
-                                <!-- Multiple students indicators - MASIH ada animasi -->
+                                <!-- Multiple students indicators -->
                                 <div class="absolute -bottom-3 -left-3 w-12 h-12 bg-[#F9A825]/70 rounded-full flex items-center justify-center animate-pulse" style="animation-delay: 0.5s;">
                                     <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
@@ -448,7 +437,7 @@ if (isLoggedIn()) {
                     </div>
                 </div>
                 <a href="/cakrawala-connect/register.php" 
-                   class="inline-flex items-center gap-2 bg-gradient-to-r from-[#2A8FA9] to-[#409BB2] hover:from-[#409BB2] hover:to-[#2A8FA9] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    class="inline-flex items-center gap-2 bg-gradient-to-r from-[#2A8FA9] to-[#409BB2] hover:from-[#409BB2] hover:to-[#2A8FA9] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
                     Mulai Bangun Portofolio
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -506,7 +495,7 @@ if (isLoggedIn()) {
                     </div>
                 </div>
                 <a href="/cakrawala-connect/register.php" 
-                   class="inline-flex items-center gap-2 bg-gradient-to-r from-[#F9A825] to-[#F57F17] hover:from-[#F57F17] hover:to-[#F9A825] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    class="inline-flex items-center gap-2 bg-gradient-to-r from-[#F9A825] to-[#F57F17] hover:from-[#F57F17] hover:to-[#F9A825] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
                     Daftar Sebagai Mitra Industri
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -629,7 +618,7 @@ if (isLoggedIn()) {
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style="animation-delay: 0.6s;">
                 <a href="/cakrawala-connect/register.php" 
-                   class="group inline-flex items-center justify-center gap-2 bg-[#F9A825] hover:bg-[#F57F17] text-white font-bold py-3 px-10 rounded-lg text-base transition-all duration-300 transform hover:scale-105 shadow-2xl relative overflow-hidden">
+                    class="group inline-flex items-center justify-center gap-2 bg-[#F9A825] hover:bg-[#F57F17] text-white font-bold py-3 px-10 rounded-lg text-base transition-all duration-300 transform hover:scale-105 shadow-2xl relative overflow-hidden">
                     <span class="relative z-10">Daftar Gratis Sekarang</span>
                     <svg class="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -637,7 +626,7 @@ if (isLoggedIn()) {
                     <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transform -skew-x-12 group-hover:translate-x-full transition-all duration-700"></div>
                 </a>
                 <a href="/cakrawala-connect/login.php" 
-                   class="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-bold py-3 px-10 rounded-lg text-base transition-all duration-300 border-2 border-white/30">
+                    class="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-bold py-3 px-10 rounded-lg text-base transition-all duration-300 border-2 border-white/30">
                     Sudah Punya Akun? Login
                 </a>
             </div>
@@ -666,7 +655,7 @@ if (isLoggedIn()) {
         </div>
     </div>
 </section>
-<!-- Footer Manual -->
+<!-- Footer -->
     <footer class="bg-[#E0F2F7] border-t border-[#ABD0D8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"> 
             <div class="flex flex-col md:flex-row justify-between items-start gap-6"> 
@@ -751,7 +740,6 @@ if (isLoggedIn()) {
 
 <!-- Scripts -->
 <script>
-// Create particles
 function createParticles() {
     const container = document.getElementById('particles');
     if (!container) return;
@@ -778,10 +766,8 @@ function createParticles() {
     }
 }
 
-// Initialize particles on load
 window.addEventListener('load', createParticles);
 
-// Scroll reveal animation
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -799,7 +785,6 @@ document.querySelectorAll('.scroll-reveal').forEach(el => {
     observer.observe(el);
 });
 
-// Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();

@@ -27,6 +27,7 @@ CREATE TABLE users (
     semester INT,
     phone_number VARCHAR(20),
     eligibility_status VARCHAR(20) DEFAULT 'pending'
+    verification_status ENUM('verified','unverified','pending') DEFAULT 'pending'
 );
 
 -- Table: projects
@@ -181,7 +182,7 @@ INSERT INTO skills (name, skill_type) VALUES
 ('Android Studio', 'tool'), ('Postman', 'tool'), ('Docker', 'tool'), ('Kubernetes', 'tool'), ('AWS', 'tool'),
 ('Google Cloud', 'tool'), ('Microsoft Azure', 'tool'), ('Jira', 'tool'), ('Slack', 'tool'), ('Trello', 'tool');
 
--- Create indexes for better performance
+-- Create indexes 
 CREATE INDEX idx_projects_student_id ON projects(student_id);
 CREATE INDEX idx_certificates_student_id ON certificates(student_id);
 CREATE INDEX idx_certificates_project_id ON certificates(project_id);

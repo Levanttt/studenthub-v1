@@ -1,5 +1,4 @@
 <?php
-// HAPUS session_start() dari sini karena sudah ada di config.php
 include 'includes/config.php';
 include 'includes/functions.php';
 
@@ -24,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($email) || empty($password)) {
         $error = "Email dan password wajib diisi!";
     } else {
-        // TAMBAH verification_status untuk pengecekan mitra industri
         $stmt = $conn->prepare("SELECT id, email, password, role, name, profile_picture, verification_status FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -35,19 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if (password_verify($password, $user['password'])) {
                 
-                // ✅ CEK VERIFIKASI UNTUK MITRA INDUSTRI
                 if ($user['role'] == 'mitra_industri' && $user['verification_status'] != 'verified') {
                     $status_text = $user['verification_status'] == 'pending' ? 'menunggu verifikasi' : 'ditolak';
                     $error = "Akun mitra industri Anda {$status_text}. Silakan tunggu verifikasi admin.";
                 } else {
-                    // SET SESSION
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['email'] = $user['email'];
                     $_SESSION['role'] = $user['role']; 
                     $_SESSION['name'] = $user['name'];
                     $_SESSION['profile_picture'] = $user['profile_picture'];
 
-                    // REDIRECT BERDASARKAN ROLE
                     if ($user['role'] == 'student') {
                         header("Location: dashboard/student/index.php");
                     } elseif ($user['role'] == 'mitra_industri') { 
@@ -71,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<!-- HTML tetap sama seperti sebelumnya -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -151,8 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="iconify" data-icon="mdi:email" data-width="18"></span>
                                 </span>
                                 <input type="email" name="email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
-                                       class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                       placeholder="Masukkan email Anda" required>
+                                        class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                        placeholder="Masukkan email Anda" required>
                             </div>
                         </div>
                         <div>
@@ -162,8 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <span class="iconify" data-icon="mdi:lock" data-width="18"></span>
                                 </span>
                                 <input type="password" name="password"
-                                       class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
-                                       placeholder="Masukkan password Anda" required>
+                                        class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cakrawala-primary focus:border-cakrawala-primary transition-colors text-sm"
+                                        placeholder="Masukkan password Anda" required>
                             </div>
                         </div>
 
