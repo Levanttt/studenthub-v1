@@ -273,8 +273,8 @@ $standalone = count($standalone_certificates);
                                 <!-- View/Download -->
                                 <?php if (!empty($certificate['file_path'])): ?>
                                 <a href="<?php echo htmlspecialchars($certificate['file_path']); ?>" 
-                                   target="_blank"
-                                   class="bg-[#2A8FA9] text-white px-4 py-2 rounded-lg hover:bg-[#409BB2] transition-colors font-medium text-sm flex items-center gap-2">
+                                    target="_blank"
+                                    class="bg-[#2A8FA9] text-white px-4 py-2 rounded-lg hover:bg-[#409BB2] transition-colors font-medium text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
                                     Lihat Sertifikat
                                 </a>
@@ -282,8 +282,8 @@ $standalone = count($standalone_certificates);
                                 
                                 <?php if (!empty($certificate['certificate_url'])): ?>
                                 <a href="<?php echo htmlspecialchars($certificate['certificate_url']); ?>" 
-                                   target="_blank"
-                                   class="bg-white text-[#2A8FA9] px-4 py-2 rounded-lg hover:bg-[#2A8FA9]/10 transition-colors font-medium text-sm flex items-center gap-2 border border-[#2A8FA9]/30">
+                                    target="_blank"
+                                    class="bg-white text-[#2A8FA9] px-4 py-2 rounded-lg hover:bg-[#2A8FA9]/10 transition-colors font-medium text-sm flex items-center gap-2 border border-[#2A8FA9]/30">
                                     <span class="iconify" data-icon="mdi:link" data-width="16"></span>
                                     Lihat Online
                                 </a>
@@ -292,13 +292,13 @@ $standalone = count($standalone_certificates);
                                 <!-- Edit Action -->
                                 <?php if ($certificate['source_type'] == 'project'): ?>
                                 <a href="edit-project.php?id=<?php echo $certificate['project_id']; ?>" 
-                                   class="bg-[#489EB7]/10 text-[#489EB7] px-4 py-2 rounded-lg hover:bg-[#489EB7]/20 transition-colors font-medium text-sm flex items-center gap-2">
+                                    class="bg-[#489EB7]/10 text-[#489EB7] px-4 py-2 rounded-lg hover:bg-[#489EB7]/20 transition-colors font-medium text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                     Edit di Proyek
                                 </a>
                                 <?php else: ?>
                                 <a href="edit-certificate.php?id=<?php echo $certificate['id']; ?>" 
-                                   class="bg-[#51A3B9]/10 text-[#51A3B9] px-4 py-2 rounded-lg hover:bg-[#51A3B9]/20 transition-colors font-medium text-sm flex items-center gap-2">
+                                    class="bg-[#51A3B9]/10 text-[#51A3B9] px-4 py-2 rounded-lg hover:bg-[#51A3B9]/20 transition-colors font-medium text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:pencil" data-width="16"></span>
                                     Edit
                                 </a>
@@ -307,7 +307,7 @@ $standalone = count($standalone_certificates);
                                 <!-- Delete Action -->
                                 <?php if ($certificate['source_type'] == 'project'): ?>
                                 <a href="edit-project.php?id=<?php echo $certificate['project_id']; ?>#certificate-section" 
-                                   class="bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors font-medium text-sm flex items-center gap-2">
+                                    class="bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors font-medium text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
                                     Hapus dari Proyek
                                 </a>
