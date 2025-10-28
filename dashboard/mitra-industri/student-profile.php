@@ -209,9 +209,10 @@ usort($certificates, function($a, $b) {
                 </h1>
                 <p class="text-gray-600 mt-2 text-sm sm:text-base">Lihat detail lengkap talenta dan portofolio project mereka</p>
             </div>
-            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2 w-full sm:w-auto justify-center text-sm sm:text-base">
+            <!-- Versi desktop (full text) -->
+            <a href="index.php" class="hidden sm:flex bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="16"></span>
-                Kembali ke Pencarian
+                Kembali ke Dashboard
             </a>
         </div>
     </div>
@@ -491,9 +492,8 @@ usort($certificates, function($a, $b) {
                 <?php endif; ?>
             </div>
 
-            <!-- Projects Portfolio -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+                <div class="flex justify-between items-center mb-4 sm:mb-6">
                     <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:folder-multiple" data-width="20"></span>
                         Portofolio Project

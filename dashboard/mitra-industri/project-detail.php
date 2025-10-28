@@ -117,50 +117,128 @@ try {
 } catch (Exception $e) {
     $is_liked = isset($_SESSION['likes_cache']) && in_array($project_id, $_SESSION['likes_cache']);
 }
+
+$cv_query = "SELECT cv_file_path FROM users WHERE id = ?";
+$cv_stmt = $conn->prepare($cv_query);
+$cv_stmt->bind_param("i", $student_id);
+$cv_stmt->execute();
+$cv_result = $cv_stmt->get_result();
+$student_cv = $cv_result->fetch_assoc();
+$cv_stmt->close();
+
+$student_pic_query = "SELECT profile_picture FROM users WHERE id = ?";
+$student_pic_stmt = $conn->prepare($student_pic_query);
+$student_pic_stmt->bind_param("i", $student_id);
+$student_pic_stmt->execute();
+$student_pic_result = $student_pic_stmt->get_result();
+$student_data = $student_pic_result->fetch_assoc();
+$student_pic_stmt->close();
 ?>
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<style>
+@media (max-width: 768px) {
+    .mobile-stack {
+        flex-direction: column !important;
+    }
+    
+    .mobile-full {
+        width: 100% !important;
+    }
+    
+    .mobile-text-center {
+        text-align: center !important;
+    }
+    
+    .mobile-gap-3 {
+        gap: 0.75rem !important;
+    }
+    
+    .mobile-breadcrumb {
+        font-size: 0.75rem !important;
+        gap: 0.25rem !important;
+    }
+    
+    .mobile-breadcrumb .iconify {
+        width: 12px !important;
+        height: 12px !important;
+    }
+    
+    .mobile-project-header {
+        padding: 1rem !important;
+    }
+    
+    .mobile-sidebar-card {
+        margin-bottom: 1rem !important;
+    }
+}
+</style>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
     <!-- Navigation & Header -->
-    <div class="flex justify-between items-center mb-6">
-        <nav class="flex items-center gap-2 text-sm text-gray-600">
-            <a href="index.php" class="hover:text-[#2A8FA9] transition-colors">Dashboard</a>
-            <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
-            <a href="student-profile.php?id=<?php echo $student_id; ?>" class="hover:text-[#2A8FA9] transition-colors">
-                Profil <?php echo htmlspecialchars($project['student_name']); ?>
-            </a>
-            <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
-            <a href="student-all-projects.php?id=<?php echo $student_id; ?>" class="hover:text-[#2A8FA9] transition-colors">Semua Project</a>
-            <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
-            <span class="text-gray-900 font-medium"><?php echo htmlspecialchars($project['title']); ?></span>
-        </nav>
-        
-        <div class="flex gap-3">
-            <a href="student-all-projects.php?id=<?php echo $student_id; ?>" 
-                class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
-                <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                Kembali ke Semua Project
-            </a>
+    <div class="mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center gap-1 text-xs text-gray-600 overflow-x-auto pb-3 mobile-breadcrumb sm:text-sm sm:gap-2 sm:pb-0 flex-1">
+                <a href="index.php" class="hover:text-[#2A8FA9] transition-colors whitespace-nowrap">Dashboard</a>
+                <span class="iconify" data-icon="mdi:chevron-right" data-width="10"></span>
+                <a href="student-profile.php?id=<?php echo $student_id; ?>" class="hover:text-[#2A8FA9] transition-colors whitespace-nowrap">
+                    Profil
+                </a>
+                <span class="iconify" data-icon="mdi:chevron-right" data-width="10"></span>
+                <a href="student-all-projects.php?id=<?php echo $student_id; ?>" class="hover:text-[#2A8FA9] transition-colors whitespace-nowrap">Projects</a>
+                <span class="iconify" data-icon="mdi:chevron-right" data-width="10"></span>
+                <span class="text-gray-900 font-medium whitespace-nowrap truncate max-w-[120px]"><?php echo htmlspecialchars($project['title']); ?></span>
+            </nav>
+            
+            <!-- Back Button - Desktop Only -->
+            <div class="hidden sm:flex">
+                <a href="student-all-projects.php?id=<?php echo $student_id; ?>" 
+                    class="bg-[#E0F7FF] text-[#2A8FA9] px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2 text-sm sm:text-base whitespace-nowrap">
+                    <span class="iconify" data-icon="mdi:arrow-left" data-width="16"></span>
+                    Kembali ke Semua Project
+                </a>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Mobile Student Info -->
+    <div class="block lg:hidden space-y-4 mb-6">
+        <div class="bg-[#E0F7FF] rounded-2xl border border-[#51A3B9] border-opacity-30 p-4">
+            <div class="flex items-center gap-3">
+                <?php if (!empty($student_data['profile_picture'])): ?>
+                    <img class="h-12 w-12 rounded-full object-cover border-2 border-white shadow-sm" 
+                        src="<?php echo htmlspecialchars($student_data['profile_picture']); ?>" 
+                        alt="<?php echo htmlspecialchars($project['student_name']); ?>">
+                <?php else: ?>
+                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-[#2A8FA9] to-[#51A3B9] flex items-center justify-center border-2 border-white shadow-sm">
+                        <span class="iconify text-white" data-icon="mdi:account" data-width="20"></span>
+                    </div>
+                <?php endif; ?>
+                
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-[#2A8FA9] text-sm truncate"><?php echo htmlspecialchars($project['student_name']); ?></h3>
+                    <div class="flex flex-wrap gap-1 text-xs text-gray-600">
+                        <?php if (!empty($project['major'])): ?>
+                            <span class="truncate"><?php echo htmlspecialchars($project['major']); ?></span>
+                        <?php endif; ?>
+                        <?php if (!empty($project['semester'])): ?>
+                            <span>• Semester <?php echo htmlspecialchars($project['semester']); ?></span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
         <!-- Main Content -->
         <div class="lg:col-span-3 space-y-6">
             <!-- Project Header -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-                <div class="flex items-center gap-4 mb-6 p-4 bg-[#E0F7FF] rounded-xl border border-[#51A3B9] border-opacity-30">
-                    <?php
-                    $student_pic_query = "SELECT profile_picture FROM users WHERE id = ?";
-                    $student_pic_stmt = $conn->prepare($student_pic_query);
-                    $student_pic_stmt->bind_param("i", $student_id);
-                    $student_pic_stmt->execute();
-                    $student_pic_result = $student_pic_stmt->get_result();
-                    $student_data = $student_pic_result->fetch_assoc();
-                    $student_pic_stmt->close();
-                    ?>
-                    
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8 mobile-project-header">
+                <!-- Desktop Student Info -->
+                <div class="hidden lg:flex items-center gap-4 mb-6 p-4 bg-[#E0F7FF] rounded-xl border border-[#51A3B9] border-opacity-30">
                     <?php if (!empty($student_data['profile_picture'])): ?>
                         <img class="h-12 w-12 rounded-full object-cover border-2 border-white shadow-sm" 
                             src="<?php echo htmlspecialchars($student_data['profile_picture']); ?>" 
@@ -184,48 +262,47 @@ try {
                     </div>
                 </div>
 
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
-                    <div class="flex-1">
-                        <h1 class="text-3xl font-bold text-[#2A8FA9] mb-4"><?php echo htmlspecialchars($project['title']); ?></h1>
-                        
-                        <!-- Project Meta -->
-                        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6">
-                            <span class="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-                                <span class="iconify text-[#51A3B9]" data-icon="mdi:calendar" data-width="16"></span>
-                                <span class="font-medium">Tahun: <?php echo htmlspecialchars($project['project_year']); ?></span>
-                            </span>
-                            <span class="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-                                <span class="iconify text-[#409BB2]" data-icon="mdi:tag" data-width="16"></span>
-                                <span class="font-medium">Tipe: <?php echo formatText($project['project_type']); ?></span>
-                            </span>
-                            <span class="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
-                                <span class="iconify text-[#489EB7]" data-icon="mdi:clock-outline" data-width="16"></span>
-                                <span class="font-medium">Status: <?php echo formatText($project['status']); ?></span>
-                            </span>
-                        </div>
+                <!-- Project Title & Meta -->
+                <div class="mb-4 sm:mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-[#2A8FA9] mb-3 sm:mb-4"><?php echo htmlspecialchars($project['title']); ?></h1>
+                    
+                    <!-- Project Meta -->
+                    <div class="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">
+                        <span class="flex items-center gap-1 sm:gap-2 bg-gray-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg">
+                            <span class="iconify text-[#51A3B9]" data-icon="mdi:calendar" data-width="14"></span>
+                            <span class="font-medium">Tahun: <?php echo htmlspecialchars($project['project_year']); ?></span>
+                        </span>
+                        <span class="flex items-center gap-1 sm:gap-2 bg-gray-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg">
+                            <span class="iconify text-[#409BB2]" data-icon="mdi:tag" data-width="14"></span>
+                            <span class="font-medium">Tipe: <?php echo formatText($project['project_type']); ?></span>
+                        </span>
+                        <span class="flex items-center gap-1 sm:gap-2 bg-gray-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg">
+                            <span class="iconify text-[#489EB7]" data-icon="mdi:clock-outline" data-width="14"></span>
+                            <span class="font-medium">Status: <?php echo formatText($project['status']); ?></span>
+                        </span>
+                    </div>
 
-                        <!-- Project Description -->
-                        <div class="mb-6">
-                            <h2 class="text-xl font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
-                                <span class="iconify" data-icon="mdi:text-box-edit" data-width="20"></span>
-                                Deskripsi Proyek
-                            </h2>
-                            
-                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-300">
-                                <div class="prose max-w-none text-gray-700 leading-relaxed">
-                                    <?php 
-                                    $description = htmlspecialchars($project['description']);
-                                    if (empty(trim($description))) {
-                                        echo '<div class="text-center py-8 text-gray-500">';
-                                        echo '<span class="iconify inline-block mb-2" data-icon="mdi:text-box-remove" data-width="48"></span>';
-                                        echo '<p class="text-lg font-semibold">Belum ada deskripsi</p>';
-                                        echo '<p class="text-sm mt-2">Mahasiswa belum menambahkan deskripsi proyek</p>';
-                                        echo '</div>';
-                                    } else {
-                                        echo nl2br($description);
-                                    }
-                                    ?>
-                                </div>
+                    <!-- Project Description -->
+                    <div class="mb-4 sm:mb-6">
+                        <h2 class="text-lg sm:text-xl font-bold text-[#2A8FA9] mb-3 sm:mb-4 flex items-center gap-2">
+                            <span class="iconify" data-icon="mdi:text-box-edit" data-width="18"></span>
+                            Deskripsi Proyek
+                        </h2>
+                        
+                        <div class="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-300">
+                            <div class="prose max-w-none text-gray-700 leading-relaxed text-sm sm:text-base">
+                                <?php 
+                                $description = htmlspecialchars($project['description']);
+                                if (empty(trim($description))) {
+                                    echo '<div class="text-center py-4 sm:py-8 text-gray-500">';
+                                    echo '<span class="iconify inline-block mb-2" data-icon="mdi:text-box-remove" data-width="32"></span>';
+                                    echo '<p class="text-base sm:text-lg font-semibold">Belum ada deskripsi</p>';
+                                    echo '<p class="text-xs sm:text-sm mt-2">Mahasiswa belum menambahkan deskripsi proyek</p>';
+                                    echo '</div>';
+                                } else {
+                                    echo nl2br($description);
+                                }
+                                ?>
                             </div>
                         </div>
                     </div>
@@ -233,12 +310,12 @@ try {
 
                 <!-- Skills Tags -->
                 <?php if (!empty($skills)): ?>
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                        <span class="iconify" data-icon="mdi:code-braces" data-width="18"></span>
+                <div class="mb-4 sm:mb-6">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 flex items-center gap-2">
+                        <span class="iconify" data-icon="mdi:code-braces" data-width="16"></span>
                         Teknologi & Tools yang Digunakan
                     </h3>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2">
                         <?php foreach ($skills as $skill): 
                             $color_class = [
                                 'technical' => 'bg-blue-100 text-blue-800 border border-blue-200',
@@ -246,7 +323,7 @@ try {
                                 'tool' => 'bg-purple-100 text-purple-800 border border-purple-200'
                             ][$skill['skill_type']] ?? 'bg-gray-100 text-gray-800 border border-gray-200';
                         ?>
-                            <span class="<?php echo $color_class; ?> px-3 py-1.5 rounded-full text-sm font-medium">
+                            <span class="<?php echo $color_class; ?> px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium">
                                 <?php echo htmlspecialchars(trim($skill['name'])); ?>
                             </span>
                         <?php endforeach; ?>
@@ -255,62 +332,94 @@ try {
                 <?php endif; ?>
 
                 <!-- Project Links -->
-                <div class="flex flex-wrap gap-4">
+                <div class="flex flex-wrap gap-2 sm:gap-4 mobile-stack">
                     <?php if (!empty($project['github_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['github_url']); ?>" 
                         target="_blank"
-                        class="bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-900 transition-colors duration-300 flex items-center gap-2 shadow-md">
-                        <span class="iconify" data-icon="mdi:github" data-width="20"></span>
-                        Lihat Kode di GitHub
+                        class="flex-1 bg-gray-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-gray-900 transition-colors duration-300 flex items-center justify-center gap-2 text-sm sm:text-base mobile-full">
+                        <span class="iconify" data-icon="mdi:github" data-width="16"></span>
+                        <span class="hidden sm:inline">Lihat Kode di GitHub</span>
+                        <span class="sm:hidden">GitHub</span>
                     </a>
                     <?php endif; ?>
                     
                     <?php if (!empty($project['demo_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['demo_url']); ?>" 
                         target="_blank"
-                        class="bg-[#2A8FA9] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#409BB2] transition-colors duration-300 flex items-center gap-2 shadow-md">
-                        <span class="iconify" data-icon="mdi:web" data-width="20"></span>
-                        Lihat Demo Live
+                        class="flex-1 bg-[#2A8FA9] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-[#409BB2] transition-colors duration-300 flex items-center justify-center gap-2 text-sm sm:text-base mobile-full">
+                        <span class="iconify" data-icon="mdi:web" data-width="16"></span>
+                        <span class="hidden sm:inline">Lihat Demo Live</span>
+                        <span class="sm:hidden">Demo</span>
                     </a>
                     <?php endif; ?>
                     
                     <?php if (!empty($project['figma_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['figma_url']); ?>" 
                         target="_blank"
-                        class="bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
-                        <span class="iconify" data-icon="mdi:palette" data-width="20"></span>
-                        Lihat Desain Figma
+                        class="flex-1 bg-green-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors duration-300 flex items-center justify-center gap-2 text-sm sm:text-base mobile-full">
+                        <span class="iconify" data-icon="mdi:palette" data-width="16"></span>
+                        <span class="hidden sm:inline">Lihat Desain Figma</span>
+                        <span class="sm:hidden">Figma</span>
                     </a>
                     <?php endif; ?>
                     
                     <?php if (!empty($project['video_url'])): ?>
                     <a href="<?php echo htmlspecialchars($project['video_url']); ?>" 
                         target="_blank"
-                        class="bg-red-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-700 transition-colors duration-300 flex items-center gap-2 shadow-md">
-                        <span class="iconify" data-icon="mdi:video" data-width="20"></span>
-                        Lihat Video Demo
+                        class="flex-1 bg-red-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-red-700 transition-colors duration-300 flex items-center justify-center gap-2 text-sm sm:text-base mobile-full">
+                        <span class="iconify" data-icon="mdi:video" data-width="16"></span>
+                        <span class="hidden sm:inline">Lihat Video Demo</span>
+                        <span class="sm:hidden">Video</span>
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Mobile Quick Actions -->
+            <div class="block lg:hidden bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mobile-sidebar-card">
+                <h3 class="text-base font-bold text-[#2A8FA9] mb-3 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:rocket-launch" data-width="16"></span>
+                    Quick Actions
+                </h3>
+                
+                <div class="space-y-2">
+                    <!-- Like Button -->
+                    <button onclick="toggleLike(<?php echo $project_id; ?>)" 
+                            id="likeButton"
+                            class="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-all duration-300 flex items-center justify-center gap-2 shadow-md text-sm">
+                        <span class="iconify" data-icon="mdi:heart<?php echo $is_liked ? '' : '-outline'; ?>" data-width="16" id="likeIcon"></span>
+                        <span id="likeText"><?php echo $is_liked ? 'Disukai' : 'Suka Project'; ?></span>
+                    </button>
+                    
+                    <!-- Lihat CV -->
+                    <?php if (!empty($student_cv['cv_file_path'])): ?>
+                    <a href="<?php echo htmlspecialchars($student_cv['cv_file_path']); ?>" 
+                    target="_blank"
+                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md text-sm">
+                        <span class="iconify" data-icon="mdi:file-eye" data-width="16"></span>
+                        Lihat CV
                     </a>
                     <?php endif; ?>
                 </div>
             </div>
 
             <!-- Certificate Section -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-4 sm:mb-6 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:certificate" data-width="20"></span>
                     Sertifikat Terkait
                 </h2>
                 
                 <?php if (!empty($project['certificate_path'])): ?>
-                <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200 p-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center border-4 border-amber-200">
-                                <span class="iconify text-amber-600" data-icon="mdi:certificate" data-width="32"></span>
+                <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200 p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-amber-100 rounded-full flex items-center justify-center border-4 border-amber-200">
+                                <span class="iconify text-amber-600" data-icon="mdi:certificate" data-width="24"></span>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-amber-800">Sertifikat Tersedia</h3>
-                                <p class="text-amber-700 text-sm">
+                                <h3 class="text-base sm:text-lg font-bold text-amber-800">Sertifikat Tersedia</h3>
+                                <p class="text-amber-700 text-xs sm:text-sm">
                                     <?php 
                                     $filename = basename($project['certificate_path']);
                                     echo htmlspecialchars($filename);
@@ -319,44 +428,44 @@ try {
                             </div>
                         </div>
                         
-                        <div class="flex gap-3">
+                        <div class="flex gap-2 sm:gap-3 w-full sm:w-auto">
                             <a href="<?php echo htmlspecialchars($project['certificate_path']); ?>" 
                             target="_blank"
-                            class="bg-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 flex items-center gap-2 text-sm">
-                                <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
+                            class="flex-1 bg-amber-500 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm mobile-full">
+                                <span class="iconify" data-icon="mdi:eye" data-width="14"></span>
                                 Lihat
                             </a>
                         </div>
                     </div>
                 </div>
                 <?php else: ?>
-                <div class="text-center py-8 bg-gray-50 rounded-xl border border-gray-300">
-                    <div class="text-gray-400 mb-3 flex justify-center">
-                        <span class="iconify" data-icon="mdi:certificate-off" data-width="48"></span>
+                <div class="text-center py-6 sm:py-8 bg-gray-50 rounded-xl border border-gray-300">
+                    <div class="text-gray-400 mb-2 sm:mb-3 flex justify-center">
+                        <span class="iconify" data-icon="mdi:certificate-off" data-width="36"></span>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Sertifikat</h3>
-                    <p class="text-gray-500 text-sm mb-4">Mahasiswa tidak memiliki sertifikat terkait proyek ini</p>
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-600 mb-1 sm:mb-2">Belum Ada Sertifikat</h3>
+                    <p class="text-gray-500 text-xs sm:text-sm mb-3 sm:mb-4">Mahasiswa tidak memiliki sertifikat terkait proyek ini</p>
                 </div>
                 <?php endif; ?>
             </div>
 
             <!-- Project Gallery -->
             <?php if (!empty($project_images)): ?>
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:image-multiple" data-width="24"></span>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-4 sm:mb-6 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:image-multiple" data-width="20"></span>
                     Gallery Proyek
                 </h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <?php foreach ($project_images as $index => $image): ?>
                         <div class="bg-gray-50 rounded-xl overflow-hidden border border-gray-300 shadow-sm">
                             <img src="<?php echo htmlspecialchars($image['image_path']); ?>" 
                                 alt="<?php echo htmlspecialchars($project['title']); ?> - Gambar <?php echo $index + 1; ?>" 
-                                class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-zoom-in"
+                                class="w-full h-48 sm:h-64 object-cover hover:scale-105 transition-transform duration-300 cursor-zoom-in"
                                 onclick="openImageModal('<?php echo htmlspecialchars($image['image_path']); ?>')">
-                            <div class="p-4 bg-white border-t border-gray-300">
-                                <p class="text-sm text-gray-600 text-center font-medium">
+                            <div class="p-3 sm:p-4 bg-white border-t border-gray-300">
+                                <p class="text-xs sm:text-sm text-gray-600 text-center font-medium">
                                     <?php echo $image['is_primary'] ? 'Gambar utama proyek' : 'Gambar ' . ($index + 1); ?>
                                 </p>
                             </div>
@@ -367,10 +476,38 @@ try {
             <?php endif; ?>
         </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
+        <!-- Desktop Sidebar -->
+        <div class="hidden lg:block space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>
+                    Quick Actions
+                </h3>
+                
+                <div class="space-y-3">
+                    <!-- Like Button -->
+                    <button onclick="toggleLike(<?php echo $project_id; ?>)" 
+                            id="likeButton"
+                            class="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
+                        <span class="iconify" data-icon="mdi:heart<?php echo $is_liked ? '' : '-outline'; ?>" data-width="18" id="likeIcon"></span>
+                        <span id="likeText"><?php echo $is_liked ? 'Disukai' : 'Suka Project'; ?></span>
+                    </button>
+                    
+                    <!-- Lihat CV -->
+                    <?php if (!empty($student_cv['cv_file_path'])): ?>
+                    <a href="<?php echo htmlspecialchars($student_cv['cv_file_path']); ?>" 
+                    target="_blank"
+                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
+                        <span class="iconify" data-icon="mdi:file-eye" data-width="18"></span>
+                        Lihat CV
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+
             <!-- Project Details Sidebar -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:clipboard-text" data-width="20"></span>
                     Detail Proyek
@@ -400,44 +537,6 @@ try {
                     </div>
                 </div>
             </div>
-
-            <!-- Quick Actions dengan Like -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>
-                    Quick Actions
-                </h3>
-                
-                <div class="space-y-3">
-                    <!-- Like Button -->
-                    <button onclick="toggleLike(<?php echo $project_id; ?>)" 
-                            id="likeButton"
-                            class="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
-                        <span class="iconify" data-icon="mdi:heart<?php echo $is_liked ? '' : '-outline'; ?>" data-width="18" id="likeIcon"></span>
-                        <span id="likeText"><?php echo $is_liked ? 'Disukai' : 'Suka Project'; ?></span>
-                    </button>
-                    
-                    <!-- Lihat CV -->
-                    <?php 
-                    $cv_query = "SELECT cv_file_path FROM users WHERE id = ?";
-                    $cv_stmt = $conn->prepare($cv_query);
-                    $cv_stmt->bind_param("i", $student_id);
-                    $cv_stmt->execute();
-                    $cv_result = $cv_stmt->get_result();
-                    $student_cv = $cv_result->fetch_assoc();
-                    $cv_stmt->close();
-                    ?>
-                    
-                    <?php if (!empty($student_cv['cv_file_path'])): ?>
-                    <a href="<?php echo htmlspecialchars($student_cv['cv_file_path']); ?>" 
-                    target="_blank"
-                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
-                        <span class="iconify" data-icon="mdi:file-eye" data-width="18"></span>
-                        Lihat CV
-                    </a>
-                    <?php endif; ?>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -463,15 +562,11 @@ try {
 let currentLikeState = <?php echo $is_liked ? 'true' : 'false'; ?>;
 
 function toggleLike(projectId) {
-    console.log('🔄 Toggle like for project:', projectId, 'Current UI state:', currentLikeState);
-    
     const likeButton = document.getElementById('likeButton');
     const likeIcon = document.getElementById('likeIcon');
     const likeText = document.getElementById('likeText');
     
     const action = currentLikeState ? 'unlike' : 'like';
-    
-    console.log('🎯 Action to perform:', action);
     
     likeButton.disabled = true;
     const originalText = likeText.textContent;
@@ -484,59 +579,21 @@ function toggleLike(projectId) {
         },
         body: `action=${action}&project_id=${projectId}`
     })
-    .then(response => {
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Server returned non-JSON response');
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log('📊 Server response:', data);
-        
         likeButton.disabled = false;
         
         if (data.success) {
             currentLikeState = data.new_state;
             updateLikeUI(currentLikeState);
-            
-            console.log('✅ Like operation successful. New state:', currentLikeState);
-            
         } else {
-            console.error('❌ Like action failed:', data.error);
             likeText.textContent = originalText;
-            
-            if (data.error === 'already_liked' || data.error === 'not_liked') {
-                syncWithServer();
-            }
         }
     })
     .catch(error => {
-        console.error('❌ Fetch error:', error);
         likeButton.disabled = false;
         likeText.textContent = originalText;
-        
-        fetch('like-handler.php')
-            .then(r => r.text())
-            .then(html => {
-                console.error('❌ Server returned HTML:', html.substring(0, 200));
-            });
     });
-}
-
-function syncWithServer() {
-    fetch('like-handler.php')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                currentLikeState = data.is_liked;
-                updateLikeUI(currentLikeState);
-                console.log('✅ Synced with server. New state:', currentLikeState);
-            }
-        })
-        .catch(error => {
-            console.error('❌ Sync failed:', error);
-        });
 }
 
 function updateLikeUI(isLiked) {
@@ -558,31 +615,8 @@ function updateLikeUI(isLiked) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 Page loaded - Like state:', currentLikeState);
     updateLikeUI(currentLikeState);
 });
-
-function testLike() {
-    console.log('🧪 Test like function');
-    toggleLike(<?php echo $project_id; ?>);
-}
-
-function resetLikes() {
-    if (confirm('Hapus semua like Anda?')) {
-        fetch('like-handler.php?reset=1')
-            .then(response => response.json())
-            .then(data => {
-                console.log('Reset response:', data);
-                if (data.success) {
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Reset error:', error);
-                location.reload(); 
-            });
-    }
-}
 
 function openImageModal(imageSrc) {
     document.getElementById('modalImage').src = imageSrc;

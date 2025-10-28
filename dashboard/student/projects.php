@@ -164,14 +164,14 @@ $student = $student_result->fetch_assoc();
         
         <!-- Stats -->
         <div class="bg-[#E0F7FF] rounded-2xl p-4 sm:p-6 border border-[#51A3B9] border-opacity-30">
-            <div class="flex flex-wrap items-center justify-between gap-4 mobile-flex-col sm:flex-row">
+            <div class="flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center gap-3 sm:gap-4">
                     <div class="bg-[#51A3B9] p-2 sm:p-3 rounded-xl">
                         <span class="iconify text-white" data-icon="mdi:folder-star" data-width="24"></span>
                     </div>
-                    <div class="mobile-text-center sm:text-left">
-                        <h3 class="text-[#2A8FA9] font-bold text-xl sm:text-2xl"><?php echo $total_projects; ?> Proyek</h3>
-                        <p class="text-[#409BB2] text-sm sm:text-base">Total proyek yang telah kamu upload</p>
+                    <div>
+                        <h3 class="text-[#2A8FA9] font-bold text-xl sm:text-2xl"><?php echo $total_projects; ?> Project</h3>
+                        <p class="text-[#409BB2] text-sm sm:text-base">Total project yang telah kamu upload</p>
                     </div>
                 </div>
             </div>
