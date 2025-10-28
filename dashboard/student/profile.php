@@ -333,34 +333,138 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<style>
+    /* Mobile Optimizations untuk Profile Page */
+    @media (max-width: 768px) {
+        .mobile-profile-container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        .mobile-profile-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        .mobile-profile-card {
+            padding: 1.5rem;
+        }
+        
+        .mobile-profile-form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .mobile-profile-flex {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .mobile-profile-gap {
+            gap: 1rem;
+        }
+        
+        .mobile-profile-space-y {
+            margin-top: 1.5rem;
+        }
+        
+        .mobile-profile-text {
+            font-size: 1.5rem;
+        }
+        
+        .mobile-profile-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .mobile-profile-button {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .mobile-profile-image {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .mobile-profile-upload {
+            padding: 1rem;
+        }
+        
+        .mobile-profile-sidebar {
+            display: none; /* Sembunyikan sidebar di mobile */
+        }
+        
+        .mobile-profile-danger-zone {
+            margin-top: 1.5rem;
+            order: 999; /* Pastikan zona berbahaya di paling bawah */
+        }
+        
+        .mobile-profile-skill-tags {
+            justify-content: center;
+        }
+        
+        .mobile-profile-spec-tags {
+            justify-content: center;
+        }
+        
+        .mobile-profile-textarea {
+            min-height: 120px;
+        }
+        
+        .mobile-profile-select {
+            font-size: 16px; /* Mencegah zoom di iOS */
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .mobile-profile-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .mobile-profile-header-buttons {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .mobile-profile-back-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mobile-profile-container">
     <!-- Header -->
     <div class="mb-8">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-            <div>
-                <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:account-cog" data-width="32"></span>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 mobile-profile-header">
+            <div class="w-full sm:w-auto">
+                <h1 class="text-2xl sm:text-3xl font-bold text-[#2A8FA9] flex items-center gap-3 mobile-profile-text">
+                    <span class="iconify" data-icon="mdi:account-cog" data-width="28"></span>
                     Kelola Profil
                 </h1>
-                <p class="text-gray-600 mt-2">Lengkapi informasi profil kamu untuk meningkatkan visibilitas bagi industri</p>
+                <p class="text-gray-600 mt-2 text-sm sm:text-base">Lengkapi informasi profil kamu untuk meningkatkan visibilitas bagi industri</p>
             </div>
-            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
+            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-4 sm:px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2 w-full sm:w-auto justify-center mobile-profile-back-button">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                Kembali ke Dashboard
+                <span class="text-sm sm:text-base">Kembali ke Dashboard</span>
             </a>
         </div>
     </div>
 
     <!-- Alerts -->
     <?php if ($error): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
             <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
             <?php echo htmlspecialchars($error); ?>
         </div>
     <?php endif; ?>
     
     <?php if ($success): ?>
-        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
             <span class="iconify" data-icon="mdi:check-circle" data-width="20"></span>
             <?php echo htmlspecialchars($success); ?>
         </div>
@@ -379,70 +483,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if (!$has_specializations || !$has_cv_file_path || !$has_semester): 
     ?>
-        <div class="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg flex items-center gap-2">
+        <div class="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm">
             <span class="iconify" data-icon="mdi:alert" data-width="20"></span>
             <div>
                 <p class="font-semibold">Perhatian: Struktur database perlu update</p>
-                <p class="text-sm">Beberapa fitur mungkin tidak berfungsi dengan baik. Pastikan kolom berikut ada di tabel users:</p>
-                <ul class="text-sm list-disc list-inside mt-1">
-                    <?php if (!$has_specializations): ?><li><code>specializations</code> (TEXT)</li><?php endif; ?>
-                    <?php if (!$has_cv_file_path): ?><li><code>cv_file_path</code> (VARCHAR(255))</li><?php endif; ?>
-                    <?php if (!$has_semester): ?><li><code>semester</code> (VARCHAR(50))</li><?php endif; ?>
-                </ul>
+                <p class="text-xs sm:text-sm mt-1">Beberapa fitur mungkin tidak berfungsi dengan baik.</p>
             </div>
         </div>
     <?php endif; ?>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 mobile-profile-grid">
         <!-- Profile Form -->
         <div class="lg:col-span-3">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-8 flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:account-edit" data-width="28"></span>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 mobile-profile-card">
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-6 sm:mb-8 flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:account-edit" data-width="24"></span>
                     Informasi Pribadi
                 </h2>
 
-                <form method="POST" action="" class="space-y-8" id="profileForm" enctype="multipart/form-data">
+                <form method="POST" action="" class="space-y-6 sm:space-y-8" id="profileForm" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     
                     <!-- Profile Picture Upload -->
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Foto Profil</h3>
+                    <div class="space-y-4 sm:space-y-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Foto Profil</h3>
                         
-                        <div class="flex flex-col lg:flex-row items-start gap-8">
+                        <div class="flex flex-col lg:flex-row items-start gap-6 mobile-profile-flex">
                             <!-- Current Profile Picture -->
                             <div class="flex-shrink-0">
                                 <div class="relative group">
                                     <?php if (!empty($user['profile_picture'])): ?>
                                         <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" 
                                             alt="Profile Picture" 
-                                            class="w-36 h-36 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg">
+                                            class="w-24 h-24 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg mobile-profile-image">
                                     <?php else: ?>
-                                        <div class="w-36 h-36 rounded-full bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex items-center justify-center border-4 border-[#E0F7FF] shadow-lg">
-                                            <span class="iconify text-white" data-icon="mdi:account" data-width="48"></span>
+                                        <div class="w-24 h-24 sm:w-36 sm:h-36 rounded-full bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex items-center justify-center border-4 border-[#E0F7FF] shadow-lg mobile-profile-image">
+                                            <span class="iconify text-white" data-icon="mdi:account" data-width="32"></span>
                                         </div>
                                     <?php endif; ?>
-                                    <div class="absolute -bottom-2 -right-2 bg-[#51A3B9] rounded-full p-2 shadow-lg">
-                                        <span class="iconify text-white" data-icon="mdi:camera" data-width="18"></span>
+                                    <div class="absolute -bottom-2 -right-2 bg-[#51A3B9] rounded-full p-1 sm:p-2 shadow-lg">
+                                        <span class="iconify text-white" data-icon="mdi:camera" data-width="14"></span>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Upload Controls -->
-                            <div class="flex-1 space-y-4">
+                            <div class="flex-1 space-y-4 w-full">
                                 <!-- Upload Button -->
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
+                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 sm:p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50 mobile-profile-upload">
                                     <div class="flex flex-col items-center justify-center mb-3">
                                         <div class="text-gray-400 mb-2">
-                                            <span class="iconify" data-icon="mdi:cloud-upload" data-width="48"></span>
+                                            <span class="iconify" data-icon="mdi:cloud-upload" data-width="32"></span>
                                         </div>
-                                        <p class="text-lg font-medium text-gray-700 mb-1">Upload Foto Profil</p>
-                                        <p class="text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
+                                        <p class="text-base sm:text-lg font-medium text-gray-700 mb-1">Upload Foto Profil</p>
+                                        <p class="text-xs sm:text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
                                     </div>
                                     
                                     <label class="cursor-pointer inline-block">
-                                        <span class="bg-[#51A3B9] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                                            <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
+                                        <span class="bg-[#51A3B9] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2 text-sm sm:text-base">
+                                            <span class="iconify" data-icon="mdi:folder-open" data-width="16"></span>
                                             Pilih File
                                         </span>
                                         <input type="file" name="profile_picture" accept="image/*" 
@@ -457,7 +556,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <?php if (!empty($user['profile_picture'])): ?>
                                 <button type="button" 
                                         onclick="removeProfilePicture()"
-                                        class="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1 transition-colors">
+                                        class="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1 transition-colors justify-center sm:justify-start">
                                     <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
                                     Hapus Foto Profil
                                 </button>
@@ -467,15 +566,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <!-- CV Upload Section -->
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Curriculum Vitae (CV)</h3>
+                    <div class="space-y-4 sm:space-y-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Curriculum Vitae (CV)</h3>
                         
-                        <div class="flex flex-col lg:flex-row items-start gap-8">
+                        <div class="flex flex-col lg:flex-row items-start gap-6 mobile-profile-flex">
                             <!-- Current CV Info -->
                             <div class="flex-shrink-0">
-                                <div class="w-36 h-36 rounded-xl bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex flex-col items-center justify-center border-4 border-[#E0F7FF] shadow-lg p-4">
-                                    <span class="iconify text-white mb-2" data-icon="mdi:file-document" data-width="48"></span>
-                                    <span class="text-white text-sm font-semibold text-center">CV Document</span>
+                                <div class="w-24 h-24 sm:w-36 sm:h-36 rounded-xl bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex flex-col items-center justify-center border-4 border-[#E0F7FF] shadow-lg p-3 sm:p-4 mobile-profile-image">
+                                    <span class="iconify text-white mb-1 sm:mb-2" data-icon="mdi:file-document" data-width="32"></span>
+                                    <span class="text-white text-xs sm:text-sm font-semibold text-center">CV Document</span>
                                     <?php if (!empty($user['cv_file_path'])): ?>
                                         <span class="text-white text-xs mt-1 text-center">Uploaded</span>
                                     <?php endif; ?>
@@ -483,20 +582,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                             
                             <!-- Upload Controls -->
-                            <div class="flex-1 space-y-4">
+                            <div class="flex-1 space-y-4 w-full">
                                 <!-- Upload Button with Drag & Drop -->
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50" id="cv-drop-zone">
+                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 sm:p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50 mobile-profile-upload" id="cv-drop-zone">
                                     <div class="flex flex-col items-center justify-center mb-3">
                                         <div class="text-gray-400 mb-2">
-                                            <span class="iconify" data-icon="mdi:file-upload" data-width="48"></span>
+                                            <span class="iconify" data-icon="mdi:file-upload" data-width="32"></span>
                                         </div>
-                                        <p class="text-lg font-medium text-gray-700 mb-1">Upload CV</p>
-                                        <p class="text-sm text-gray-500">Drag & drop file PDF atau klik untuk memilih</p>
+                                        <p class="text-base sm:text-lg font-medium text-gray-700 mb-1">Upload CV</p>
+                                        <p class="text-xs sm:text-sm text-gray-500">Drag & drop file PDF atau klik untuk memilih</p>
                                     </div>
                                     
                                     <label class="cursor-pointer inline-block">
-                                        <span class="bg-[#51A3B9] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                                            <span class="iconify" data-icon="mdi:file-pdf-box" data-width="20"></span>
+                                        <span class="bg-[#51A3B9] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2 text-sm sm:text-base">
+                                            <span class="iconify" data-icon="mdi:file-pdf-box" data-width="16"></span>
                                             Pilih File PDF
                                         </span>
                                         <input type="file" name="cv_file" accept=".pdf,application/pdf" 
@@ -513,22 +612,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 echo htmlspecialchars($cv_filename);
                                             ?>
                                         <?php else: ?>
-                                            <span class="text-gray-500">Belum ada CV yang diupload</span>
+                                            <span class="text-gray-500 text-sm">Belum ada CV yang diupload</span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 
-                                <div class="flex gap-4">
+                                <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
                                     <?php if (!empty($user['cv_file_path'])): ?>
                                     <a href="<?php echo htmlspecialchars($user['cv_file_path']); ?>" 
                                     target="_blank"
-                                    class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 text-sm">
+                                    class="bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-green-600 transition-colors duration-300 flex items-center gap-2 text-sm justify-center">
                                         <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
                                         Lihat CV
                                     </a>
                                     <button type="button" 
                                             onclick="removeCV()"
-                                            class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center gap-2 text-sm">
+                                            class="bg-red-500 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center gap-2 text-sm justify-center">
                                         <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
                                         Hapus CV
                                     </button>
@@ -539,18 +638,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <!-- Personal Information -->
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Informasi Dasar</h3>
+                    <div class="space-y-4 sm:space-y-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Informasi Dasar</h3>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-profile-form-grid">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <span class="iconify" data-icon="mdi:account" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:account" data-width="18"></span>
                                     </span>
                                     <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" 
-                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm sm:text-base mobile-profile-select" 
                                         required maxlength="100">
                                 </div>
                             </div>
@@ -559,10 +658,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Semester / Status *</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <span class="iconify" data-icon="mdi:school" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:school" data-width="18"></span>
                                     </span>
-                                    <select name="semester" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors appearance-none bg-white" required>
-                                        <option value="">Pilih semester atau status...</option>
+                                    <select name="semester" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors appearance-none bg-white text-sm sm:text-base mobile-profile-select" required>
+                                        <option value="">Pilih semester...</option>
                                         <?php foreach ($semesterOptions as $value => $label): ?>
                                             <option value="<?php echo $value; ?>" <?php echo ($user['semester'] ?? '') == $value ? 'selected' : ''; ?>>
                                                 <?php echo $label; ?>
@@ -576,18 +675,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-profile-form-grid">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Jurusan *</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none"> 
-                                        <span class="iconify" data-icon="mdi:book-education" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:book-education" data-width="18"></span>
                                     </span>
                                     <select name="major"
-                                            class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors appearance-none bg-white text-sm"
+                                            class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors appearance-none bg-white text-sm mobile-profile-select"
                                             required>
                                         <option value="">Pilih jurusan...</option>
-
                                         <optgroup label="Fakultas Ekonomi dan Bisnis">
                                             <option value="Bisnis Digital" <?php echo ($user['major'] ?? '') == 'Bisnis Digital' ? 'selected' : ''; ?>>Bisnis Digital</option>
                                             <option value="Keuangan dan Investasi" <?php echo ($user['major'] ?? '') == 'Keuangan dan Investasi' ? 'selected' : ''; ?>>Keuangan dan Investasi</option>
@@ -616,7 +714,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <optgroup label="Fakultas Hukum">
                                             <option value="Ilmu Hukum" <?php echo ($user['major'] ?? '') == 'Ilmu Hukum' ? 'selected' : ''; ?>>Ilmu Hukum</option>
                                         </optgroup>
-
                                     </select>
                                     <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
                                         <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
@@ -629,10 +726,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon *</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <span class="iconify" data-icon="mdi:phone" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:phone" data-width="18"></span>
                                     </span>
                                     <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" 
-                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm sm:text-base mobile-profile-select" 
                                             placeholder="Contoh: 081234567890" 
                                             pattern="^[0-9+\-\s()]{10,20}$"
                                             title="Format: +62xxx atau 08xxx"
@@ -645,10 +742,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <span class="iconify" data-icon="mdi:linkedin" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:linkedin" data-width="18"></span>
                                 </span>
                                 <input type="url" name="linkedin" value="<?php echo htmlspecialchars($user['linkedin'] ?? ''); ?>" 
-                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm sm:text-base mobile-profile-select" 
                                         placeholder="https://linkedin.com/in/username" 
                                         pattern="^(https?:\/\/)?(www\.)?linkedin\.com\/.+\/?$"
                                         title="Masukkan URL LinkedIn yang valid"
@@ -660,15 +757,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <!-- Bio Section -->
                     <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Tentang Saya</h3>
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Tentang Saya</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Bio / Deskripsi Diri</label>
                             <div class="relative">
                                 <span class="absolute top-3 left-3 text-gray-400">
-                                    <span class="iconify" data-icon="mdi:text" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:text" data-width="18"></span>
                                 </span>
-                                <textarea name="bio" rows="5" 
-                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none" 
+                                <textarea name="bio" rows="4" 
+                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none text-sm sm:text-base mobile-profile-textarea" 
                                             placeholder="Ceritakan tentang diri kamu, minat, keterampilan, dan tujuan karir..." 
                                             maxlength="500"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
                             </div>
@@ -681,28 +778,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <!-- Specializations Section -->
                     <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Spesialisasi / Bidang Fokus</h3>
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Spesialisasi / Bidang Fokus</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Pilih hingga 3 bidang spesialisasi</label>
                             
                             <!-- Dropdown -->
                             <div class="relative mb-3">
                                 <select id="specialization-select" 
-                                        class="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300 appearance-none bg-white hover:border-green-400">
+                                        class="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300 appearance-none bg-white hover:border-green-400 text-sm sm:text-base mobile-profile-select">
                                     <option value="">Pilih spesialisasi...</option>
                                     <?php foreach ($availableSpecializations as $spec): ?>
                                         <option value="<?php echo htmlspecialchars($spec); ?>"><?php echo htmlspecialchars($spec); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                    <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                                 </div>
                             </div>
                             
                             <p class="text-gray-500 text-xs mb-3">Pilih dari daftar yang tersedia</p>
                             
                             <!-- Selected Specializations Display -->
-                            <div id="specializations-container" class="flex flex-wrap gap-2 mt-3 min-h-12 p-3 bg-green-50 border border-green-200 rounded-lg transition-colors duration-300">
+                            <div id="specializations-container" class="flex flex-wrap gap-2 mt-3 min-h-12 p-3 bg-green-50 border border-green-200 rounded-lg transition-colors duration-300 mobile-profile-spec-tags">
                                 <?php
                                 if (!empty($user['specializations'])) {
                                     $specs = explode(',', $user['specializations']);
@@ -710,17 +807,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         $spec = trim($spec);
                                         if (!empty($spec)) {
                                             echo '<span class="specialization-tag bg-green-500 text-white px-3 py-2 rounded-full text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-200">';
-                                            echo '<span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>';
+                                            echo '<span class="iconify" data-icon="mdi:check-circle" data-width="14"></span>';
                                             echo htmlspecialchars($spec);
                                             echo '<button type="button" onclick="removeSpecialization(this)" class="text-white hover:text-green-200 transition-colors ml-1">';
-                                            echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
+                                            echo '<span class="iconify" data-icon="mdi:close" data-width="12"></span>';
                                             echo '</button>';
                                             echo '</span>';
                                         }
                                     }
                                 } else {
-                                    echo '<p class="text-gray-500 text-sm flex items-center gap-2">';
-                                    echo '<span class="iconify" data-icon="mdi:information" data-width="16"></span>';
+                                    echo '<p class="text-gray-500 text-sm flex items-center gap-2 justify-center sm:justify-start">';
+                                    echo '<span class="iconify" data-icon="mdi:information" data-width="14"></span>';
                                     echo 'Belum ada spesialisasi yang dipilih';
                                     echo '</p>';
                                 }
@@ -750,8 +847,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <!-- Success message -->
                             <div id="specSuccessMessage" class="hidden mt-3 p-3 bg-green-100 border border-green-300 rounded-lg">
                                 <p class="text-green-700 text-sm flex items-center gap-2">
-                                    <span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>
-                                    <span class="font-semibold">Bagus!</span> Spesialisasi telah dipilih. Ini akan membantu perusahaan menemukan profil Anda.
+                                    <span class="iconify" data-icon="mdi:check-circle" data-width="14"></span>
+                                    <span class="font-semibold">Bagus!</span> Spesialisasi telah dipilih.
                                 </p>
                             </div>
                         </div>
@@ -759,7 +856,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <!-- Skills from Projects Section -->
                     <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Skills dari Project</h3>
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Skills dari Project</h3>
                         <div>
                             <p class="text-sm text-gray-600 mb-4">Skills berikut otomatis diambil dari project yang telah Anda buat:</p>
                             
@@ -770,7 +867,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     $hasSkills = true;
                             ?>
                                 <div class="mb-6 last:mb-0">
-                                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center gap-2 text-sm sm:text-base">
                                         <?php 
                                         $icon = '';
                                         $color = '';
@@ -796,11 +893,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 $categoryName = ucfirst($category);
                                         }
                                         ?>
-                                        <span class="iconify <?php echo $color; ?>" data-icon="<?php echo $icon; ?>" data-width="20"></span>
+                                        <span class="iconify <?php echo $color; ?>" data-icon="<?php echo $icon; ?>" data-width="18"></span>
                                         <?php echo $categoryName; ?>
                                         <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full"><?php echo count($skills); ?></span>
                                     </h4>
-                                    <div class="flex flex-wrap gap-2">
+                                    <div class="flex flex-wrap gap-2 mobile-profile-skill-tags">
                                         <?php foreach ($skills as $skill): ?>
                                             <span class="skill-tag 
                                                 <?php 
@@ -823,11 +920,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             
                             if (!$hasSkills): 
                             ?>
-                                <div class="text-center py-8 bg-gray-50 rounded-xl">
-                                    <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:folder-open" data-width="48"></span>
-                                    <p class="text-gray-500">Belum ada skills dari project</p>
-                                    <p class="text-gray-400 text-sm mt-1">Skills akan otomatis muncul ketika Anda menambahkan project</p>
-                                    <a href="add-project.php" class="inline-block mt-4 bg-[#51A3B9] text-white px-4 py-2 rounded-lg hover:bg-[#409BB2] transition-colors">
+                                <div class="text-center py-6 bg-gray-50 rounded-xl">
+                                    <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:folder-open" data-width="32"></span>
+                                    <p class="text-gray-500 text-sm">Belum ada skills dari project</p>
+                                    <p class="text-gray-400 text-xs mt-1">Skills akan otomatis muncul ketika Anda menambahkan project</p>
+                                    <a href="add-project.php" class="inline-block mt-3 bg-[#51A3B9] text-white px-4 py-2 rounded-lg hover:bg-[#409BB2] transition-colors text-sm">
                                         Tambah Project Pertama
                                     </a>
                                 </div>
@@ -836,14 +933,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                        <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#2A8FA9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md" id="submitBtn">
-                            <span class="iconify" data-icon="mdi:content-save" data-width="20"></span>
-                            Simpan Perubahan
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6 border-t border-gray-200 mobile-profile-buttons">
+                        <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-6 sm:px-8 py-3 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#2A8FA9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md mobile-profile-button" id="submitBtn">
+                            <span class="iconify" data-icon="mdi:content-save" data-width="18"></span>
+                            <span class="text-sm sm:text-base">Simpan Perubahan</span>
                         </button>
-                        <a href="index.php" class="bg-gray-100 text-gray-700 px-8 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2">
-                            <span class="iconify" data-icon="mdi:close" data-width="20"></span>
-                            Batal
+                        <a href="index.php" class="bg-gray-100 text-gray-700 px-6 sm:px-8 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2 mobile-profile-button">
+                            <span class="iconify" data-icon="mdi:close" data-width="18"></span>
+                            <span class="text-sm sm:text-base">Batal</span>
                         </a>
                     </div>
                 </form>
@@ -851,63 +948,63 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
 
         <!-- Sidebar - Account Info -->
-        <div class="space-y-6">
+        <div class="lg:col-span-1 space-y-6 mobile-profile-sidebar">
             <!-- Profile Summary -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mobile-profile-card">
                 <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:account-box" data-width="20"></span>
+                    <span class="iconify" data-icon="mdi:account-box" data-width="18"></span>
                     Ringkasan Profil
                 </h3>
-                <div class="space-y-4">
+                <div class="space-y-3">
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
-                            <span class="iconify text-cyan-600" data-icon="mdi:calendar" data-width="18"></span>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                            <span class="iconify text-cyan-600" data-icon="mdi:calendar" data-width="14"></span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">Bergabung</p>
-                            <p class="font-semibold text-gray-900 text-sm"><?php echo date('d M Y', strtotime($user['created_at'])); ?></p>
+                            <p class="text-xs sm:text-sm text-gray-600">Bergabung</p>
+                            <p class="font-semibold text-gray-900 text-xs sm:text-sm"><?php echo date('d M Y', strtotime($user['created_at'])); ?></p>
                         </div>
                     </div>
                     
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span class="iconify text-blue-600" data-icon="mdi:account-tie" data-width="18"></span>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="iconify text-blue-600" data-icon="mdi:account-tie" data-width="14"></span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">Role</p>
-                            <p class="font-semibold text-gray-900 capitalize text-sm"><?php echo $user['role']; ?></p>
+                            <p class="text-xs sm:text-sm text-gray-600">Role</p>
+                            <p class="font-semibold text-gray-900 capitalize text-xs sm:text-sm"><?php echo $user['role']; ?></p>
                         </div>
                     </div>
                     
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                            <span class="iconify text-green-600" data-icon="mdi:email" data-width="18"></span>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="iconify text-green-600" data-icon="mdi:email" data-width="14"></span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">Email</p>
-                            <p class="font-semibold text-gray-900 text-sm"><?php echo htmlspecialchars($user['email']); ?></p>
+                            <p class="text-xs sm:text-sm text-gray-600">Email</p>
+                            <p class="font-semibold text-gray-900 text-xs sm:text-sm truncate"><?php echo htmlspecialchars($user['email']); ?></p>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                            <span class="iconify text-purple-600" data-icon="mdi:file-document" data-width="18"></span>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span class="iconify text-purple-600" data-icon="mdi:file-document" data-width="14"></span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">CV</p>
-                            <p class="font-semibold <?php echo !empty($user['cv_file_path']) ? 'text-green-600 text-sm' : 'text-gray-500 text-sm'; ?>">
+                            <p class="text-xs sm:text-sm text-gray-600">CV</p>
+                            <p class="font-semibold <?php echo !empty($user['cv_file_path']) ? 'text-green-600 text-xs sm:text-sm' : 'text-gray-500 text-xs sm:text-sm'; ?>">
                                 <?php echo !empty($user['cv_file_path']) ? 'Tersedia' : 'Belum diupload'; ?>
                             </p>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center">
-                            <span class="iconify text-[#2A8FA9]" data-icon="mdi:school" data-width="18"></span>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center">
+                            <span class="iconify text-[#2A8FA9]" data-icon="mdi:school" data-width="14"></span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">Semester</p>
-                            <p class="font-semibold text-gray-900 text-sm">
+                            <p class="text-xs sm:text-sm text-gray-600">Semester</p>
+                            <p class="font-semibold text-gray-900 text-xs sm:text-sm">
                                 <?php 
                                 if (!empty($user['semester'])) {
                                     echo $semesterOptions[$user['semester']] ?? $user['semester'];
@@ -922,19 +1019,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <!-- Specializations Summary -->
                     <?php if (!empty($user['specializations'])): ?>
                     <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span class="iconify text-indigo-600" data-icon="mdi:tag-multiple" data-width="18"></span>
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="iconify text-indigo-600" data-icon="mdi:tag-multiple" data-width="14"></span>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-sm text-gray-600 mb-2">Spesialisasi</p>
-                            <div class="flex flex-wrap gap-1">
+                            <p class="text-xs sm:text-sm text-gray-600 mb-2">Spesialisasi</p>
+                            <div class="flex flex-wrap gap-1 justify-center sm:justify-start">
                                 <?php
                                 $specs = explode(',', $user['specializations']);
                                 foreach ($specs as $spec):
                                     $spec = trim($spec);
                                     if (!empty($spec)):
                                 ?>
-                                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1.5 rounded-full text-xs font-medium my-0.5">
+                                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-2 py-1 rounded-full text-xs font-medium my-0.5">
                                         <?php echo htmlspecialchars($spec); ?>
                                     </span>
                                 <?php
@@ -949,27 +1046,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <!-- Danger Zone -->
-            <div class="bg-white rounded-2xl shadow-sm border border-red-100 p-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-red-100 p-4 sm:p-6 mobile-profile-card hidden lg:block">
                 <h3 class="text-lg font-bold text-red-800 mb-4 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
+                    <span class="iconify" data-icon="mdi:alert-circle" data-width="18"></span>
                     Zona Berbahaya
                 </h3>
-                <p class="text-red-600 text-sm mb-4">Tindakan ini tidak dapat dibatalkan</p>
+                <p class="text-red-600 text-xs sm:text-sm mb-4">Tindakan ini tidak dapat dibatalkan</p>
                 
                 <div class="space-y-3">
                     <!-- Logout Button -->
                     <button type="button" 
                             onclick="confirmLogout()"
-                            class="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <span class="iconify" data-icon="mdi:logout" data-width="18"></span>
+                            class="w-full bg-red-500 text-white py-2 sm:py-3 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer text-sm sm:text-base">
+                        <span class="iconify" data-icon="mdi:logout" data-width="16"></span>
                         Logout
                     </button>
                     
                     <!-- Delete Account Button -->
                     <button type="button" 
                             onclick="confirmDelete()"
-                            class="w-full bg-red-100 text-red-700 py-3 px-4 rounded-lg font-semibold hover:bg-red-200 transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <span class="iconify" data-icon="mdi:delete-forever" data-width="18"></span>
+                            class="w-full bg-red-100 text-red-700 py-2 sm:py-3 px-4 rounded-lg font-semibold hover:bg-red-200 transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer text-sm sm:text-base">
+                        <span class="iconify" data-icon="mdi:delete-forever" data-width="16"></span>
                         Hapus Akun
                     </button>
                     

@@ -50,6 +50,14 @@
             visibility: visible;
             transform: translateY(0);
         }
+
+        /* Mobile Optimizations */
+        @media (max-width: 640px) {
+            .mobile-dropdown {
+                right: 0;
+                width: 200px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -67,7 +75,7 @@
     <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
 
-            <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/index.php"
+            <a href="/cakrawala-connect/index.php"
                 class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala"
                     class="h-6">
@@ -89,7 +97,7 @@
                                     <span class="iconify text-white" data-icon="mdi:account" data-width="18"></span>
                                 </div>
                             <?php endif; ?>
-                            <span class="text-sm font-medium text-gray-700 sm:hidden lg:inline-block">
+                            <span class="text-sm font-medium text-gray-700 hidden sm:inline-block">
                                 <?php echo htmlspecialchars($_SESSION['name'] ?? 'User'); ?>
                                 <?php if($current_role === 'admin'): ?>
                                     <span class="text-xs text-gray-500 block">Admin</span>
@@ -98,7 +106,7 @@
                             <span class="iconify text-gray-500" data-icon="mdi:chevron-down" data-width="16"></span>
                         </button>
 
-                        <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                        <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50 mobile-dropdown">
                             <?php if($current_role !== 'admin'): ?>
                                 <a href="/cakrawala-connect/dashboard/<?php echo $folder_name; ?>/profile.php"
                                     class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
@@ -123,12 +131,12 @@
                 <?php else: ?>
                     <div class="flex items-center space-x-3">
                         <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
-                            <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
-                            Daftar
+                            <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
+                            <span class="hidden sm:inline">Daftar</span>
                         </a>
-                        <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
-                            <span class="iconify" data-icon="mdi:login" data-width="18"></span>
-                            Login
+                        <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
+                            <span class="iconify" data-icon="mdi:login" data-width="16"></span>
+                            <span class="hidden sm:inline">Login</span>
                         </a>
                     </div>
                 <?php endif; ?>
@@ -137,6 +145,7 @@
     </nav>
 
     <main>
+        <!-- Konten halaman landing page akan ditempatkan di sini -->
     </main>
 
 <script>

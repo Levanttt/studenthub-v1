@@ -367,60 +367,193 @@ function handleCertificateUpload($file, $user_id) {
 .technical-tag { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
 .soft-tag { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 .tool-tag { background-color: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+
+@media (max-width: 768px) {
+    .mobile-project-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .mobile-project-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .mobile-project-title {
+        font-size: 1.75rem;
+    }
+    
+    .mobile-project-back-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .mobile-project-card {
+        padding: 1.5rem;
+    }
+    
+    .mobile-project-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .mobile-project-form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .mobile-project-upload-area {
+        padding: 1.5rem;
+    }
+    
+    .mobile-project-upload-icon {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .mobile-project-button-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .mobile-project-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .mobile-project-textarea {
+        min-height: 120px;
+    }
+    
+    .mobile-project-select {
+        font-size: 16px; 
+    }
+    
+    .dropdown-options {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90vw;
+        max-height: 70vh;
+        z-index: 1001;
+    }
+    
+    .searchable-dropdown .dropdown-options {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90vw;
+        max-height: 70vh;
+        z-index: 1001;
+    }
+    
+    .dropdown-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .mobile-project-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .mobile-project-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .mobile-project-upload-text {
+        font-size: 0.875rem;
+    }
+    
+    .mobile-project-skill-tags {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .custom-dropdown-container {
+        position: relative;
+    }
+    
+    .custom-dropdown-options {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90vw !important;
+        max-height: 70vh !important;
+        z-index: 1001 !important;
+    }
+}
 </style>
 
-<div class="px-4 sm:px-6 lg:px-8 py-8">
+<div class="px-4 sm:px-6 lg:px-8 py-8 mobile-project-container">
     <!-- Header -->
-    <div class="flex justify-between items-center w-full mb-8">
-        <div class="flex-1">
-            <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                <span class="iconify" data-icon="mdi:plus-box" data-width="32"></span>
-                Tambah Proyek Baru
-            </h1>
-            <p class="text-gray-600 mt-2">Tunjukkan kemampuan nyata kamu melalui bukti kerja proyek</p>
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 mobile-project-header">
+            <div class="w-full sm:w-auto">
+                <h1 class="text-2xl sm:text-3xl font-bold text-[#2A8FA9] flex items-center gap-3 mobile-project-title">
+                    <span class="iconify" data-icon="mdi:plus-box" data-width="28"></span>
+                    Tambah Proyek Baru
+                </h1>
+                <p class="text-gray-600 mt-2 text-sm sm:text-base">Tunjukkan kemampuan nyata kamu melalui bukti kerja proyek</p>
+            </div>
+            <a href="projects.php" 
+                class="bg-[#E0F7FF] text-[#2A8FA9] px-4 sm:px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2 w-full sm:w-auto justify-center mobile-project-back-button">
+                <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
+                <span class="text-sm sm:text-base">Kembali</span>
+            </a>
         </div>
-        <a href="projects.php" 
-            class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
-            <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-            Kembali
-        </a>
     </div>
 
     <?php if ($error): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
             <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
             <?php echo $error; ?>
         </div>
     <?php endif; ?>
     
     <?php if ($success): ?>
-        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
             <span class="iconify" data-icon="mdi:check-circle" data-width="20"></span>
             <?php echo $success; ?>
         </div>
     <?php endif; ?>
 
     <!-- Project Form -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-        <form method="POST" action="" enctype="multipart/form-data" class="space-y-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 mobile-project-card">
+        <form method="POST" action="" enctype="multipart/form-data" class="space-y-6 sm:space-y-8">
             <!-- Basic Information -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:information" data-width="24"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:information" data-width="20"></span>
                     Informasi Dasar Proyek
                 </h2>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Judul Proyek *</label>
                     <input type="text" name="title" value="<?php echo isset($_POST['title']) ? htmlspecialchars($_POST['title']) : ''; ?>" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select" 
                             placeholder="Contoh: Aplikasi E-Commerce dengan Laravel" required maxlength="255">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Proyek *</label>
                     <textarea name="description" rows="6"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none mobile-project-textarea"
                     placeholder="Jelaskan proyek menggunakan metode STAR (Situasi, Task, Aksi, Result). Tulis dalam satu paragraf."
                     required><?php echo htmlspecialchars($project['description'] ?? ''); ?></textarea>
                 </div>
@@ -428,17 +561,17 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Project Details -->                      
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:clipboard-list" data-width="24"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:clipboard-list" data-width="20"></span>
                     Detail Proyek
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-project-form-grid">
                     <!-- Project Category -->
-                    <div class="relative" id="category-dropdown">
+                    <div class="relative custom-dropdown-container" id="category-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Proyek *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between mobile-project-select" data-toggle>
                             <div class="flex items-center gap-3">
                                 <?php 
                                 $current_category_value = $_POST['category'] ?? ''; 
@@ -453,15 +586,15 @@ function handleCertificateUpload($file, $user_id) {
                                     }
                                 }
                                 ?>
-                                <span class="iconify" data-icon="<?php echo htmlspecialchars($current_icon); ?>" data-width="20" data-selected-icon></span>
+                                <span class="iconify" data-icon="<?php echo htmlspecialchars($current_icon); ?>" data-width="18"></span>
                                 <span data-selected-text><?php echo htmlspecialchars($current_category_name); ?></span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                         </div>
                         
                         <input type="hidden" name="category" id="category-value" value="<?php echo htmlspecialchars($current_category_value); ?>" required>
                         
-                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto custom-dropdown-options" data-options>
                             <div class="p-2 space-y-1">
                                 <?php if (!empty($categories)): ?>
                                     <?php foreach ($categories as $category): ?>
@@ -470,13 +603,13 @@ function handleCertificateUpload($file, $user_id) {
                                             data-value="<?php echo htmlspecialchars($category['value']); ?>" 
                                             data-icon="<?php echo htmlspecialchars($category['icon']); ?>"
                                             data-display-name="<?php echo htmlspecialchars($category['name']); ?>">
-                                            <span class="iconify" data-icon="<?php echo htmlspecialchars($category['icon']); ?>" data-width="20"></span>
+                                            <span class="iconify" data-icon="<?php echo htmlspecialchars($category['icon']); ?>" data-width="18"></span>
                                             <span><?php echo htmlspecialchars($category['name']); ?></span>
                                         </div>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <div class="p-3 text-gray-500 text-sm text-center">
-                                        <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:alert-circle" data-width="18"></span>
                                         Tidak ada kategori tersedia
                                     </div>
                                 <?php endif; ?>
@@ -485,31 +618,31 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
 
                     <!-- Project Status -->
-                    <div class="relative" id="status-dropdown">
+                    <div class="relative custom-dropdown-container" id="status-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Status Proyek *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between mobile-project-select" data-toggle>
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:progress-clock" data-width="20" data-selected-icon></span>
+                                <span class="iconify" data-icon="mdi:progress-clock" data-width="18" data-selected-icon></span>
                                 <span data-selected-text>Pilih Status</span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                         </div>
                         
                         <input type="hidden" name="status" id="status-value" required>
                         
-                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden" data-options>
+                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden custom-dropdown-options" data-options>
                             <div class="p-2 space-y-1">
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="completed" data-icon="mdi:check-circle">
-                                    <span class="iconify" data-icon="mdi:check-circle" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:check-circle" data-width="18"></span>
                                     <span>Selesai</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="in-progress" data-icon="mdi:progress-clock">
-                                    <span class="iconify" data-icon="mdi:progress-clock" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:progress-clock" data-width="18"></span>
                                     <span>Dalam Pengerjaan</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="prototype" data-icon="mdi:flask">
-                                    <span class="iconify" data-icon="mdi:flask" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:flask" data-width="18"></span>
                                     <span>Prototype</span>
                                 </div>
                             </div>
@@ -520,8 +653,8 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Project Timeline & Credibility -->
             <div class="space-y-4">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:calendar-clock" data-width="24"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:calendar-clock" data-width="20"></span>
                     Timeline & Kredibilitas Proyek
                 </h2>
                 
@@ -535,28 +668,28 @@ function handleCertificateUpload($file, $user_id) {
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-project-form-grid">
                     <!-- Project Year -->
-                    <div class="relative" id="year-dropdown">
+                    <div class="relative custom-dropdown-container" id="year-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tahun Proyek *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between mobile-project-select" data-toggle>
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:calendar" data-width="20" data-selected-icon></span>
+                                <span class="iconify" data-icon="mdi:calendar" data-width="18" data-selected-icon></span>
                                 <span data-selected-text>Pilih Tahun</span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                         </div>
                         
                         <input type="hidden" name="project_year" id="year-value" required>
                         
-                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto custom-dropdown-options" data-options>
                             <div class="p-2 space-y-1">
                                 <?php
                                 $current_year = date('Y');
                                 for ($year = $current_year; $year >= $current_year - 5; $year--) {
                                     echo '<div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="'.$year.'" data-icon="mdi:calendar">
-                                        <span class="iconify" data-icon="mdi:calendar" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:calendar" data-width="18"></span>
                                         <span>'.$year.'</span>
                                     </div>';
                                 }
@@ -566,43 +699,43 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
 
                     <!-- Project Duration -->
-                    <div class="relative" id="duration-dropdown">
+                    <div class="relative custom-dropdown-container" id="duration-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Durasi Pengerjaan</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between mobile-project-select" data-toggle>
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:clock-outline" data-width="20" data-selected-icon></span>
+                                <span class="iconify" data-icon="mdi:clock-outline" data-width="18" data-selected-icon></span>
                                 <span data-selected-text>Pilih Durasi</span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                         </div>
                         
                         <input type="hidden" name="project_duration" id="duration-value">
                         
-                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto custom-dropdown-options" data-options>
                             <div class="p-2 space-y-1">
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="1-2 weeks" data-icon="mdi:clock-fast">
-                                    <span class="iconify" data-icon="mdi:clock-fast" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:clock-fast" data-width="18"></span>
                                     <span>1-2 Minggu</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="1 month" data-icon="mdi:clock-outline">
-                                    <span class="iconify" data-icon="mdi:clock-outline" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:clock-outline" data-width="18"></span>
                                     <span>1 Bulan</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="2-3 months" data-icon="mdi:clock">
-                                    <span class="iconify" data-icon="mdi:clock" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:clock" data-width="18"></span>
                                     <span>2-3 Bulan</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="4-6 months" data-icon="mdi:clock">
-                                    <span class="iconify" data-icon="mdi:clock" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:clock" data-width="18"></span>
                                     <span>4-6 Bulan</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="7-12 months" data-icon="mdi:clock">
-                                    <span class="iconify" data-icon="mdi:clock" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:clock" data-width="18"></span>
                                     <span>7-12 Bulan</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="1+ years" data-icon="mdi:calendar">
-                                    <span class="iconify" data-icon="mdi:calendar" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:calendar" data-width="18"></span>
                                     <span>1+ Tahun</span>
                                 </div>
                             </div>
@@ -610,41 +743,41 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-project-form-grid">
                     <!-- Project Type -->
-                    <div class="relative" id="project-type-dropdown">
+                    <div class="relative custom-dropdown-container" id="project-type-dropdown">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tipe Proyek *</label>
                         
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between" data-toggle>
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors cursor-pointer bg-white flex items-center justify-between mobile-project-select" data-toggle>
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:folder-outline" data-width="20" data-selected-icon></span>
+                                <span class="iconify" data-icon="mdi:folder-outline" data-width="18" data-selected-icon></span>
                                 <span data-selected-text>Pilih Tipe Proyek</span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                         </div>
                         
                         <input type="hidden" name="project_type" id="project-type-value" required>
                         
-                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto" data-options>
+                        <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto custom-dropdown-options" data-options>
                             <div class="p-2 space-y-1">
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="academic" data-icon="mdi:school">
-                                    <span class="iconify" data-icon="mdi:school" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:school" data-width="18"></span>
                                     <span>Project Akademik</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="personal" data-icon="mdi:account">
-                                    <span class="iconify" data-icon="mdi:account" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:account" data-width="18"></span>
                                     <span>Project Personal</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="freelance" data-icon="mdi:briefcase">
-                                    <span class="iconify" data-icon="mdi:briefcase" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:briefcase" data-width="18"></span>
                                     <span>Project Freelance</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="internship" data-icon="mdi:office-building">
-                                    <span class="iconify" data-icon="mdi:office-building" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:office-building" data-width="18"></span>
                                     <span>Project Internship</span>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded cursor-pointer" data-option data-value="competition" data-icon="mdi:trophy">
-                                    <span class="iconify" data-icon="mdi:trophy" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:trophy" data-width="18"></span>
                                     <span>Project Kompetisi</span>
                                 </div>
                             </div>
@@ -655,8 +788,8 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Skills Section -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:tag-multiple" data-width="24"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:tag-multiple" data-width="20"></span>
                     Keterampilan yang Digunakan *
                 </h2>
                 <p class="text-gray-500 text-sm -mt-4">Klik dropdown dan ketik untuk mencari skill. Pilih dari daftar yang tersedia.</p>
@@ -665,12 +798,12 @@ function handleCertificateUpload($file, $user_id) {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Technical Skills *</label>
                     <div class="searchable-dropdown">
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="technical">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle mobile-project-select" data-category="technical">
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
+                                <span class="iconify" data-icon="mdi:code-braces" data-width="18"></span>
                                 <span class="skill-placeholder">Pilih Technical Skills</span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                         </div>
                         
                         <div class="dropdown-options" data-category="technical">
@@ -687,14 +820,14 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                     
                     <!-- Selected skills display -->
-                    <div id="selected-technical-skills" class="flex flex-wrap gap-2 mt-3">
+                    <div id="selected-technical-skills" class="flex flex-wrap gap-2 mt-3 mobile-project-skill-tags">
                         <?php
                         if (isset($_POST['skills'])) {
                             foreach ($_POST['skills'] as $skill) {
                                 if (!empty(trim($skill)) && in_array($skill, $skills_by_category['technical'])) {
                                     echo '<span class="skill-tag technical-tag">';
                                     echo htmlspecialchars($skill);
-                                    echo '<button type="button" onclick="removeSkill(this, \'' . htmlspecialchars($skill) . '\', \'technical\')">';
+                                    echo '<button type="button" onclick="searchableDropdown.removeSkill(\'' . htmlspecialchars($skill) . '\', \'technical\')">';
                                     echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
                                     echo '</button>';
                                     echo '</span>';
@@ -710,12 +843,12 @@ function handleCertificateUpload($file, $user_id) {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Soft Skills</label>
                     <div class="searchable-dropdown">
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="soft">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle mobile-project-select" data-category="soft">
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:account-group" data-width="20"></span>
+                                <span class="iconify" data-icon="mdi:account-group" data-width="18"></span>
                                 <span class="skill-placeholder">Pilih Soft Skills</span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                         </div>
                         
                         <div class="dropdown-options" data-category="soft">
@@ -732,14 +865,14 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                     
                     <!-- Selected skills display -->
-                    <div id="selected-soft-skills" class="flex flex-wrap gap-2 mt-3">
+                    <div id="selected-soft-skills" class="flex flex-wrap gap-2 mt-3 mobile-project-skill-tags">
                         <?php
                         if (isset($_POST['skills'])) {
                             foreach ($_POST['skills'] as $skill) {
                                 if (!empty(trim($skill)) && in_array($skill, $skills_by_category['soft'])) {
                                     echo '<span class="skill-tag soft-tag">';
                                     echo htmlspecialchars($skill);
-                                    echo '<button type="button" onclick="removeSkill(this, \'' . htmlspecialchars($skill) . '\', \'soft\')">';
+                                    echo '<button type="button" onclick="searchableDropdown.removeSkill(\'' . htmlspecialchars($skill) . '\', \'soft\')">';
                                     echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
                                     echo '</button>';
                                     echo '</span>';
@@ -755,12 +888,12 @@ function handleCertificateUpload($file, $user_id) {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tools & Software</label>
                     <div class="searchable-dropdown">
-                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle" data-category="tool">
+                        <div class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors cursor-pointer bg-white flex items-center justify-between skill-dropdown-toggle mobile-project-select" data-category="tool">
                             <div class="flex items-center gap-3">
-                                <span class="iconify" data-icon="mdi:tools" data-width="20"></span>
+                                <span class="iconify" data-icon="mdi:tools" data-width="18"></span>
                                 <span class="skill-placeholder">Pilih Tools & Software</span>
                             </div>
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
                         </div>
                         
                         <div class="dropdown-options" data-category="tool">
@@ -777,14 +910,14 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                     
                     <!-- Selected skills display -->
-                    <div id="selected-tool-skills" class="flex flex-wrap gap-2 mt-3">
+                    <div id="selected-tool-skills" class="flex flex-wrap gap-2 mt-3 mobile-project-skill-tags">
                         <?php
                         if (isset($_POST['skills'])) {
                             foreach ($_POST['skills'] as $skill) {
                                 if (!empty(trim($skill)) && in_array($skill, $skills_by_category['tool'])) {
                                     echo '<span class="skill-tag tool-tag">';
                                     echo htmlspecialchars($skill);
-                                    echo '<button type="button" onclick="removeSkill(this, \'' . htmlspecialchars($skill) . '\', \'tool\')">';
+                                    echo '<button type="button" onclick="searchableDropdown.removeSkill(\'' . htmlspecialchars($skill) . '\', \'tool\')">';
                                     echo '<span class="iconify" data-icon="mdi:close" data-width="14"></span>';
                                     echo '</button>';
                                     echo '</span>';
@@ -809,27 +942,27 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Media & Links -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:link" data-width="24"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:link" data-width="20"></span>
                     Media & Tautan
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-project-grid">
                     <!-- Main Project Image -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-3">Gambar Utama Proyek</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50 mobile-project-upload-area">
                             <div class="flex flex-col items-center justify-center mb-4">
                                 <div class="text-gray-400 mb-3">
-                                    <span class="iconify" data-icon="mdi:image" data-width="64"></span>
+                                    <span class="iconify mobile-project-upload-icon" data-icon="mdi:image" data-width="48"></span>
                                 </div>
-                                <p class="text-lg font-medium text-gray-700 mb-1">Gambar cover/utama proyek</p>
-                                <p class="text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
+                                <p class="text-base sm:text-lg font-medium text-gray-700 mb-1 mobile-project-upload-text">Gambar cover/utama proyek</p>
+                                <p class="text-xs sm:text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
                             </div>
                             
                             <label class="cursor-pointer inline-block">
-                                <span class="bg-[#51A3B9] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                                    <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
+                                <span class="bg-[#51A3B9] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2 text-sm sm:text-base">
+                                    <span class="iconify" data-icon="mdi:folder-open" data-width="16"></span>
                                     Pilih File
                                 </span>
                                 <input type="file" name="project_image" accept="image/*" 
@@ -845,18 +978,18 @@ function handleCertificateUpload($file, $user_id) {
                     <!-- Gallery Images -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-3">Gallery Proyek (Multiple)</label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50 mobile-project-upload-area">
                             <div class="flex flex-col items-center justify-center mb-4">
                                 <div class="text-gray-400 mb-3">
-                                    <span class="iconify" data-icon="mdi:image-multiple" data-width="64"></span>
+                                    <span class="iconify mobile-project-upload-icon" data-icon="mdi:image-multiple" data-width="48"></span>
                                 </div>
-                                <p class="text-lg font-medium text-gray-700 mb-1">Upload screenshot atau mockup</p>
-                                <p class="text-sm text-gray-500">Drag & drop file atau klik untuk memilih (max 6 files)</p>
+                                <p class="text-base sm:text-lg font-medium text-gray-700 mb-1 mobile-project-upload-text">Upload screenshot atau mockup</p>
+                                <p class="text-xs sm:text-sm text-gray-500">Drag & drop file atau klik untuk memilih (max 6 files)</p>
                             </div>
                             
                             <label class="cursor-pointer inline-block">
-                                <span class="bg-[#409BB2] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#2A8FA9] transition-colors duration-300 inline-flex items-center gap-2">
-                                    <span class="iconify" data-icon="mdi:folder-multiple-image" data-width="20"></span>
+                                <span class="bg-[#409BB2] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-[#2A8FA9] transition-colors duration-300 inline-flex items-center gap-2 text-sm sm:text-base">
+                                    <span class="iconify" data-icon="mdi:folder-multiple-image" data-width="16"></span>
                                     Pilih File
                                 </span>
                                 <input type="file" name="project_gallery[]" accept="image/*" 
@@ -870,16 +1003,16 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mobile-project-form-grid">
                     <!-- GitHub -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">GitHub Repository (Opsional)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <span class="iconify" data-icon="mdi:github" data-width="20"></span>
+                                <span class="iconify" data-icon="mdi:github" data-width="18"></span>
                             </span>
                             <input type="url" name="github_url" value="<?php echo isset($_POST['github_url']) ? htmlspecialchars($_POST['github_url']) : ''; ?>" 
-                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select" 
                                     placeholder="https://github.com/username/repo">
                         </div>
                     </div>
@@ -889,10 +1022,10 @@ function handleCertificateUpload($file, $user_id) {
                         <label class="block text-sm font-medium text-gray-700 mb-2">Link Desain / Mockup (Opsional)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <span class="iconify" data-icon="mdi:palette" data-width="20"></span>
+                                <span class="iconify" data-icon="mdi:palette" data-width="18"></span>
                             </span>
                             <input type="url" name="figma_url" value="<?php echo isset($_POST['figma_url']) ? htmlspecialchars($_POST['figma_url']) : ''; ?>" 
-                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select" 
                                     placeholder="https://figma.com/file/...">
                         </div>
                     </div>
@@ -902,10 +1035,10 @@ function handleCertificateUpload($file, $user_id) {
                     <label class="block text-sm font-medium text-gray-700 mb-2">Project Link Terkait (Opsional)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <span class="iconify" data-icon="mdi:link" data-width="20"></span>
+                                <span class="iconify" data-icon="mdi:link" data-width="18"></span>
                             </span>
                             <input type="url" name="demo_url" value="<?php echo isset($_POST['demo_url']) ? htmlspecialchars($_POST['demo_url']) : ''; ?>" 
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select" 
                                 placeholder="https://your-project-link.com">
                         </div>
                     </div>
@@ -916,10 +1049,10 @@ function handleCertificateUpload($file, $user_id) {
                     <label class="block text-sm font-medium text-gray-700 mb-2">Video URL (YouTube, etc.)</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <span class="iconify" data-icon="mdi:video" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:video" data-width="18"></span>
                         </span>
                         <input type="url" name="video_url" value="<?php echo isset($_POST['video_url']) ? htmlspecialchars($_POST['video_url']) : ''; ?>" 
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select" 
                                 placeholder="https://youtube.com/watch?v=...">
                     </div>
                 </div>
@@ -927,8 +1060,8 @@ function handleCertificateUpload($file, $user_id) {
 
             <!-- Certificate Upload -->
             <div class="space-y-6">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:certificate" data-width="20"></span>
                     Sertifikat (Opsional)
                 </h2>
 
@@ -945,18 +1078,18 @@ function handleCertificateUpload($file, $user_id) {
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">Upload Sertifikat</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50 mobile-project-upload-area">
                         <div class="flex flex-col items-center justify-center mb-4">
                             <div class="text-gray-400 mb-3">
-                                <span class="iconify" data-icon="mdi:certificate-outline" data-width="64"></span>
+                                <span class="iconify mobile-project-upload-icon" data-icon="mdi:certificate-outline" data-width="48"></span>
                             </div>
-                            <p class="text-lg font-medium text-gray-700 mb-1">Upload sertifikat proyek</p>
-                            <p class="text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
+                            <p class="text-base sm:text-lg font-medium text-gray-700 mb-1 mobile-project-upload-text">Upload sertifikat proyek</p>
+                            <p class="text-xs sm:text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
                         </div>
                         
                         <label class="cursor-pointer inline-block">
-                            <span class="bg-[#489EB7] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                                <span class="iconify" data-icon="mdi:certificate" data-width="20"></span>
+                            <span class="bg-[#489EB7] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2 text-sm sm:text-base">
+                                <span class="iconify" data-icon="mdi:certificate" data-width="16"></span>
                                 Pilih Sertifikat
                             </span>
                             <input type="file" name="certificate_file" accept=".pdf,.jpg,.jpeg,.png" 
@@ -970,8 +1103,8 @@ function handleCertificateUpload($file, $user_id) {
 
                 <!-- Certificate Information Form (HIDDEN BY DEFAULT) -->
                 <div id="certificate-info-form" class="hidden space-y-6 pt-6 border-t border-gray-200">
-                    <h3 class="text-xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                        <span class="iconify" data-icon="mdi:certificate-edit" data-width="20"></span>
+                    <h3 class="text-lg sm:text-xl font-bold text-[#2A8FA9] flex items-center gap-3">
+                        <span class="iconify" data-icon="mdi:certificate-edit" data-width="18"></span>
                         Informasi Sertifikat
                     </h3>
 
@@ -986,11 +1119,11 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
 
                     <!-- Informasi Kredensial Sertifikat -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mobile-project-form-grid">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">ID Kredensial Sertifikat</label>
                             <input type="text" name="certificate_credential_id" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select" 
                                 placeholder="Contoh: ABC123XYZ, 123-456-789">
                             <p class="text-xs text-gray-500 mt-1">ID unik untuk verifikasi sertifikat</p>
                         </div>
@@ -998,25 +1131,25 @@ function handleCertificateUpload($file, $user_id) {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Link Verifikasi Sertifikat</label>
                             <input type="url" name="certificate_credential_url" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select" 
                                 placeholder="https://credential.net/verify/12345">
                             <p class="text-xs text-gray-500 mt-1">Link untuk verifikasi online sertifikat</p>
                         </div>
                     </div>
 
                     <!-- Tanggal Sertifikat -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mobile-project-form-grid">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Diterbitkan</label>
                             <input type="date" name="certificate_issue_date" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select">
                             <p class="text-xs text-gray-500 mt-1">Tanggal sertifikat diterbitkan</p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kadaluarsa</label>
                             <input type="date" name="certificate_expiry_date" 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors mobile-project-select">
                             <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada masa berlaku</p>
                         </div>
                     </div>
@@ -1025,7 +1158,7 @@ function handleCertificateUpload($file, $user_id) {
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Sertifikat</label>
                         <textarea name="certificate_description" rows="3"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none mobile-project-textarea"
                                 placeholder="Jelaskan tentang sertifikat ini, misalnya: 'Sertifikat lulus bootcamp dengan project..'"></textarea>
                         <p class="text-xs text-gray-500 mt-1">Deskripsi singkat tentang sertifikat dan pencapaiannya</p>
                     </div>
@@ -1043,19 +1176,21 @@ function handleCertificateUpload($file, $user_id) {
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200">
-                <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-8 py-4 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#51A3B9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md flex-1">
-                    <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>
-                    Publikasikan Proyek
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6 border-t border-gray-200 mobile-project-button-group">
+                <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-6 sm:px-8 py-3 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#51A3B9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md flex-1 mobile-project-button">
+                    <span class="iconify" data-icon="mdi:rocket-launch" data-width="18"></span>
+                    <span class="text-sm sm:text-base">Publikasikan Proyek</span>
                 </button>
-                <a href="index.php" class="bg-gray-100 text-gray-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2">
-                    <span class="iconify" data-icon="mdi:close" data-width="20"></span>
-                    Batal
+                <a href="index.php" class="bg-gray-100 text-gray-700 px-6 sm:px-8 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2 mobile-project-button">
+                    <span class="iconify" data-icon="mdi:close" data-width="18"></span>
+                    <span class="text-sm sm:text-base">Batal</span>
                 </a>
             </div>
         </form>
     </div>
 </div>
+
+<div class="dropdown-overlay" id="dropdown-overlay"></div>
 
 <script>
 class CustomDropdown {
@@ -1066,6 +1201,7 @@ class CustomDropdown {
         this.hiddenInput = this.container.querySelector('input[type="hidden"]');
         this.selectedText = this.container.querySelector('[data-selected-text]');
         this.selectedIcon = this.container.querySelector('[data-selected-icon]');
+        this.overlay = document.getElementById('dropdown-overlay');
         
         this.init();
     }
@@ -1073,11 +1209,11 @@ class CustomDropdown {
     init() {
         this.toggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            this.options.classList.toggle('hidden');
+            this.toggleDropdown();
         });
         
         document.addEventListener('click', () => {
-            this.options.classList.add('hidden');
+            this.closeDropdown();
         });
         
         this.options.querySelectorAll('[data-option]').forEach(option => {
@@ -1095,19 +1231,54 @@ class CustomDropdown {
                 });
                 option.classList.add('bg-[#E0F7FF]', 'text-[#2A8FA9]');
                 
-                this.options.classList.add('hidden');
+                this.closeDropdown();
             });
         });
         
         this.options.addEventListener('click', (e) => {
             e.stopPropagation();
         });
+
+        // Close on overlay click
+        if (this.overlay) {
+            this.overlay.addEventListener('click', () => {
+                this.closeDropdown();
+            });
+        }
+    }
+
+    toggleDropdown() {
+        const isOpen = !this.options.classList.contains('hidden');
+        this.closeAllDropdowns();
+        
+        if (!isOpen) {
+            this.options.classList.remove('hidden');
+            if (window.innerWidth <= 768) {
+                this.overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+    }
+
+    closeDropdown() {
+        this.options.classList.add('hidden');
+        this.overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    closeAllDropdowns() {
+        document.querySelectorAll('.custom-dropdown-options').forEach(dropdown => {
+            dropdown.classList.add('hidden');
+        });
+        this.overlay.style.display = 'none';
+        document.body.style.overflow = '';
     }
 }
 
 class SearchableDropdown {
     constructor() {
         this.selectedSkills = new Set();
+        this.overlay = document.getElementById('dropdown-overlay');
         this.init();
     }
 
@@ -1143,6 +1314,13 @@ class SearchableDropdown {
         document.addEventListener('click', () => {
             this.closeAllDropdowns();
         });
+
+        // Close on overlay click
+        if (this.overlay) {
+            this.overlay.addEventListener('click', () => {
+                this.closeAllDropdowns();
+            });
+        }
     }
 
     toggleDropdown(category) {
@@ -1157,6 +1335,11 @@ class SearchableDropdown {
             searchInput.value = '';
             searchInput.focus();
             this.filterOptions(category, '');
+            
+            if (window.innerWidth <= 768) {
+                this.overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
         }
     }
 
@@ -1164,6 +1347,8 @@ class SearchableDropdown {
         document.querySelectorAll('.dropdown-options').forEach(dropdown => {
             dropdown.style.display = 'none';
         });
+        this.overlay.style.display = 'none';
+        document.body.style.overflow = '';
     }
 
     filterOptions(category, query) {
@@ -1383,6 +1568,14 @@ function removeCertificate() {
         field.value = '';
     });
 }
+
+window.addEventListener('resize', function() {
+    const overlay = document.getElementById('dropdown-overlay');
+    if (window.innerWidth > 768) {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+});
 </script>
 
 <?php include '../../includes/footer.php'; ?>

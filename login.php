@@ -95,7 +95,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .focus\:ring-cakrawala-primary:focus { --tw-ring-color: var(--cakrawala-primary); }
         .focus\:border-cakrawala-primary:focus { border-color: var(--cakrawala-primary); }
 
-        .auth-height { min-height: calc(100vh - 64px); } 
+        .auth-height { min-height: calc(100vh - 64px); }
+        
+        @media (max-width: 640px) {
+            .mobile-padding {
+                padding: 1rem;
+            }
+            
+            .mobile-height {
+                min-height: calc(100vh - 56px);
+            }
+        }
     </style>
 </head>
 <body class="bg-cakrawala-light-gray"> 
@@ -108,28 +118,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="flex items-center space-x-3">
                 <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
                     <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
-                    Daftar
+                    <span class="hidden sm:inline">Daftar</span>
                 </a>
-                <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
+                <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
                     <span class="iconify" data-icon="mdi:login" data-width="16"></span>
-                    Login
+                    <span class="hidden sm:inline">Login</span>
                 </a>
             </div>
         </div>
     </nav>
 
-    <main class="auth-height flex items-center justify-center p-4">
+    <main class="auth-height mobile-height flex items-center justify-center p-4 mobile-padding">
         <div class="w-full max-w-md">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-[var(--cakrawala-primary)] to-[var(--cakrawala-secondary)] p-6 text-center text-white">
                     <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-white/20 mb-3">
                         <span class="iconify text-white" data-icon="mdi:login" data-width="24"></span>
                     </div>
-                    <h2 class="text-2xl font-bold">Login Cakrawala Connect</h2> 
-                    <p class="mt-1 text-blue-100">Masuk ke akun Anda</p>
+                    <h2 class="text-xl sm:text-2xl font-bold">Login Cakrawala Connect</h2> 
+                    <p class="mt-1 text-blue-100 text-sm sm:text-base">Masuk ke akun Anda</p>
                 </div>
 
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
                     <?php if (!empty($error)): ?>
                         <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
                             <span class="iconify" data-icon="mdi:alert-circle" data-width="16"></span>

@@ -172,10 +172,10 @@ if (isLoggedIn()) {
     <div class="particle-container" id="particles"></div>
     <div class="absolute inset-0 mesh-gradient"></div>
     <div class="absolute inset-0 pattern-dots"></div>
-    <div class="shape shape-circle w-32 h-32 top-20 left-10 animate-float" style="animation-duration: 6s;"></div>
-    <div class="shape shape-square w-24 h-24 top-40 right-20 animate-float" style="animation-duration: 8s; animation-delay: 1s;"></div>
-    <div class="shape shape-circle w-40 h-40 bottom-20 left-1/4 animate-float" style="animation-duration: 7s; animation-delay: 2s;"></div>
-    <div class="shape shape-triangle top-1/2 right-10 animate-float" style="animation-duration: 9s;"></div>
+    <div class="shape shape-circle w-32 h-32 top-20 left-10 animate-float hidden lg:block" style="animation-duration: 6s;"></div>
+    <div class="shape shape-square w-24 h-24 top-40 right-20 animate-float hidden lg:block" style="animation-duration: 8s; animation-delay: 1s;"></div>
+    <div class="shape shape-circle w-40 h-40 bottom-20 left-1/4 animate-float hidden lg:block" style="animation-duration: 7s; animation-delay: 2s;"></div>
+    <div class="shape shape-triangle top-1/2 right-10 animate-float hidden lg:block" style="animation-duration: 9s;"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -199,7 +199,9 @@ if (isLoggedIn()) {
                     </a>
                 </div>
             </div>
-            <div class="flex justify-center animate-slide-in-right">
+            
+            <!-- Illustration Section - Hidden on Mobile -->
+            <div class="hidden lg:flex justify-center animate-slide-in-right">
                 <div class="relative w-full max-w-md">
                     <!-- Main Illustration Card -->
                     <div class="relative bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
@@ -258,7 +260,7 @@ if (isLoggedIn()) {
                                         </svg>
                                     </div>
                                     <!-- Industry badge -->
-                                    <div class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow">50+</div>
+                                    <div class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow">850+</div>
                                 </div>
                             </div>
                             
@@ -288,7 +290,7 @@ if (isLoggedIn()) {
                     </div>
                     
                     <div class="absolute -right-8 bottom-20 bg-white rounded-lg shadow-xl p-3 animate-float" style="animation-delay: 1s;">
-                        <div class="text-2xl font-bold text-[#F9A825]">50+</div>
+                        <div class="text-2xl font-bold text-[#F9A825]">850+</div>
                         <div class="text-xs text-gray-600">Industri</div>
                     </div>
                 </div>
@@ -767,6 +769,7 @@ function createParticles() {
 }
 
 window.addEventListener('load', createParticles);
+
 
 const observerOptions = {
     threshold: 0.1,

@@ -185,32 +185,33 @@ usort($certificates, function($a, $b) {
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
     <!-- Header -->
-    <div class="mb-8">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div>
-                <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:account-eye" data-width="32"></span>
-                    Preview Profil Publik
+    <div class="mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6">
+            <div class="w-full sm:w-auto">
+                <h1 class="text-2xl sm:text-3xl font-bold text-[#2A8FA9] flex items-center gap-2 sm:gap-3">
+                    <span class="iconify" data-icon="mdi:account-eye" data-width="24" data-height="24" class="sm:w-8 sm:h-8"></span>
+                    <span class="break-words">Preview Profil Publik</span>
                 </h1>
-                <p class="text-gray-600 mt-2">Ini adalah tampilan profil kamu yang dilihat oleh mitra industri</p>
+                <p class="text-sm sm:text-base text-gray-600 mt-2">Ini adalah tampilan profil kamu yang dilihat oleh mitra industri</p>
             </div>
-            <div class="flex gap-3">
-                <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
+            <div class="flex gap-2 sm:gap-3 w-full sm:w-auto">
+                <a href="index.php" class="flex-1 sm:flex-none bg-[#E0F7FF] text-[#2A8FA9] px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center justify-center gap-2">
                     <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
-                    Kembali ke Dashboard
+                    <span class="hidden sm:inline">Kembali ke Dashboard</span>
+                    <span class="sm:hidden">Kembali</span>
                 </a>
             </div>
         </div>
         
         <!-- Info Box -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-            <div class="flex items-start gap-3">
-                <span class="iconify text-blue-600 mt-0.5" data-icon="mdi:information" data-width="20"></span>
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+            <div class="flex items-start gap-2 sm:gap-3">
+                <span class="iconify text-blue-600 mt-0.5 flex-shrink-0" data-icon="mdi:information" data-width="20"></span>
                 <div>
-                    <h3 class="font-semibold text-blue-900">Tips Profil Menarik</h3>
-                    <p class="text-blue-700 text-sm mt-1">
+                    <h3 class="font-semibold text-blue-900 text-sm sm:text-base">Tips Profil Menarik</h3>
+                    <p class="text-blue-700 text-xs sm:text-sm mt-1">
                         Pastikan foto profil profesional, deskripsi diri lengkap, dan project terbaru sudah diupload 
                         untuk meningkatkan peluang dilirik oleh mitra industri.
                     </p>
@@ -219,42 +220,42 @@ usort($certificates, function($a, $b) {
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
         <!-- Sidebar - Profile Info -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-8">
+        <div class="lg:col-span-1 order-1 lg:order-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:sticky lg:top-8">
                 <!-- Profile Photo & Basic Info -->
-                <div class="text-center mb-6">
+                <div class="text-center mb-4 sm:mb-6">
                     <?php if (!empty($student['profile_picture'])): ?>
-                        <img class="h-32 w-32 rounded-full object-cover border-4 border-[#E0F7FF] mx-auto mb-4 shadow-lg" 
+                        <img class="h-24 w-24 sm:h-32 sm:w-32 rounded-full object-cover border-4 border-[#E0F7FF] mx-auto mb-3 sm:mb-4 shadow-lg" 
                             src="<?php echo htmlspecialchars($student['profile_picture']); ?>" 
                             alt="<?php echo htmlspecialchars($student['name']); ?>">
                     <?php else: ?>
-                        <div class="h-32 w-32 rounded-full bg-gradient-to-br from-[#409BB2] to-[#2A8FA9] flex items-center justify-center border-4 border-[#E0F7FF] mx-auto mb-4 shadow-lg">
-                            <span class="iconify text-white" data-icon="mdi:account" data-width="48"></span>
+                        <div class="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-gradient-to-br from-[#409BB2] to-[#2A8FA9] flex items-center justify-center border-4 border-[#E0F7FF] mx-auto mb-3 sm:mb-4 shadow-lg">
+                            <span class="iconify text-white" data-icon="mdi:account" data-width="36" data-height="36" class="sm:w-12 sm:h-12"></span>
                         </div>
                     <?php endif; ?>
                     
-                    <h1 class="text-2xl font-bold text-[#2A8FA9] mb-2"><?php echo htmlspecialchars($student['name']); ?></h1>
+                    <h1 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-2 break-words"><?php echo htmlspecialchars($student['name']); ?></h1>
                     
                     <?php if (!empty($student['major'])): ?>
-                        <p class="text-gray-600 font-medium mb-1"><?php echo htmlspecialchars($student['major']); ?></p>
+                        <p class="text-sm sm:text-base text-gray-600 font-medium mb-1 break-words"><?php echo htmlspecialchars($student['major']); ?></p>
                     <?php endif; ?>
                     
                     <?php if (!empty($student['semester'])): ?>
-                        <p class="text-gray-500 text-sm mb-4">Semester <?php echo htmlspecialchars($student['semester']); ?></p>
+                        <p class="text-gray-500 text-xs sm:text-sm mb-3 sm:mb-4">Semester <?php echo htmlspecialchars($student['semester']); ?></p>
                     <?php endif; ?>
                     
                     <!-- Specializations -->
                     <?php if (!empty($student['specializations'])): ?>
-                        <div class="flex flex-wrap gap-2 justify-center mb-6 mt-2">
+                        <div class="flex flex-wrap gap-1.5 sm:gap-2 justify-center mb-4 sm:mb-6 mt-2">
                             <?php 
                             $specs = explode(',', $student['specializations']);
                             foreach ($specs as $spec):
                                 $spec = trim($spec);
                                 if (!empty($spec)):
                             ?>
-                                <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1.5 rounded-full text-xs font-medium my-0.5">
+                                <span class="bg-[#E0F7FF] text-[#2A8FA9] px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium my-0.5">
                                     <?php echo htmlspecialchars($spec); ?>
                                 </span>
                             <?php 
@@ -266,16 +267,16 @@ usort($certificates, function($a, $b) {
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="space-y-3 mb-6">
+                <div class="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                     <?php if (!empty($student['cv_file_path'])): ?>
                         <a href="<?php echo htmlspecialchars($student['cv_file_path']); ?>" 
                         target="_blank"
-                        class="w-full bg-[#2A8FA9] text-white py-3 px-4 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
+                        class="w-full bg-[#2A8FA9] text-white py-2.5 sm:py-3 px-4 rounded-xl text-sm sm:text-base font-bold hover:bg-[#409BB2] transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
                             <span class="iconify" data-icon="mdi:file-eye" data-width="18"></span>
                             Lihat CV
                         </a>
                     <?php else: ?>
-                        <div class="w-full bg-gray-100 text-gray-500 py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm cursor-not-allowed">
+                        <div class="w-full bg-gray-100 text-gray-500 py-2.5 sm:py-3 px-4 rounded-xl text-sm sm:text-base font-bold flex items-center justify-center gap-2 shadow-sm cursor-not-allowed">
                             <span class="iconify" data-icon="mdi:file-remove" data-width="18"></span>
                             CV Belum Tersedia
                         </div>
@@ -284,7 +285,7 @@ usort($certificates, function($a, $b) {
                     <?php if (!empty($student['linkedin'])): ?>
                         <a href="<?php echo htmlspecialchars($student['linkedin']); ?>" 
                             target="_blank"
-                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
+                            class="w-full bg-blue-600 text-white py-2.5 sm:py-3 px-4 rounded-xl text-sm sm:text-base font-bold hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
                             <span class="iconify" data-icon="mdi:linkedin" data-width="18"></span>
                             LinkedIn Profile
                         </a>
@@ -292,22 +293,22 @@ usort($certificates, function($a, $b) {
                 </div>
 
                 <!-- Contact Info -->
-                <div class="border-t border-gray-200 pt-6">
-                    <h3 class="text-lg font-semibold text-[#2A8FA9] mb-4 flex items-center gap-2">
+                <div class="border-t border-gray-200 pt-4 sm:pt-6">
+                    <h3 class="text-base sm:text-lg font-semibold text-[#2A8FA9] mb-3 sm:mb-4 flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:contact-mail" data-width="20"></span>
                         Kontak
                     </h3>
                     
-                    <div class="space-y-3">
+                    <div class="space-y-2 sm:space-y-3">
                         <!-- Email -->
-                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:email" data-width="18"></span>
+                        <div class="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-gray-50 rounded-lg">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:email" data-width="16" data-height="16" class="sm:w-[18px] sm:h-[18px]"></span>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="text-sm text-gray-600">Email</p>
+                                <p class="text-xs sm:text-sm text-gray-600">Email</p>
                                 <a href="mailto:<?php echo htmlspecialchars($student['email']); ?>" 
-                                    class="text-[#2A8FA9] hover:text-[#409BB2] font-medium text-sm truncate block">
+                                    class="text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs sm:text-sm truncate block">
                                     <?php echo htmlspecialchars($student['email']); ?>
                                 </a>
                             </div>
@@ -315,13 +316,13 @@ usort($certificates, function($a, $b) {
                         
                         <!-- Phone -->
                         <?php if (!empty($student['phone'])): ?>
-                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:phone" data-width="18"></span>
+                        <div class="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 bg-gray-50 rounded-lg">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
+                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:phone" data-width="16" data-height="16" class="sm:w-[18px] sm:h-[18px]"></span>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <p class="text-sm text-gray-600">Nomor Telepon</p>
-                                <p class="text-gray-900 font-medium text-sm"><?php echo htmlspecialchars($student['phone']); ?></p>
+                                <p class="text-xs sm:text-sm text-gray-600">Nomor Telepon</p>
+                                <p class="text-gray-900 font-medium text-xs sm:text-sm break-all"><?php echo htmlspecialchars($student['phone']); ?></p>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -329,26 +330,26 @@ usort($certificates, function($a, $b) {
                 </div>
 
                 <!-- Skills Summary -->
-                <div class="border-t border-gray-200 pt-6 mt-4">
-                    <h3 class="text-lg font-semibold text-[#2A8FA9] mb-4 flex items-center gap-2">
+                <div class="border-t border-gray-200 pt-4 sm:pt-6 mt-4">
+                    <h3 class="text-base sm:text-lg font-semibold text-[#2A8FA9] mb-3 sm:mb-4 flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:code-braces" data-width="20"></span>
                         Ringkasan Skills
                     </h3>
                     
-                    <div class="space-y-4">
+                    <div class="space-y-3 sm:space-y-4">
                         <!-- Technical Skills -->
                         <?php if (!empty($all_skills['technical'])): ?>
                         <div>
-                            <h4 class="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-sm">
-                                <span class="iconify text-blue-600" data-icon="mdi:cog" data-width="16"></span>
+                            <h4 class="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-xs sm:text-sm">
+                                <span class="iconify text-blue-600" data-icon="mdi:cog" data-width="14" data-height="14" class="sm:w-4 sm:h-4"></span>
                                 Technical Skills
-                                <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                <span class="bg-blue-100 text-blue-800 text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
                                     <?php echo count($all_skills['technical']); ?>
                                 </span>
                             </h4>
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['technical'] as $skill): ?>
-                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs" 
+                                    <span class="bg-blue-100 text-blue-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs" 
                                         title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
@@ -360,16 +361,16 @@ usort($certificates, function($a, $b) {
                         <!-- Soft Skills -->
                         <?php if (!empty($all_skills['soft'])): ?>
                         <div>
-                            <h4 class="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-sm">
-                                <span class="iconify text-green-600" data-icon="mdi:account-group" data-width="16"></span>
+                            <h4 class="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-xs sm:text-sm">
+                                <span class="iconify text-green-600" data-icon="mdi:account-group" data-width="14" data-height="14" class="sm:w-4 sm:h-4"></span>
                                 Soft Skills
-                                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                <span class="bg-green-100 text-green-800 text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
                                     <?php echo count($all_skills['soft']); ?>
                                 </span>
                             </h4>
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['soft'] as $skill): ?>
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs"
+                                    <span class="bg-green-100 text-green-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs"
                                         title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
@@ -381,16 +382,16 @@ usort($certificates, function($a, $b) {
                         <!-- Tools -->
                         <?php if (!empty($all_skills['tool'])): ?>
                         <div>
-                            <h4 class="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-sm">
-                                <span class="iconify text-purple-600" data-icon="mdi:tools" data-width="16"></span>
+                            <h4 class="font-semibold text-gray-800 mb-2 flex items-center gap-2 text-xs sm:text-sm">
+                                <span class="iconify text-purple-600" data-icon="mdi:tools" data-width="14" data-height="14" class="sm:w-4 sm:h-4"></span>
                                 Tools
-                                <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
+                                <span class="bg-purple-100 text-purple-800 text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
                                     <?php echo count($all_skills['tool']); ?>
                                 </span>
                             </h4>
                             <div class="flex flex-wrap gap-1">
                                 <?php foreach ($all_skills['tool'] as $skill): ?>
-                                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs"
+                                    <span class="bg-purple-100 text-purple-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs"
                                         title="Digunakan di <?php echo $skill['project_count']; ?> project">
                                         <?php echo htmlspecialchars($skill['name']); ?>
                                     </span>
@@ -404,24 +405,24 @@ usort($certificates, function($a, $b) {
         </div>
 
         <!-- Main Content -->
-        <div class="lg:col-span-3">
+        <div class="lg:col-span-3 order-2 lg:order-2">
             <!-- Bio Section -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:account-circle" data-width="24"></span>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 sm:mb-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-3 sm:mb-4 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:account-circle" data-width="22" data-height="22" class="sm:w-6 sm:h-6"></span>
                     Tentang Saya
                 </h2>
                 
                 <?php if (!empty($student['bio'])): ?>
-                    <div class="prose max-w-none text-gray-700 leading-relaxed">
+                    <div class="prose max-w-none text-gray-700 leading-relaxed text-sm sm:text-base">
                         <?php echo nl2br(htmlspecialchars($student['bio'])); ?>
                     </div>
                 <?php else: ?>
-                    <div class="text-center py-8 bg-gray-50 rounded-xl">
-                        <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:text-box-remove" data-width="48"></span>
-                        <h3 class="text-lg font-bold text-gray-600 mb-2">Deskripsi Belum Tersedia</h3>
-                        <p class="text-gray-500 text-sm">Tambahkan deskripsi diri untuk membuat profil lebih menarik</p>
-                        <a href="profile.php" class="inline-block mt-3 bg-[#51A3B9] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors text-sm">
+                    <div class="text-center py-6 sm:py-8 bg-gray-50 rounded-xl">
+                        <span class="iconify text-gray-400 mx-auto mb-2 sm:mb-3" data-icon="mdi:text-box-remove" data-width="40" data-height="40" class="sm:w-12 sm:h-12"></span>
+                        <h3 class="text-base sm:text-lg font-bold text-gray-600 mb-2">Deskripsi Belum Tersedia</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm px-4">Tambahkan deskripsi diri untuk membuat profil lebih menarik</p>
+                        <a href="profile.php" class="inline-block mt-3 bg-[#51A3B9] text-white px-4 sm:px-6 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors text-xs sm:text-sm">
                             Edit Profil
                         </a>
                     </div>
@@ -429,45 +430,45 @@ usort($certificates, function($a, $b) {
             </div>
 
             <!-- Projects Portfolio -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
-                        <span class="iconify" data-icon="mdi:folder-multiple" data-width="24"></span>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+                    <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
+                        <span class="iconify" data-icon="mdi:folder-multiple" data-width="22" data-height="22" class="sm:w-6 sm:h-6"></span>
                         Portofolio Project
                     </h2>
-                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1 rounded-full text-sm font-semibold">
+                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
                         <?php echo $total_projects; ?> Project Ditampilkan
                     </span>
                 </div>
 
                 <?php if ($total_projects > 0): ?>
-                    <div class="space-y-6">
+                    <div class="space-y-4 sm:space-y-6">
                         <?php foreach ($projects as $project): ?>
                             <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 project-card">
                                 <!-- Project Header -->
-                                <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 border-b border-gray-200">
-                                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-4 sm:p-6 border-b border-gray-200">
+                                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 sm:gap-4">
                                         <div class="flex-1">
-                                            <h3 class="text-xl font-bold text-[#2A8FA9] mb-2"><?php echo htmlspecialchars($project['title']); ?></h3>
+                                            <h3 class="text-lg sm:text-xl font-bold text-[#2A8FA9] mb-2 break-words"><?php echo htmlspecialchars($project['title']); ?></h3>
                                             
-                                            <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
+                                            <div class="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-3">
                                                 <?php if (!empty($project['project_year'])): ?>
                                                     <span class="flex items-center gap-1">
-                                                        <span class="iconify text-[#51A3B9]" data-icon="mdi:calendar" data-width="14"></span>
+                                                        <span class="iconify text-[#51A3B9]" data-icon="mdi:calendar" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                         <?php echo htmlspecialchars($project['project_year']); ?>
                                                     </span>
                                                 <?php endif; ?>
                                                 
                                                 <?php if (!empty($project['project_type'])): ?>
                                                     <span class="flex items-center gap-1">
-                                                        <span class="iconify text-[#409BB2]" data-icon="mdi:tag" data-width="14"></span>
+                                                        <span class="iconify text-[#409BB2]" data-icon="mdi:tag" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                         <?php echo htmlspecialchars($project['project_type']); ?>
                                                     </span>
                                                 <?php endif; ?>
                                                 
                                                 <?php if (!empty($project['category'])): ?>
                                                     <span class="flex items-center gap-1">
-                                                        <span class="iconify text-[#489EB7]" data-icon="mdi:folder" data-width="14"></span>
+                                                        <span class="iconify text-[#489EB7]" data-icon="mdi:folder" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                         <?php echo htmlspecialchars($project['category']); ?>
                                                     </span>
                                                 <?php endif; ?>
@@ -480,8 +481,8 @@ usort($certificates, function($a, $b) {
                                             <?php if (!empty($project['github_url'])): ?>
                                                 <a href="<?php echo htmlspecialchars($project['github_url']); ?>" 
                                                     target="_blank"
-                                                    class="bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-gray-900 transition-colors flex items-center gap-1">
-                                                    <span class="iconify" data-icon="mdi:github" data-width="14"></span>
+                                                    class="bg-gray-800 text-white px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-gray-900 transition-colors flex items-center gap-1">
+                                                    <span class="iconify" data-icon="mdi:github" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                     Code
                                                 </a>
                                             <?php endif; ?>
@@ -489,8 +490,8 @@ usort($certificates, function($a, $b) {
                                             <?php if (!empty($project['demo_url'])): ?>
                                                 <a href="<?php echo htmlspecialchars($project['demo_url']); ?>" 
                                                     target="_blank"
-                                                    class="bg-cyan-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-cyan-600 transition-colors flex items-center gap-1">
-                                                    <span class="iconify" data-icon="mdi:play" data-width="14"></span>
+                                                    class="bg-cyan-500 text-white px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-cyan-600 transition-colors flex items-center gap-1">
+                                                    <span class="iconify" data-icon="mdi:play" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                     Link Project
                                                 </a>
                                             <?php endif; ?>
@@ -498,8 +499,8 @@ usort($certificates, function($a, $b) {
                                             <?php if (!empty($project['figma_url'])): ?>
                                                 <a href="<?php echo htmlspecialchars($project['figma_url']); ?>" 
                                                     target="_blank"
-                                                    class="bg-purple-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-purple-600 transition-colors flex items-center gap-1">
-                                                    <span class="iconify" data-icon="mdi:palette" data-width="14"></span>
+                                                    class="bg-purple-500 text-white px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-purple-600 transition-colors flex items-center gap-1">
+                                                    <span class="iconify" data-icon="mdi:palette" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                     Design
                                                 </a>
                                             <?php endif; ?>
@@ -509,20 +510,20 @@ usort($certificates, function($a, $b) {
                                 </div>
 
                                 <!-- Project Content -->
-                                <div class="p-6">
+                                <div class="p-4 sm:p-6">
                                     <!-- Project Description -->
                                     <?php if (!empty($project['description'])): ?>
                                         <div class="mb-4">
-                                            <h4 class="font-semibold text-gray-800 mb-2">Deskripsi Project</h4>
-                                            <p class="text-gray-700 leading-relaxed"><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
+                                            <h4 class="font-semibold text-gray-800 mb-2 text-sm sm:text-base">Deskripsi Project</h4>
+                                            <p class="text-gray-700 leading-relaxed text-sm sm:text-base"><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
                                         </div>
                                     <?php endif; ?>
 
                                     <!-- Project Skills -->
                                     <?php if (!empty($project['skills_detail'])): ?>
                                         <div class="mb-4">
-                                            <h4 class="font-semibold text-gray-800 mb-2">Teknologi & Tools</h4>
-                                            <div class="flex flex-wrap gap-2">
+                                            <h4 class="font-semibold text-gray-800 mb-2 text-sm sm:text-base">Teknologi & Tools</h4>
+                                            <div class="flex flex-wrap gap-1.5 sm:gap-2">
                                                 <?php foreach ($project['skills_detail'] as $skill): 
                                                     $color_class = [
                                                         'technical' => 'bg-blue-100 text-blue-800 border border-blue-200',
@@ -530,7 +531,7 @@ usort($certificates, function($a, $b) {
                                                         'tool' => 'bg-purple-100 text-purple-800 border border-purple-200'
                                                     ][$skill['skill_type']] ?? 'bg-gray-100 text-gray-800 border border-gray-200';
                                                 ?>
-                                                    <span class="inline-block <?php echo $color_class; ?> px-3 py-1 rounded-full text-xs font-medium">
+                                                    <span class="inline-block <?php echo $color_class; ?> px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium">
                                                         <?php echo htmlspecialchars($skill['name']); ?>
                                                     </span>
                                                 <?php endforeach; ?>
@@ -553,34 +554,34 @@ usort($certificates, function($a, $b) {
 
                                     <?php if (!empty($all_project_images)): ?>
                                         <div class="mb-4">
-                                            <h4 class="font-semibold text-gray-800 mb-3">Galeri Project</h4>
+                                            <h4 class="font-semibold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">Galeri Project</h4>
                                             <div class="relative">
                                                 <!-- Gallery Container -->
-                                                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                                <div class="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
                                                     <!-- Main Image Display -->
-                                                    <div class="mb-4 flex justify-center">
+                                                    <div class="mb-3 sm:mb-4 flex justify-center">
                                                         <img id="mainImage-<?php echo $project['id']; ?>" 
                                                             src="<?php echo htmlspecialchars($all_project_images[0]); ?>" 
                                                             alt="Project Image" 
-                                                            class="max-w-full max-h-80 object-contain rounded-lg border border-gray-300 cursor-pointer"
+                                                            class="max-w-full max-h-60 sm:max-h-80 object-contain rounded-lg border border-gray-300 cursor-pointer"
                                                             onclick="openImageModal('<?php echo htmlspecialchars($all_project_images[0]); ?>')">
                                                     </div>
                                                     
                                                     <!-- Navigation & Thumbnails -->
                                                     <?php if (count($all_project_images) > 1): ?>
-                                                        <div class="flex items-center justify-center gap-4">
+                                                        <div class="flex items-center justify-center gap-2 sm:gap-4">
                                                             <!-- Left Arrow -->
                                                             <button onclick="prevImage(<?php echo $project['id']; ?>, <?php echo count($all_project_images); ?>)"
-                                                                    class="bg-white border border-gray-300 rounded-full p-2 hover:bg-gray-100 transition-colors shadow-sm">
-                                                                <span class="iconify text-gray-600" data-icon="mdi:chevron-left" data-width="20"></span>
+                                                                    class="bg-white border border-gray-300 rounded-full p-1.5 sm:p-2 hover:bg-gray-100 transition-colors shadow-sm flex-shrink-0">
+                                                                <span class="iconify text-gray-600" data-icon="mdi:chevron-left" data-width="16" data-height="16" class="sm:w-5 sm:h-5"></span>
                                                             </button>
                                                             
                                                             <!-- Thumbnails -->
-                                                            <div class="flex gap-2 overflow-x-auto py-2 px-4 justify-center flex-1 max-w-2xl">
+                                                            <div class="flex gap-1.5 sm:gap-2 overflow-x-auto py-2 px-2 sm:px-4 justify-start sm:justify-center flex-1 max-w-full sm:max-w-2xl scrollbar-thin">
                                                                 <?php foreach ($all_project_images as $index => $image): ?>
                                                                     <img src="<?php echo htmlspecialchars($image); ?>" 
                                                                         alt="Thumbnail <?php echo $index + 1; ?>" 
-                                                                        class="w-16 h-16 object-cover rounded border-2 cursor-pointer transition-all <?php echo $index === 0 ? 'border-[#2A8FA9]' : 'border-gray-300'; ?>"
+                                                                        class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded border-2 cursor-pointer transition-all flex-shrink-0 <?php echo $index === 0 ? 'border-[#2A8FA9]' : 'border-gray-300'; ?>"
                                                                         onclick="changeMainImage(<?php echo $project['id']; ?>, '<?php echo htmlspecialchars($image); ?>', <?php echo $index; ?>)"
                                                                         data-project-id="<?php echo $project['id']; ?>"
                                                                         data-image-index="<?php echo $index; ?>">
@@ -589,8 +590,8 @@ usort($certificates, function($a, $b) {
                                                             
                                                             <!-- Right Arrow -->
                                                             <button onclick="nextImage(<?php echo $project['id']; ?>, <?php echo count($all_project_images); ?>)"
-                                                                    class="bg-white border border-gray-300 rounded-full p-2 hover:bg-gray-100 transition-colors shadow-sm">
-                                                                <span class="iconify text-gray-600" data-icon="mdi:chevron-right" data-width="20"></span>
+                                                                    class="bg-white border border-gray-300 rounded-full p-1.5 sm:p-2 hover:bg-gray-100 transition-colors shadow-sm flex-shrink-0">
+                                                                <span class="iconify text-gray-600" data-icon="mdi:chevron-right" data-width="16" data-height="16" class="sm:w-5 sm:h-5"></span>
                                                             </button>
                                                         </div>
                                                     <?php endif; ?>
@@ -602,9 +603,9 @@ usort($certificates, function($a, $b) {
                                     <!-- Project Video -->
                                     <?php if (!empty($project['video_url'])): ?>
                                         <div class="mb-4">
-                                            <h4 class="font-semibold text-gray-800 mb-2">Video Demo</h4>
+                                            <h4 class="font-semibold text-gray-800 mb-2 text-sm sm:text-base">Video Demo</h4>
                                             <div class="border border-gray-200 rounded-lg overflow-hidden">
-                                                <video controls class="w-full max-w-2xl mx-auto" poster="<?php echo !empty($project['image_path']) ? htmlspecialchars(explode(',', $project['image_path'])[0]) : ''; ?>">
+                                                <video controls class="w-full max-w-full sm:max-w-2xl mx-auto" poster="<?php echo !empty($project['image_path']) ? htmlspecialchars(explode(',', $project['image_path'])[0]) : ''; ?>">
                                                     <source src="<?php echo htmlspecialchars($project['video_url']); ?>" type="video/mp4">
                                                     Browser Anda tidak mendukung tag video.
                                                 </video>
@@ -613,17 +614,17 @@ usort($certificates, function($a, $b) {
                                     <?php endif; ?>
 
                                     <!-- Project Details -->
-                                    <div class="flex flex-wrap justify-between items-center gap-4 text-sm">
+                                    <div class="flex flex-wrap justify-between items-center gap-3 sm:gap-4 text-xs sm:text-sm">
                                         <?php if (!empty($project['project_duration'])): ?>
-                                            <div class="flex items-center gap-2">
-                                                <span class="iconify text-gray-400" data-icon="mdi:clock-outline" data-width="16"></span>
+                                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                                <span class="iconify text-gray-400" data-icon="mdi:clock-outline" data-width="14" data-height="14" class="sm:w-4 sm:h-4"></span>
                                                 <span class="text-gray-600"><?php echo htmlspecialchars($project['project_duration']); ?></span>
                                             </div>
                                         <?php endif; ?>
                                         
                                         <?php if (!empty($project['status'])): ?>
-                                        <div> <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
-                                                <span class="iconify" data-icon="mdi:check-circle" data-width="12"></span>
+                                        <div> <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs font-medium">
+                                                <span class="iconify" data-icon="mdi:check-circle" data-width="10" data-height="10" class="sm:w-3 sm:h-3"></span>
                                                 Status: <?php echo htmlspecialchars($project['status']); ?>
                                             </span>
                                         </div>
@@ -635,21 +636,21 @@ usort($certificates, function($a, $b) {
                     </div>
 
                     <!-- Tombol Lihat Semua Project -->
-                    <div class="text-center mt-8 pt-6 border-t border-gray-200">
+                    <div class="text-center mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-200">
                         <a href="projects.php" 
-                            class="bg-[#E0F7FF] text-[#2A8FA9] px-8 py-3 rounded-xl font-bold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 inline-flex items-center gap-2">
-                            <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
+                            class="bg-[#E0F7FF] text-[#2A8FA9] px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 inline-flex items-center gap-2">
+                            <span class="iconify" data-icon="mdi:folder-open" data-width="18" data-height="18" class="sm:w-5 sm:h-5"></span>
                             Kelola Semua Project
                         </a>
                     </div>
 
                 <?php else: ?>
-                    <div class="text-center py-12 bg-gray-50 rounded-xl">
-                        <span class="iconify text-gray-400 mx-auto mb-4" data-icon="mdi:folder-open" data-width="64"></span>
-                        <h3 class="text-xl font-bold text-blue-900 mb-2">Belum Ada Project</h3>
-                        <p class="text-gray-600 max-w-md mx-auto">Tambahkan project untuk membangun portofolio yang menarik bagi mitra industri.</p>
-                        <a href="add-project.php" class="inline-block mt-4 bg-[#51A3B9] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                            <span class="iconify" data-icon="mdi:rocket-launch" data-width="20"></span>
+                    <div class="text-center py-8 sm:py-12 bg-gray-50 rounded-xl px-4">
+                        <span class="iconify text-gray-400 mx-auto mb-3 sm:mb-4" data-icon="mdi:folder-open" data-width="48" data-height="48" class="sm:w-16 sm:h-16"></span>
+                        <h3 class="text-lg sm:text-xl font-bold text-blue-900 mb-2">Belum Ada Project</h3>
+                        <p class="text-gray-600 max-w-md mx-auto text-sm sm:text-base">Tambahkan project untuk membangun portofolio yang menarik bagi mitra industri.</p>
+                        <a href="add-project.php" class="inline-block mt-4 bg-[#51A3B9] text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
+                            <span class="iconify" data-icon="mdi:rocket-launch" data-width="18" data-height="18" class="sm:w-5 sm:h-5"></span>
                             Tambah Project Pertama
                         </a>
                     </div>
@@ -657,13 +658,13 @@ usort($certificates, function($a, $b) {
             </div>
 
             <!-- Certificates Section -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mt-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
-                        <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mt-6 sm:mt-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+                    <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
+                        <span class="iconify" data-icon="mdi:certificate" data-width="22" data-height="22" class="sm:w-6 sm:h-6"></span>
                         Sertifikat & Sertifikasi
                     </h2>
-                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-3 py-1 rounded-full text-sm font-semibold">
+                    <span class="bg-[#E0F7FF] text-[#2A8FA9] px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
                         <?php echo count($certificates); ?> Sertifikat
                     </span>
                 </div>
@@ -671,16 +672,16 @@ usort($certificates, function($a, $b) {
                 <?php if (!empty($certificates)): ?>
                     <div class="relative">
                         <!-- Certificates Horizontal Scroll -->
-                        <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" id="certificates-scroll">
+                        <div class="flex gap-3 sm:gap-4 overflow-x-auto pb-4 scrollbar-hide" id="certificates-scroll">
                             <?php foreach ($certificates as $cert): ?>
-                                <div class="flex-shrink-0 w-80 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 group relative certificate-card flex flex-col">
+                                <div class="flex-shrink-0 w-72 sm:w-80 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-3 sm:p-4 hover:shadow-lg transition-all duration-300 group relative certificate-card flex flex-col">
                                     
                                     <!-- Compact Badge -->
-                                    <div class="absolute top-3 right-3">
+                                    <div class="absolute top-2 sm:top-3 right-2 sm:right-3">
                                         <?php if ($cert['source_type'] == 'project'): ?>
                                             <div class="relative group/badge">
-                                                <span class="inline-flex items-center justify-center w-7 h-7 bg-green-100 text-green-800 rounded-full text-xs font-medium transition-colors group-hover/badge:bg-green-200">
-                                                    <span class="iconify" data-icon="mdi:folder" data-width="14"></span>
+                                                <span class="inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 bg-green-100 text-green-800 rounded-full text-xs font-medium transition-colors group-hover/badge:bg-green-200">
+                                                    <span class="iconify" data-icon="mdi:folder" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                 </span>
                                                 <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
                                                     Dari Project
@@ -689,8 +690,8 @@ usort($certificates, function($a, $b) {
                                             </div>
                                         <?php else: ?>
                                             <div class="relative group/badge">
-                                                <span class="inline-flex items-center justify-center w-7 h-7 bg-blue-100 text-blue-800 rounded-full text-xs font-medium transition-colors group-hover/badge:bg-blue-200">
-                                                    <span class="iconify" data-icon="mdi:star" data-width="14"></span>
+                                                <span class="inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 bg-blue-100 text-blue-800 rounded-full text-xs font-medium transition-colors group-hover/badge:bg-blue-200">
+                                                    <span class="iconify" data-icon="mdi:star" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                 </span>
                                                 <div class="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover/badge:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
                                                     Standalone
@@ -701,42 +702,42 @@ usort($certificates, function($a, $b) {
                                     </div>
 
                                     <!-- Certificate Header -->
-                                    <div class="flex items-start gap-3 mb-3">
-                                        <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                                            <span class="iconify text-white" data-icon="mdi:certificate" data-width="24"></span>
+                                    <div class="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-amber-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                                            <span class="iconify text-white" data-icon="mdi:certificate" data-width="20" data-height="20" class="sm:w-6 sm:h-6"></span>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <h3 class="font-bold text-gray-800 group-hover:text-amber-600 transition-colors line-clamp-2 text-sm leading-tight">
+                                            <h3 class="font-bold text-gray-800 group-hover:text-amber-600 transition-colors line-clamp-2 text-xs sm:text-sm leading-tight">
                                                 <?php echo htmlspecialchars($cert['certificate_name']); ?>
                                             </h3>
                                             <p class="text-xs text-gray-600 mt-1 flex items-center gap-1">
-                                                <span class="iconify" data-icon="mdi:office-building" data-width="12"></span>
-                                                <?php echo htmlspecialchars($cert['issuing_organization']); ?>
+                                                <span class="iconify" data-icon="mdi:office-building" data-width="10" data-height="10" class="sm:w-3 sm:h-3"></span>
+                                                <span class="truncate"><?php echo htmlspecialchars($cert['issuing_organization']); ?></span>
                                             </p>
                                         </div>
                                     </div>
 
                                     <!-- Certificate Details -->
-                                    <div class="space-y-2 text-xs text-gray-600 mb-4">
-                                        <div class="flex items-center gap-2">
-                                            <span class="iconify" data-icon="mdi:calendar" data-width="12"></span>
-                                            <span>Diterbitkan: <?php echo !empty($cert['issue_date']) ? date('M Y', strtotime($cert['issue_date'])) : '-'; ?></span>
+                                    <div class="space-y-1.5 sm:space-y-2 text-xs text-gray-600 mb-3 sm:mb-4">
+                                        <div class="flex items-center gap-1.5 sm:gap-2">
+                                            <span class="iconify flex-shrink-0" data-icon="mdi:calendar" data-width="10" data-height="10" class="sm:w-3 sm:h-3"></span>
+                                            <span class="truncate">Diterbitkan: <?php echo !empty($cert['issue_date']) ? date('M Y', strtotime($cert['issue_date'])) : '-'; ?></span>
                                         </div>
                                         
-                                        <div class="flex items-center gap-2 <?php echo (!empty($cert['expiry_date']) && strtotime($cert['expiry_date']) < time()) ? 'text-red-600' : ''; ?>">
-                                            <span class="iconify" data-icon="mdi:clock" data-width="12"></span>
-                                            <span>Berlaku hingga: <?php echo !empty($cert['expiry_date']) ? date('M Y', strtotime($cert['expiry_date'])) : '-'; ?></span>
+                                        <div class="flex items-center gap-1.5 sm:gap-2 <?php echo (!empty($cert['expiry_date']) && strtotime($cert['expiry_date']) < time()) ? 'text-red-600' : ''; ?>">
+                                            <span class="iconify flex-shrink-0" data-icon="mdi:clock" data-width="10" data-height="10" class="sm:w-3 sm:h-3"></span>
+                                            <span class="truncate">Berlaku hingga: <?php echo !empty($cert['expiry_date']) ? date('M Y', strtotime($cert['expiry_date'])) : '-'; ?></span>
                                         </div>
                                         
-                                        <div class="flex items-center gap-2">
-                                            <span class="iconify" data-icon="mdi:identifier" data-width="12"></span>
-                                            <span>ID Credentials: <?php echo !empty($cert['credential_id']) ? htmlspecialchars($cert['credential_id']) : '-'; ?></span>
+                                        <div class="flex items-center gap-1.5 sm:gap-2">
+                                            <span class="iconify flex-shrink-0" data-icon="mdi:identifier" data-width="10" data-height="10" class="sm:w-3 sm:h-3"></span>
+                                            <span class="truncate">ID: <?php echo !empty($cert['credential_id']) ? htmlspecialchars($cert['credential_id']) : '-'; ?></span>
                                         </div>
                                     </div>
 
                                     <!-- Certificate Description -->
                                     <?php if (!empty($cert['description'])): ?>
-                                        <div class="mb-4">
+                                        <div class="mb-3 sm:mb-4">
                                             <h4 class="font-semibold text-gray-700 text-xs mb-1">Deskripsi:</h4>
                                             <p class="text-xs text-gray-600 line-clamp-3">
                                                 <?php echo htmlspecialchars($cert['description']); ?>
@@ -745,7 +746,7 @@ usort($certificates, function($a, $b) {
                                     <?php endif; ?>
 
                                     <!-- Action Buttons -->
-                                    <div class="mt-auto pt-4">
+                                    <div class="mt-auto pt-3 sm:pt-4">
                                         <div class="flex gap-2">
                                             <?php if (!empty($cert['image_path'])): ?>
                                                 <?php
@@ -757,15 +758,15 @@ usort($certificates, function($a, $b) {
                                                     <!-- Untuk PDF -->
                                                     <a href="<?php echo htmlspecialchars($cert['image_path']); ?>" 
                                                     target="_blank"
-                                                    class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
-                                                        <span class="iconify" data-icon="mdi:eye" data-width="14"></span>
+                                                    class="flex-1 bg-amber-500 text-white py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
+                                                        <span class="iconify" data-icon="mdi:eye" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                         Lihat
                                                     </a>
                                                 <?php else: ?>
                                                     <!-- Untuk images -->
                                                     <button onclick="openImageModal('<?php echo htmlspecialchars($cert['image_path']); ?>')"
-                                                            class="flex-1 bg-amber-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
-                                                        <span class="iconify" data-icon="mdi:eye" data-width="14"></span>
+                                                            class="flex-1 bg-amber-500 text-white py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-lg text-xs font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-1">
+                                                        <span class="iconify" data-icon="mdi:eye" data-width="12" data-height="12" class="sm:w-[14px] sm:h-[14px]"></span>
                                                         Lihat
                                                     </button>
                                                 <?php endif; ?>
@@ -774,8 +775,8 @@ usort($certificates, function($a, $b) {
                                             <?php if (!empty($cert['credential_url'])): ?>
                                                 <a href="<?php echo htmlspecialchars($cert['credential_url']); ?>" 
                                                 target="_blank"
-                                                class="flex-1 bg-white text-amber-700 py-2 px-3 rounded-lg text-xs font-semibold hover:bg-amber-50 transition-colors flex items-center justify-center gap-1 border border-amber-300">
-                                                    <span class="iconify" data-icon="mdi:shield-check" data-width="12"></span>
+                                                class="flex-1 bg-white text-amber-700 py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-lg text-xs font-semibold hover:bg-amber-50 transition-colors flex items-center justify-center gap-1 border border-amber-300">
+                                                    <span class="iconify" data-icon="mdi:shield-check" data-width="10" data-height="10" class="sm:w-3 sm:h-3"></span>
                                                     Verify
                                                 </a>
                                             <?php endif; ?>
@@ -808,11 +809,11 @@ usort($certificates, function($a, $b) {
                     <?php endif; ?>
                     
                 <?php else: ?>
-                    <div class="text-center py-8 bg-gray-50 rounded-xl">
-                        <span class="iconify text-gray-400 mx-auto mb-3" data-icon="mdi:certificate-outline" data-width="48"></span>
-                        <h3 class="text-lg font-bold text-blue-900 mb-2">Belum Ada Sertifikat</h3>
-                        <p class="text-gray-600 text-sm">Tambahkan sertifikat untuk meningkatkan kredibilitas profil kamu di mata mitra industri.</p>
-                        <a href="certificates.php" class="inline-block mt-4 bg-[#51A3B9] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors text-sm">
+                    <div class="text-center py-6 sm:py-8 bg-gray-50 rounded-xl px-4">
+                        <span class="iconify text-gray-400 mx-auto mb-2 sm:mb-3" data-icon="mdi:certificate-outline" data-width="40" data-height="40" class="sm:w-12 sm:h-12"></span>
+                        <h3 class="text-base sm:text-lg font-bold text-blue-900 mb-2">Belum Ada Sertifikat</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Tambahkan sertifikat untuk meningkatkan kredibilitas profil kamu di mata mitra industri.</p>
+                        <a href="certificates.php" class="inline-block mt-3 sm:mt-4 bg-[#51A3B9] text-white px-5 sm:px-6 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors text-xs sm:text-sm">
                             Tambah Sertifikat
                         </a>
                     </div>
@@ -823,13 +824,13 @@ usort($certificates, function($a, $b) {
 </div>
 
 <!-- Image Modal -->
-<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
-    <div class="relative max-w-4xl max-h-full mx-4">
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden p-4">
+    <div class="relative max-w-4xl max-h-full w-full">
         <button onclick="closeImageModal()" 
-                class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
-            <span class="iconify" data-icon="mdi:close" data-width="32"></span>
+                class="absolute -top-10 sm:-top-12 right-0 text-white hover:text-gray-300 transition-colors">
+            <span class="iconify" data-icon="mdi:close" data-width="24" data-height="24" class="sm:w-8 sm:h-8"></span>
         </button>
-        <img id="modalImage" src="" alt="Full size image" class="max-w-full max-h-screen object-contain rounded-lg">
+        <img id="modalImage" src="" alt="Full size image" class="max-w-full max-h-[calc(100vh-100px)] object-contain rounded-lg mx-auto">
     </div>
 </div>
 
@@ -924,45 +925,4 @@ function scrollCertificates(direction) {
     }
 }
 </script>
-
-<style>
-.scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-    display: none;
-}
-
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.project-card {
-    transition: all 0.3s ease;
-}
-
-.project-card:hover {
-    transform: translateY(-2px);
-}
-
-.certificate-card {
-    transition: all 0.3s ease;
-}
-
-.certificate-card:hover {
-    transform: translateY(-2px);
-}
-</style>
-
 <?php include '../../includes/footer.php'; ?>

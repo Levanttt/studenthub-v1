@@ -52,22 +52,21 @@ $recent_projects_result = $recent_projects_stmt->get_result();
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white rounded-2xl p-8 mb-8 shadow-lg">
+    <div class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white rounded-2xl p-6 sm:p-8 mb-8 shadow-lg">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div class="flex-1">
-                <h1 class="text-3xl lg:text-4xl font-bold mb-3 flex items-center gap-3">
+                <h1 class="text-3xl sm:text-4xl font-bold mb-3 flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:hand-wave" data-width="40"></span>
                     Halo, <?php echo htmlspecialchars($student['name']); ?>!
                 </h1>
                 <p class="text-[#E0F7FF] text-lg opacity-90">Selamat datang di dashboard Cakrawala Connect - platform untuk menunjukkan kemampuan nyata kamu!</p>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3">
-                <a href="profile.php" class="bg-white/20 text-white px-6 py-3 rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300 font-semibold text-center flex items-center gap-2">
+            <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <a href="profile.php" class="bg-white/20 text-white px-6 py-3 rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300 font-semibold text-center flex items-center justify-center gap-2 text-base">
                     <span class="iconify" data-icon="mdi:account-edit" data-width="20"></span>
                     Edit Profil
                 </a>
-                <a href="add-project.php" class="bg-white text-[#2A8FA9] px-6 py-3 rounded-xl font-bold hover:bg-[#E0F7FF] transition-all duration-300 shadow-sm text-center flex items-center gap-2">
+                <a href="add-project.php" class="bg-white text-[#2A8FA9] px-6 py-3 rounded-xl font-bold hover:bg-[#E0F7FF] transition-all duration-300 shadow-sm text-center flex items-center justify-center gap-2 text-base">
                     <span class="iconify" data-icon="mdi:plus-circle" data-width="20"></span>
                     Tambah Proyek
                 </a>
@@ -75,7 +74,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
         </div>
     </div>
 
-    <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover-lift">
             <div class="text-[#51A3B9] mb-3 flex justify-center">
@@ -86,7 +84,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
             <p class="text-gray-500 text-sm mt-1">Yang sudah diunggah</p>
         </div>
         
-        <!-- Profile Views -->
         <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover-lift">
             <div class="text-[#409BB2] mb-3 flex justify-center">
                 <span class="iconify" data-icon="mdi:eye" data-width="48"></span>
@@ -96,7 +93,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
             <p class="text-gray-500 text-sm mt-1">Oleh Mitra Industri</p>
         </div>
         
-        <!-- Total Likes -->
         <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover-lift">
             <div class="text-[#489EB7] mb-3 flex justify-center">
                 <span class="iconify" data-icon="mdi:star" data-width="48"></span>
@@ -107,53 +103,46 @@ $recent_projects_result = $recent_projects_stmt->get_result();
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
         <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
             <span class="iconify" data-icon="mdi:lightning-bolt" data-width="28"></span>
             Aksi Cepat
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Add Project -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <a href="add-project.php" class="group bg-gradient-to-br from-[#E0F7FF] to-[#F0FAFD] rounded-2xl p-6 text-center border-2 border-[#E0F7FF] hover:border-[#51A3B9] transition-all duration-300 transform hover:scale-[1.02]">
                 <div class="text-[#51A3B9] mb-3 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                     <span class="iconify" data-icon="mdi:plus-box" data-width="48"></span>
                 </div>
-                <h3 class="text-[#2A8FA9] font-semibold mb-1">Tambah Proyek</h3>
+                <h3 class="text-[#2A8FA9] font-semibold mb-1 text-lg">Tambah Proyek</h3>
                 <p class="text-gray-600 text-sm">Upload proyek terbaru</p>
             </a>
 
-            <!-- Manage Projects -->
             <a href="projects.php" class="group bg-gradient-to-br from-[#E0F7FF] to-[#F0FAFD] rounded-2xl p-6 text-center border-2 border-[#E0F7FF] hover:border-[#51A3B9] transition-all duration-300 transform hover:scale-[1.02]">
                 <div class="text-[#409BB2] mb-3 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                     <span class="iconify" data-icon="mdi:folder-open" data-width="48"></span>
                 </div>
-                <h3 class="text-[#2A8FA9] font-semibold mb-1">Kelola Proyek</h3>
+                <h3 class="text-[#2A8FA9] font-semibold mb-1 text-lg">Kelola Proyek</h3>
                 <p class="text-gray-600 text-sm">Lihat dan edit proyek</p>
             </a>
             
-            <!-- CERTIFICATES -->
             <a href="certificates.php" class="group bg-gradient-to-br from-[#E0F7FF] to-[#F0FAFD] rounded-2xl p-6 text-center border-2 border-[#E0F7FF] hover:border-[#51A3B9] transition-all duration-300 transform hover:scale-[1.02]">
                 <div class="text-[#489EB7] mb-3 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                     <span class="iconify" data-icon="mdi:certificate" data-width="48"></span>
                 </div>
-                <h3 class="text-[#2A8FA9] font-semibold mb-1">Sertifikat</h3>
+                <h3 class="text-[#2A8FA9] font-semibold mb-1 text-lg">Sertifikat</h3>
                 <p class="text-gray-600 text-sm">Kelola sertifikat</p>
             </a>
             
-            <!-- Public Profile Preview -->
-            <a href="public-profile-preview.php?id=<?php echo $user_id; ?>" 
-            class="group bg-gradient-to-br from-[#E0F7FF] to-[#F0FAFD] rounded-2xl p-6 text-center border-2 border-[#E0F7FF] hover:border-[#51A3B9] transition-all duration-300 transform hover:scale-[1.02]">
+            <a href="public-profile-preview.php?id=<?php echo $user_id; ?>" class="group bg-gradient-to-br from-[#E0F7FF] to-[#F0FAFD] rounded-2xl p-6 text-center border-2 border-[#E0F7FF] hover:border-[#51A3B9] transition-all duration-300 transform hover:scale-[1.02]">
                 <div class="text-[#4CA1B6] mb-3 group-hover:scale-110 transition-transform duration-300 flex justify-center">
                     <span class="iconify" data-icon="mdi:account-search" data-width="48"></span>
                 </div>
-                <h3 class="text-[#2A8FA9] font-semibold mb-1">Lihat Profil Publik</h3>
+                <h3 class="text-[#2A8FA9] font-semibold mb-1 text-lg">Lihat Profil Publik</h3>
                 <p class="text-gray-600 text-sm">Preview profil kamu</p>
             </a>
         </div>
     </div>
 
-    <!-- Recent Projects -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
@@ -169,7 +158,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
         </div>
         
         <?php if ($project_count == 0): ?>
-            <!-- Empty State - No Projects -->
             <div class="text-center py-12">
                 <div class="text-[#51A3B9] mb-4 flex justify-center">
                     <span class="iconify" data-icon="mdi:folder-open-outline" data-width="80"></span>
@@ -182,7 +170,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                 </a>
             </div>
         <?php else: ?>
-            <!-- Projects Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php while($project = $recent_projects_result->fetch_assoc()): 
                     $skill_names = !empty($project['skill_names']) ? explode(',', $project['skill_names']) : [];
@@ -198,7 +185,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                     }
                 ?>
                 <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group project-card">
-                    <!-- Thumbnail -->
                     <div class="h-48 bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] relative overflow-hidden">
                         <?php if (!empty($project['image_path'])): ?>
                             <img src="<?php echo htmlspecialchars($project['image_path']); ?>" 
@@ -213,7 +199,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                         <div class="absolute top-3 left-3">
                         <?php
                         $category_mapping = [
-                        // IT & Desain
                         'web' => 'Web Development',
                         'mobile' => 'Mobile Development',
                         'data' => 'Data Science & AI',
@@ -221,37 +206,28 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                         'game' => 'Game Development',
                         'iot' => 'IoT & Embedded Systems', 
                         'cybersecurity' => 'Cybersecurity', 
-
-                        // Bisnis & Manajemen
                         'digital_marketing' => 'Digital Marketing',
                         'finance' => 'Finance & Investment',
                         'business' => 'Business Strategy',
                         'industrial_ops' => 'Industrial Ops', 
-
-                        // Komunikasi & Konten
                         'communication' => 'Public Relations',
                         'content' => 'Content Creation', 
                         'branding' => 'Branding',
-
-                        // Sosial & Humaniora
                         'legal' => 'Legal Analysis', 
                         'research' => 'Research', 
                         'education' => 'Education Material', 
-
-                        // Lainnya
                         'other' => 'Lainnya'
                         ];
 
                         $enum_category = $project['category']; 
                         $category_name = $category_mapping[$enum_category] ?? formatText($enum_category);
                         ?>
-                        <span class="bg-white/90 text-[#2A8FA9] px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                        <span class="bg-white/90 text-[#2A8FA9] px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
                             <?php echo htmlspecialchars($category_name); ?>
                         </span>
                     </div>
                     </div>
                     
-                    <!-- Content -->
                     <div class="p-5">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-[#2A8FA9] text-lg group-hover:text-[#51A3B9] transition-colors line-clamp-1 flex-1 mr-2">
@@ -262,7 +238,6 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                             </span>
                         </div>
                         
-                        <!-- Skills -->
                         <?php if (!empty($skills_with_types)): ?>
                         <div class="flex flex-wrap gap-1 mb-3">
                             <?php 
@@ -276,13 +251,13 @@ $recent_projects_result = $recent_projects_stmt->get_result();
                                     'tool' => 'bg-purple-100 text-purple-800'
                                 ][$skill['type']] ?? 'bg-gray-100 text-gray-800';
                             ?>
-                                <span class="<?php echo $color_class; ?> px-3 py-1 rounded-lg text-xs font-medium">
+                                <span class="<?php echo $color_class; ?> px-3 py-1 rounded-lg text-sm font-medium">
                                     <?php echo htmlspecialchars($skill['name']); ?>
                                 </span>
                             <?php endforeach; ?>
                             
                             <?php if ($remaining > 0): ?>
-                                <span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-xs font-medium">
+                                <span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-sm font-medium">
                                     +<?php echo $remaining; ?>
                                 </span>
                             <?php endif; ?>
@@ -336,6 +311,24 @@ $recent_projects_result = $recent_projects_stmt->get_result();
 
 .hover-lift:hover {
     transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .grid-cols-2 > * {
+        min-height: 140px;
+    }
+}
+
+@media (max-width: 640px) {
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .py-8 {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
 }
 </style>
 

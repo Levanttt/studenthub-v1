@@ -113,6 +113,229 @@ $standalone = count($standalone_certificates);
 
 <?php include '../../includes/header.php'; ?>
 
+<style>
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+@media (max-width: 1023px) {
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+    
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 {
+        width: 100%;
+    }
+    
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex.items-center.gap-4 {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex.items-center.gap-4 a {
+        flex: 1;
+        min-width: 140px;
+        justify-content: center;
+        text-align: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .grid.grid-cols-1.md\:grid-cols-3.gap-4.mb-8 {
+        gap: 0.75rem;
+    }
+    
+    .bg-gradient-to-r.from-\[\#2A8FA9\]\/10.to-\[\#409BB2\]\/10.rounded-xl.p-4 {
+        padding: 1rem;
+    }
+    
+    .bg-gradient-to-r.from-\[\#2A8FA9\]\/10.to-\[\#409BB2\]\/10.rounded-xl.p-4 .flex.items-center.gap-3 {
+        gap: 0.75rem;
+    }
+    
+    .bg-gradient-to-r.from-\[\#2A8FA9\]\/10.to-\[\#409BB2\]\/10.rounded-xl.p-4 .w-12.h-12 {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+    
+    .bg-gradient-to-r.from-\[\#2A8FA9\]\/10.to-\[\#409BB2\]\/10.rounded-xl.p-4 .text-2xl {
+        font-size: 1.25rem;
+    }
+    
+    .bg-gradient-to-r.from-\[\#2A8FA9\]\/5.to-\[\#409BB2\]\/5.rounded-xl.border-2.border-\[\#2A8FA9\]\/20.p-6 {
+        padding: 1rem;
+    }
+    
+    .flex.flex-col.md\:flex-row.gap-6 {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .flex-shrink-0 {
+        align-self: center;
+    }
+    
+    .w-20.h-20 {
+        width: 4rem;
+        height: 4rem;
+    }
+    
+    .flex.flex-col.md\:flex-row.md\:justify-between.md\:items-start.gap-3.mb-3 {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .flex.items-center.gap-3.mb-2 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .font-bold.text-\[\#2A8FA9\].text-xl {
+        font-size: 1.125rem;
+    }
+    
+    .flex.items-center.gap-4.text-sm.text-gray-500.mb-4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .flex.gap-3.flex-wrap {
+        gap: 0.5rem;
+    }
+    
+    .flex.gap-3.flex-wrap a,
+    .flex.gap-3.flex-wrap button {
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .text-center.py-12 .flex.gap-4.justify-center {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .text-center.py-12 .flex.gap-4.justify-center a {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 767px) {
+    .max-w-7xl.mx-auto.px-4.sm\:px-6.lg\:px-8.py-8 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    .text-3xl.font-bold.text-\[\#2A8FA9\] {
+        font-size: 1.5rem;
+    }
+    
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex.items-center.gap-4 {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex.items-center.gap-4 a {
+        width: 100%;
+    }
+    
+    .grid.grid-cols-1.md\:grid-cols-3.gap-4.mb-8 {
+        grid-template-columns: 1fr;
+    }
+    
+    .bg-white.rounded-2xl.shadow-sm.border.border-gray-100.p-6 {
+        padding: 1rem;
+    }
+    
+    .text-gray-500.text-sm.bg-white.px-4.py-2.rounded-lg.border.border-\[\#2A8FA9\]\/20 {
+        align-self: flex-start;
+        min-width: auto;
+        padding: 0.5rem 1rem;
+    }
+    
+    .flex.gap-3.flex-wrap {
+        flex-direction: column;
+    }
+    
+    .flex.gap-3.flex-wrap a,
+    .flex.gap-3.flex-wrap button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 {
+        font-size: 1.25rem;
+    }
+    
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 p {
+        font-size: 0.875rem;
+    }
+    
+    .flex.items-center.gap-3.mb-2 {
+        align-items: stretch;
+    }
+    
+    .font-bold.text-\[\#2A8FA9\].text-xl.line-clamp-1 {
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+    
+    .bg-gradient-to-r.from-\[\#2A8FA9\]\/10.to-\[\#409BB2\]\/10.rounded-xl.p-4 .w-12.h-12 {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    .bg-gradient-to-r.from-\[\#2A8FA9\]\/10.to-\[\#409BB2\]\/10.rounded-xl.p-4 .iconify {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .text-center.py-12 {
+        padding: 2rem 1rem;
+    }
+    
+    .text-center.py-12 .iconify {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+.iconify {
+    flex-shrink: 0;
+}
+
+@media (max-width: 1023px) {
+    a, button {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+</style>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="flex justify-between items-center w-full mb-8">
         <div class="flex-1">
@@ -356,21 +579,5 @@ function confirmDeleteCertificate(certificateId) {
     });
 }
 </script>
-
-<style>
-.line-clamp-1 {
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-</style>
 
 <?php include '../../includes/footer.php'; ?>

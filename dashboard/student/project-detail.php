@@ -62,8 +62,178 @@ while ($skill = $skills_result->fetch_assoc()) {
 $skills_stmt->close();
 ?>
 
-
 <?php include '../../includes/header.php'; ?>
+
+<style>
+    @media (max-width: 1023px) {
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.mb-6 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.mb-6 nav {
+        order: 2;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 0.5rem;
+    }
+    
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.mb-6 a.bg-\[\#E0F7FF\] {
+        order: 1;
+        align-self: flex-end;
+        margin-bottom: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .grid.grid-cols-1.lg\:grid-cols-4.gap-8 {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .lg\:col-span-3 {
+        grid-column: 1;
+    }
+    
+    .bg-white.rounded-2xl.shadow-lg.border.border-gray-200.p-8 {
+        padding: 1.5rem;
+    }
+    
+    .flex.flex-col.lg\:flex-row.justify-between.items-start.lg\:items-center.gap-6.mb-6 {
+        gap: 1.5rem;
+    }
+    
+    .flex.flex-wrap.items-center.gap-4.text-sm.text-gray-600.mb-6 {
+        gap: 0.5rem;
+    }
+    
+    .flex.flex-wrap.items-center.gap-4.text-sm.text-gray-600.mb-6 span {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .text-3xl.font-bold.text-\[\#2A8FA9\].mb-4 {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+    
+    .text-xl.font-bold.text-\[\#2A8FA9\].mb-4 {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+    }
+    
+    .flex.flex-wrap.gap-4 {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .flex.flex-wrap.gap-4 a {
+        justify-content: center;
+        text-align: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .bg-gradient-to-br.from-amber-50.to-yellow-50.rounded-xl.border.border-amber-200.p-6 .flex.items-center.justify-between {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .bg-gradient-to-br.from-amber-50.to-yellow-50.rounded-xl.border.border-amber-200.p-6 .flex.items-center.gap-4 {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .bg-gradient-to-br.from-amber-50.to-yellow-50.rounded-xl.border.border-amber-200.p-6 .flex.gap-3 {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .grid.grid-cols-1.md\:grid-cols-2.gap-6 {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .grid.grid-cols-1.md\:grid-cols-2.gap-6 img {
+        height: 12rem;
+    }
+    
+    .space-y-6 {
+        margin-top: 1.5rem;
+    }
+    
+    .bg-white.rounded-2xl.shadow-lg.border.border-gray-200.p-6 {
+        padding: 1.25rem;
+    }
+    
+    .space-y-3 a, .space-y-3 button {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .max-w-4xl.max-h-full.p-4 {
+        padding: 1rem;
+    }
+    
+    #modalImage {
+        max-height: 60vh;
+    }
+    }
+
+    @media (max-width: 767px) {
+    .max-w-7xl.mx-auto.px-4.sm\:px-6.lg\:px-8.py-8 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    .bg-white.rounded-2xl.shadow-lg.border.border-gray-200.p-8 {
+        padding: 1rem;
+    }
+    
+    .text-3xl.font-bold.text-\[\#2A8FA9\].mb-4 {
+        font-size: 1.25rem;
+    }
+    
+    .flex.flex-wrap.items-center.gap-4.text-sm.text-gray-600.mb-6 {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .grid.grid-cols-2.gap-4 {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .grid.grid-cols-2.gap-4 .col-span-2 {
+        grid-column: 1;
+    }
+    }
+
+    @media (max-width: 480px) {
+    .max-w-7xl.mx-auto .flex.justify-between.items-center.mb-6 a.bg-\[\#E0F7FF\] {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .bg-gray-50.rounded-xl.p-6.border.border-gray-300 {
+        padding: 1rem;
+    }
+    
+    .text-center.py-8.text-gray-500 {
+        padding: 1.5rem 1rem;
+    }
+    
+    .text-center.py-12.bg-gray-50.rounded-xl.border.border-gray-300 {
+        padding: 2rem 1rem;
+    }
+    }
+</style>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Navigation & Header -->
@@ -200,53 +370,53 @@ $skills_stmt->close();
             </div>
 
             <!-- Certificate Section -->
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-            <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
-                <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
-                Sertifikat Terkait
-            </h2>
-            
-            <?php if (!empty($project['certificate_path'])): ?>
-            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200 p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center border-4 border-amber-200">
-                            <span class="iconify text-amber-600" data-icon="mdi:certificate" data-width="32"></span>
+            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:certificate" data-width="24"></span>
+                    Sertifikat Terkait
+                </h2>
+                
+                <?php if (!empty($project['certificate_path'])): ?>
+                <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center border-4 border-amber-200">
+                                <span class="iconify text-amber-600" data-icon="mdi:certificate" data-width="32"></span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-amber-800">Sertifikat Tersedia</h3>
+                                <p class="text-amber-700 text-sm">
+                                    <?php 
+                                    $filename = basename($project['certificate_path']);
+                                    echo htmlspecialchars($filename);
+                                    ?>
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-amber-800">Sertifikat Tersedia</h3>
-                            <p class="text-amber-700 text-sm">
-                                <?php 
-                                $filename = basename($project['certificate_path']);
-                                echo htmlspecialchars($filename);
-                                ?>
-                            </p>
+                        
+                        <div class="flex gap-3">
+                            <a href="<?php echo htmlspecialchars($project['certificate_path']); ?>" 
+                            target="_blank"
+                            class="bg-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 flex items-center gap-2 text-sm">
+                                <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
+                                Lihat
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="flex gap-3">
-                        <a href="<?php echo htmlspecialchars($project['certificate_path']); ?>" 
-                        target="_blank"
-                        class="bg-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 flex items-center gap-2 text-sm">
-                            <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
-                            Lihat
-                        </a>
+                </div>
+                <?php else: ?>
+                <div class="text-center py-8 bg-gray-50 rounded-xl border border-gray-300">
+                    <div class="text-gray-400 mb-3 flex justify-center">
+                        <span class="iconify" data-icon="mdi:certificate-off" data-width="48"></span>
                     </div>
+                    <h3 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Sertifikat</h3>
+                    <p class="text-gray-500 text-sm mb-4">Tambahkan sertifikat untuk meningkatkan kredibilitas proyek</p>
+                    <a href="edit-project.php?id=<?php echo $project['id']; ?>" class="inline-block bg-amber-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 shadow-md">
+                        Tambah Sertifikat
+                    </a>
                 </div>
+                <?php endif; ?>
             </div>
-            <?php else: ?>
-            <div class="text-center py-8 bg-gray-50 rounded-xl border border-gray-300">
-                <div class="text-gray-400 mb-3 flex justify-center">
-                    <span class="iconify" data-icon="mdi:certificate-off" data-width="48"></span>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-600 mb-2">Belum Ada Sertifikat</h3>
-                <p class="text-gray-500 text-sm mb-4">Tambahkan sertifikat untuk meningkatkan kredibilitas proyek</p>
-                <a href="edit-project.php?id=<?php echo $project['id']; ?>" class="inline-block bg-amber-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-amber-600 transition-colors duration-300 shadow-md">
-                    Tambah Sertifikat
-                </a>
-            </div>
-            <?php endif; ?>
-        </div>
 
             <!-- Project Gallery -->
             <?php if (!empty($project_images)): ?>
@@ -352,22 +522,22 @@ $skills_stmt->close();
     </div>
 </div>
 
-<!-- Image Modal -->
-<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
-    <div class="max-w-4xl max-h-full p-4">
-        <div class="bg-white rounded-lg overflow-hidden shadow-2xl">
-            <div class="flex justify-between items-center p-4 border-b border-gray-300">
-                <h3 class="text-lg font-semibold text-gray-800">Preview Gambar</h3>
-                <button onclick="closeImageModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
-                    <span class="iconify" data-icon="mdi:close" data-width="24"></span>
-                </button>
+            <!-- Image Modal -->
+            <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+                <div class="max-w-4xl max-h-full p-4">
+                    <div class="bg-white rounded-lg overflow-hidden shadow-2xl">
+                        <div class="flex justify-between items-center p-4 border-b border-gray-300">
+                            <h3 class="text-lg font-semibold text-gray-800">Preview Gambar</h3>
+                            <button onclick="closeImageModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                                <span class="iconify" data-icon="mdi:close" data-width="24"></span>
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <img id="modalImage" src="" alt="" class="max-w-full max-h-96 object-contain">
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="p-4">
-                <img id="modalImage" src="" alt="" class="max-w-full max-h-96 object-contain">
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
 function openImageModal(imageSrc) {

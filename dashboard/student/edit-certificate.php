@@ -139,6 +139,154 @@ function handleCertificateUpload($file, $user_id) {
 
 <?php include '../../includes/header.php'; ?>
 
+<style>
+@media (max-width: 1023px) {
+    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+    
+    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 {
+        width: 100%;
+    }
+    
+    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 a.bg-\[\#E0F7FF\] {
+        align-self: flex-end;
+        width: auto;
+        min-width: 140px;
+    }
+    
+    .grid.grid-cols-1.lg\:grid-cols-2.gap-8 {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .bg-white.rounded-2xl.shadow-sm.border.border-gray-100.p-8 {
+        padding: 1.5rem;
+    }
+    
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .flex.items-center.justify-between {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .flex.items-center.gap-3 {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .flex.items-center.gap-2 {
+        width: 100%;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .flex.items-center.gap-2 a,
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .flex.items-center.gap-2 button {
+        flex: 1;
+        justify-content: center;
+        min-width: 120px;
+    }
+    
+    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 {
+        flex-direction: column-reverse;
+        gap: 1rem;
+    }
+    
+    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 a,
+    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 button {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+@media (max-width: 767px) {
+    .max-w-6xl.mx-auto.px-4.sm\:px-6.lg\:px-8.py-8 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    .text-3xl.font-bold.text-\[\#2A8FA9\] {
+        font-size: 1.5rem;
+    }
+    
+    .text-2xl.font-bold.text-\[\#2A8FA9\] {
+        font-size: 1.25rem;
+    }
+    
+    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 a.bg-\[\#E0F7FF\] {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .space-y-8 .space-y-6 {
+        gap: 1rem;
+    }
+    
+    .w-full.px-4.py-3.border.border-gray-300.rounded-lg {
+        padding: 0.75rem 1rem;
+    }
+    
+    .max-w-2xl {
+        width: 100%;
+    }
+    
+    .bg-\[\#2A8FA9\]\/10.border.border-\[\#2A8FA9\]\/30.rounded-lg.p-6 {
+        padding: 1rem;
+    }
+    
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .flex.items-center.gap-2 {
+        flex-direction: column;
+    }
+    
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .flex.items-center.gap-2 a,
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .flex.items-center.gap-2 button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 {
+        font-size: 1.25rem;
+    }
+    
+    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 p {
+        font-size: 0.875rem;
+    }
+    
+    .space-y-8 {
+        gap: 1.5rem;
+    }
+    
+    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 button,
+    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 a {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .bg-\[\#489EB7\]\/10.border.border-\[\#489EB7\]\/30.rounded-lg.p-4 .text-sm {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 1023px) {
+    a, button, input[type="submit"] {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    input, textarea, select {
+        font-size: 16px; 
+    }
+}
+</style>
+
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="flex justify-between items-center w-full mb-8">

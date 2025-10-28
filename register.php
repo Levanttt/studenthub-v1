@@ -174,9 +174,120 @@ $semesterOptions = [
             max-height: 200px;
             overflow-y: auto;
         }
+
+        /* Responsive Styles untuk Mobile */
+        @media (max-width: 767px) {
+            .auth-height {
+                min-height: calc(100vh - 56px);
+                padding: 1rem 0;
+            }
+            
+            .max-w-7xl.mx-auto.px-4 {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .bg-white.rounded-xl.shadow-sm.border.border-gray-100.overflow-hidden {
+                margin: 0 0.5rem;
+            }
+            
+            .p-6 {
+                padding: 1.25rem;
+            }
+            
+            .text-2xl.font-bold {
+                font-size: 1.5rem;
+            }
+            
+            .space-y-4 > * + * {
+                margin-top: 1rem;
+            }
+            
+            .grid.grid-cols-1.md\:grid-cols-2.gap-4 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .bg-cakrawala-secondary-light.border.border-\[\#ABD0D8\].rounded-lg.p-4 {
+                padding: 1rem;
+            }
+            
+            .w-full.pl-10.pr-3.py-2.5 {
+                padding-left: 2.5rem;
+                padding-right: 0.75rem;
+                padding-top: 0.625rem;
+                padding-bottom: 0.625rem;
+            }
+            
+            .w-full.pl-10.pr-10.py-2.5 {
+                padding-left: 2.5rem;
+                padding-right: 2.5rem;
+                padding-top: 0.625rem;
+                padding-bottom: 0.625rem;
+            }
+            
+            .absolute.inset-y-0.left-0.pl-3 {
+                padding-left: 0.75rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .mobile-padding {
+                padding: 1rem;
+            }
+            
+            .mobile-height {
+                min-height: calc(100vh - 56px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .p-6 {
+                padding: 1rem;
+            }
+            
+            .bg-gradient-to-r.from-\[\#2A8FA9\].to-\[\#4CA1B6\].p-6 {
+                padding: 1.25rem 1rem;
+            }
+            
+            .text-2xl.font-bold {
+                font-size: 1.25rem;
+            }
+            
+            .text-sm {
+                font-size: 0.75rem;
+            }
+            
+            .w-full.pl-10.pr-3.py-2.5 {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+            
+            button, a {
+                min-height: 44px; /* Better touch targets */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* Ensure proper spacing on very small screens */
+        @media (max-width: 360px) {
+            .p-6 {
+                padding: 0.75rem;
+            }
+            
+            .space-y-4 > * + * {
+                margin-top: 0.75rem;
+            }
+            
+            .grid.grid-cols-1.md\:grid-cols-2.gap-4 {
+                gap: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-cakrawala-light-gray"> 
+    <!-- Header yang sama seperti di login.php -->
     <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/cakrawala-connect/" class="flex items-center gap-2 transition-opacity hover:opacity-80">
@@ -184,30 +295,30 @@ $semesterOptions = [
                 <span class="text-lg font-bold text-cakrawala-primary hidden sm:inline">Cakrawala Connect</span> 
             </a>
             <div class="flex items-center space-x-3">
-                <a href="/cakrawala-connect/register.php" class="bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
+                <a href="/cakrawala-connect/register.php" class="bg-cakrawala-primary text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-cakrawala-primary-hover transition-colors shadow-sm flex items-center gap-2 text-sm">
                     <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
-                    Daftar
+                    <span class="hidden sm:inline">Daftar</span>
                 </a>
                 <a href="/cakrawala-connect/login.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm font-medium flex items-center gap-1">
                     <span class="iconify" data-icon="mdi:login" data-width="16"></span>
-                    Login
+                    <span class="hidden sm:inline">Login</span>
                 </a>
             </div>
         </div>
     </nav>
 
-    <main class="auth-height flex items-center justify-center p-4">
+    <main class="auth-height mobile-height flex items-center justify-center p-4 mobile-padding">
         <div class="w-full max-w-lg">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-[var(--cakrawala-primary)] to-[var(--cakrawala-secondary)] p-6 text-center text-white">
                     <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-white/20 mb-3">
                         <span class="iconify text-white" data-icon="mdi:account-plus" data-width="24"></span>
                     </div>
-                    <h2 class="text-2xl font-bold">Daftar Cakrawala Connect</h2> 
-                    <p class="mt-1 text-blue-100">Bergabung dengan platform karir Universitas Cakrawala</p>
+                    <h2 class="text-xl sm:text-2xl font-bold">Daftar Cakrawala Connect</h2> 
+                    <p class="mt-1 text-blue-100 text-sm sm:text-base">Bergabung dengan platform karir Universitas Cakrawala</p>
                 </div>
 
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
                     <?php if (!empty($error)): ?>
                         <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg flex items-center gap-2 text-sm">
                             <span class="iconify" data-icon="mdi:alert-circle" data-width="16"></span>
