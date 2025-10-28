@@ -238,424 +238,6 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white rounded-2xl p-8 mb-8 shadow-lg">
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
-            <div class="flex-1">
-                <h1 class="text-3xl lg:text-4xl font-bold mb-4 flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:account-search" data-width="40"></span>
-                    Halo, <?php echo htmlspecialchars($_SESSION['name']); ?>!
-                </h1>
-                <p class="text-[#E0F7FF] text-lg opacity-90 mb-6">Temukan talenta-talenta terbaik untuk kebutuhan perusahaan Anda.</p>
-                
-                <!-- Cara Kerja -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <div class="bg-white/10 rounded-xl p-6 border border-white/20">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-4">
-                            <span class="iconify text-white" data-icon="mdi:account-multiple" data-width="24"></span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">Jelajahi Talenta</h3>
-                        <p class="text-[#E0F7FF] text-sm">Cari berdasarkan skill, spesialisasi, atau jurusan</p>
-                    </div>
-                    
-                    <div class="bg-white/10 rounded-xl p-6 border border-white/20">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-4">
-                            <span class="iconify text-white" data-icon="mdi:file-document-edit" data-width="24"></span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">Lihat Portofolio</h3>
-                        <p class="text-[#E0F7FF] text-sm">Review project dan skill yang telah diverifikasi</p>
-                    </div>
-                    
-                    <div class="bg-white/10 rounded-xl p-6 border border-white/20">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-4">
-                            <span class="iconify text-white" data-icon="mdi:handshake" data-width="24"></span>
-                        </div>
-                        <h3 class="text-xl font-bold mb-2">Hubungi & Kolaborasi</h3>
-                        <p class="text-[#E0F7FF] text-sm">Mulai percakapan dan bangun tim terbaik</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Search & Filter Section -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
-        <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
-            <span class="iconify" data-icon="mdi:magnify" data-width="28"></span>
-            Cari Talenta
-        </h2>
-        
-        <form method="GET" action="" class="space-y-6">
-            <!-- Main Search -->
-            <div class="relative">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Cari Talenta</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
-                    </span>
-                    <input type="text" 
-                        name="q" 
-                        value="<?php echo htmlspecialchars($query_filter); ?>" 
-                        class="w-full pl-10 pr-3 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-base" 
-                        placeholder="Ketik nama, skill (React, Python), atau jurusan..."
-                        id="main-search"
-                        autocomplete="off">
-                </div>
-                
-                <!-- Search Suggestions -->
-                <div id="search-suggestions" class="hidden absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 mt-1 max-h-80 overflow-y-auto">
-                    <div class="p-3 border-b border-gray-100">
-                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Suggestions</p>
-                    </div>
-                    
-                    <?php if (!empty($search_suggestions['skills'])): ?>
-                    <div class="p-2">
-                        <p class="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
-                            <span class="iconify" data-icon="mdi:code-braces" data-width="12"></span>
-                            Skills
-                        </p>
-                        <div class="flex flex-wrap gap-1">
-                            <?php foreach ($search_suggestions['skills'] as $skill): ?>
-                                <button type="button" class="suggestion-tag bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-200 transition-colors" data-value="<?php echo htmlspecialchars($skill); ?>">
-                                    <?php echo htmlspecialchars($skill); ?>
-                                </button>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <?php if (!empty($search_suggestions['majors'])): ?>
-                    <div class="p-2">
-                        <p class="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
-                            <span class="iconify" data-icon="mdi:book-education" data-width="12"></span>
-                            Jurusan
-                        </p>
-                        <div class="flex flex-wrap gap-1">
-                            <?php foreach ($search_suggestions['majors'] as $major): ?>
-                                <button type="button" class="suggestion-tag bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200 transition-colors" data-value="<?php echo htmlspecialchars($major); ?>">
-                                    <?php echo htmlspecialchars($major); ?>
-                                </button>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Filter Row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Specialization Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Spesialisasi</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <span class="iconify" data-icon="mdi:tag" data-width="18"></span>
-                        </span>
-                        <select name="specialization" class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
-                            <option value="">Semua Spesialisasi</option>
-                            <?php foreach ($all_specializations as $spec): ?>
-                                <option value="<?php echo htmlspecialchars($spec); ?>" 
-                                        <?php echo $specialization_filter == $spec ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($spec); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Skill Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Skill Tertentu</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <span class="iconify" data-icon="mdi:code-braces" data-width="18"></span>
-                        </span>
-                        <select name="skill" class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
-                            <option value="">Semua Skill</option>
-                            <?php foreach ($all_skills as $skill): ?>
-                                <option value="<?php echo htmlspecialchars($skill['name']); ?>" 
-                                        <?php echo $skill_filter == $skill['name'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($skill['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
-                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex justify-end space-x-4 pt-4">
-                <button type="submit" class="bg-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 shadow-sm flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
-                    Cari Talenta
-                </button>
-                <a href="index.php?show_all=1" class="bg-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:refresh" data-width="20"></span>
-                    Reset
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- Results Section -->
-    <?php if ($is_show_all_mode || !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || $total_students > 0): ?>
-        
-        <!-- Results Info -->
-        <div class="mb-6 flex justify-between items-center">
-            <p class="text-gray-600 text-sm">
-                Menampilkan <span class="font-bold text-[#2A8FA9]"><?php echo count($students); ?></span> dari <span class="font-bold text-[#2A8FA9]"><?php echo $total_students; ?></span> talenta
-                <?php if ($is_show_all_mode && empty($query_filter) && empty($specialization_filter) && empty($skill_filter)): ?>
-                    (Semua Mahasiswa Eligible)
-                <?php elseif (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
-                    berdasarkan filter yang dipilih
-                <?php elseif (!$is_filter_active): ?>
-                    (Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?>)
-                <?php endif; ?>
-            </p>
-            
-            <?php if (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
-            <div class="flex flex-wrap gap-2">
-                <?php if (!empty($query_filter)): ?>
-                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
-                        <span class="iconify" data-icon="mdi:magnify" data-width="14"></span>
-                        "<?php echo htmlspecialchars($query_filter); ?>"
-                        <button onclick="removeFilter('q')" class="text-blue-600 hover:text-blue-800 ml-1">
-                            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
-                        </button>
-                    </span>
-                <?php endif; ?>
-                <?php if (!empty($specialization_filter)): ?>
-                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
-                        <span class="iconify" data-icon="mdi:tag" data-width="14"></span>
-                        <?php echo htmlspecialchars($specialization_filter); ?>
-                        <button onclick="removeFilter('specialization')" class="text-green-600 hover:text-green-800 ml-1">
-                            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
-                        </button>
-                    </span>
-                <?php endif; ?>
-                <?php if (!empty($skill_filter)): ?>
-                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
-                        <span class="iconify" data-icon="mdi:code-braces" data-width="14"></span>
-                        <?php echo htmlspecialchars($skill_filter); ?>
-                        <button onclick="removeFilter('skill')" class="text-purple-600 hover:text-purple-800 ml-1">
-                            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
-                        </button>
-                    </span>
-                <?php endif; ?>
-            </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Talent Grid -->
-        <?php if (count($students) > 0): ?>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-                <?php foreach ($students as $student): ?>
-                    <?php
-                    $skills_with_count = [];
-                    try {
-                        $skills_query = "
-                            SELECT s.name, s.skill_type, COUNT(DISTINCT p.id) as project_count 
-                            FROM project_skills ps 
-                            JOIN projects p ON ps.project_id = p.id
-                            JOIN skills s ON ps.skill_id = s.id 
-                            WHERE p.student_id = ?
-                            GROUP BY s.id
-                            ORDER BY project_count DESC, s.skill_type, s.name
-                            LIMIT 10
-                        ";
-                        $skills_stmt = $conn->prepare($skills_query);
-                        if ($skills_stmt) {
-                            $skills_stmt->bind_param("i", $student['id']);
-                            $skills_stmt->execute();
-                            $skills_result = $skills_stmt->get_result();
-                            while ($skill_row = $skills_result->fetch_assoc()) {
-                                $skills_with_count[] = $skill_row;
-                            }
-                            $skills_stmt->close();
-                        }
-                    } catch (Exception $e) {}
-                    
-                    $display_name = shortenName($student['name'], 22);
-                    $display_bio = shortenBio($student['bio'] ?? '');
-                    ?>
-                    
-                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group talent-card h-full flex flex-col">
-                        <!-- Profile Info -->
-                        <a href="student-profile.php?id=<?php echo $student['id']; ?>" class="block flex-1 p-5">
-                            <div class="flex items-center space-x-4 mb-4">
-                                <?php if (!empty($student['profile_picture'])): ?>
-                                    <img class="h-16 w-16 rounded-full object-cover border-2 border-[#E0F7FF]" 
-                                        src="<?php echo htmlspecialchars($student['profile_picture']); ?>" 
-                                        alt="<?php echo htmlspecialchars($student['name']); ?>">
-                                <?php else: ?>
-                                    <div class="h-16 w-16 rounded-full bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex items-center justify-center border-2 border-[#E0F7FF]">
-                                        <span class="iconify text-white" data-icon="mdi:account" data-width="32"></span>
-                                    </div>
-                                <?php endif; ?>
-                                
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="text-lg font-bold text-[#2A8FA9] group-hover:text-[#51A3B9] transition-colors truncate" 
-                                        title="<?php echo htmlspecialchars($student['name']); ?>">
-                                        <?php echo htmlspecialchars($display_name); ?>
-                                    </h3>
-                                    <p class="text-gray-600 text-sm truncate" title="<?php echo htmlspecialchars($student['major'] ?? 'Jurusan'); ?>">
-                                        <?php echo htmlspecialchars($student['major'] ?? 'Jurusan'); ?>
-                                    </p>
-                                    <p class="text-gray-500 text-sm truncate" title="Semester <?php echo htmlspecialchars($student['semester'] ?? ''); ?>">
-                                        Semester <?php echo htmlspecialchars($student['semester'] ?? ''); ?>
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="mb-1 flex-1 min-h-[96px]">
-                                <p class="text-gray-700 text-sm leading-relaxed break-words">
-                                    <?php 
-                                    echo htmlspecialchars($display_bio, ENT_QUOTES, 'UTF-8');
-                                    ?>
-                                </p>
-                            </div>
-                        </a>
-
-                        <!-- Skills Section dengan Arrow Scroll -->
-                        <?php if (!empty($skills_with_count)): ?>
-                        <div class="px-0 pb-1">
-                            <div class="flex items-center gap-0">
-                                <!-- Left Scroll Button -->
-                                <button class="skill-scroll-btn flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-[#51A3B9] rounded-full p-1 transition-all duration-200"
-                                        onclick="scrollSkills(this, -120)">
-                                    <span class="iconify" data-icon="mdi:chevron-left" data-width="16"></span>
-                                </button>
-                                
-                                <!-- Skills Container -->
-                                <div class="horizontal-scroll flex flex-nowrap gap-2 overflow-x-auto flex-1"
-                                    style="scrollbar-width: none; -ms-overflow-style: none;">
-                                    <?php foreach ($skills_with_count as $skill): 
-                                        $color_class = [
-                                            'technical' => 'bg-blue-100 text-blue-800',
-                                            'soft' => 'bg-green-100 text-green-800',
-                                            'tool' => 'bg-purple-100 text-purple-800'
-                                        ][$skill['skill_type']] ?? 'bg-gray-100 text-gray-800';
-                                    ?>
-                                        <span class="inline-block <?php echo $color_class; ?> text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap flex-shrink-0"
-                                            title="Digunakan di <?php echo $skill['project_count']; ?> project">
-                                            <?php echo htmlspecialchars($skill['name']); ?>
-                                        </span>
-                                    <?php endforeach; ?>
-                                </div>
-                                
-                                <!-- Right Scroll Button -->
-                                <button class="skill-scroll-btn flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-[#51A3B9] rounded-full p-1 transition-all duration-200"
-                                        onclick="scrollSkills(this, 120)">
-                                    <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
-                                </button>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-
-                        <!-- View Profile Button -->
-                        <div class="p-4 bg-gray-50 border-t border-gray-100">
-                            <a href="student-profile.php?id=<?php echo $student['id']; ?>" 
-                            class="block w-full text-center bg-[#51A3B9] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 text-sm">
-                                Lihat Profil
-                            </a>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-            <!-- Pagination Navigation -->
-            <?php if (!$is_filter_active && $total_pages > 1): ?>
-            <div class="flex justify-center items-center space-x-4 mt-8 mb-8">
-                <!-- Previous Button -->
-                <a href="?page=<?php echo max(1, $current_page - 1); ?>" 
-                class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == 1 ? 'opacity-50 cursor-not-allowed' : ''; ?>">
-                    <span class="iconify" data-icon="mdi:chevron-left" data-width="20"></span>
-                    Sebelumnya
-                </a>
-
-                <!-- Page Info -->
-                <div class="flex items-center gap-2 bg-[#E0F7FF] rounded-xl px-6 py-3">
-                    <span class="text-[#2A8FA9] font-bold">Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?></span>
-                </div>
-
-                <!-- Next Button -->
-                <a href="?page=<?php echo min($total_pages, $current_page + 1); ?>" 
-                class="flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 <?php echo $current_page == $total_pages ? 'opacity-50 cursor-not-allowed' : ''; ?>">
-                    Selanjutnya
-                    <span class="iconify" data-icon="mdi:chevron-right" data-width="20"></span>
-                </a>
-            </div>
-            <?php endif; ?>
-
-        <?php else: ?>
-            <!-- Empty Search Results -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
-                <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                    <span class="iconify text-gray-400" data-icon="mdi:account-search" data-width="48"></span>
-                </div>
-                <h3 class="text-2xl font-bold text-[#2A8FA9] mb-3">Tidak ada talenta yang ditemukan</h3>
-                <p class="text-gray-600 text-lg mb-8 max-w-md mx-auto">Coba ubah filter pencarian Anda atau lihat semua talenta tanpa filter.</p>
-                <a href="index.php?show_all=1" class="bg-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:refresh" data-width="20"></span>
-                    Tampilkan Semua Mahasiswa Eligible
-                </a>
-            </div>
-        <?php endif; ?>
-    <?php else: ?>
-        <!-- Empty State -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
-            <div class="mx-auto w-24 h-24 bg-[#E0F7FF] rounded-full flex items-center justify-center mb-6">
-                <span class="iconify text-[#51A3B9]" data-icon="mdi:magnify" data-width="48"></span>
-            </div>
-            <h3 class="text-2xl font-bold text-[#2A8FA9] mb-3">Mulai Pencarian Talenta</h3>
-            <p class="text-gray-600 text-lg mb-8 max-w-md mx-auto">Gunakan form pencarian di atas untuk menemukan talenta terbaik berdasarkan skill, spesialisasi, atau latar belakang pendidikan.</p>
-            
-            <!-- Quick Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto mb-8">
-                <div class="bg-[#E0F7FF] rounded-xl p-4 border border-[#51A3B9]">
-                    <div class="text-2xl font-bold text-[#2A8FA9] mb-1">
-                        <?php 
-                        $total_students_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'student' AND eligibility_status = 'eligible'")->fetch_assoc()['total'];
-                        echo $total_students_count;
-                        ?>
-                    </div>
-                    <div class="text-[#409BB2] text-sm">Talenta Eligible</div>
-                </div>
-                <div class="bg-green-50 rounded-xl p-4 border border-green-100">
-                    <div class="text-2xl font-bold text-green-900 mb-1">
-                        <?php echo count($all_specializations); ?>
-                    </div>
-                    <div class="text-green-700 text-sm">Spesialisasi</div>
-                </div>
-                <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
-                    <div class="text-2xl font-bold text-purple-900 mb-1">
-                        <?php echo count($all_skills); ?>
-                    </div>
-                    <div class="text-purple-700 text-sm">Skills Tersedia</div>
-                </div>
-            </div>
-            
-            <div class="flex justify-center gap-4">
-                <a href="index.php?show_all=1" class="bg-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:account-multiple" data-width="20"></span>
-                    Lihat Semua Talenta Eligible
-                </a>
-                <button onclick="document.getElementById('main-search').focus()" class="bg-[#2A8FA9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
-                    Mulai Pencarian
-                </button>
-            </div>
-        </div>
-    <?php endif; ?>
-</div>
-
 <style>
 .line-clamp-3 {
     display: -webkit-box;
@@ -697,7 +279,6 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
     margin-bottom: -8px; 
 }
 
-
 .talent-card .px-5.pb-2 {
     margin-top: auto;
     margin-top: 4px; 
@@ -727,7 +308,485 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
 .suggestion-tag:hover {
     transform: translateY(-1px);
 }
+
+@media (max-width: 768px) {
+    .mobile-hero {
+        padding: 1.5rem !important;
+    }
+    
+    .mobile-hero-title {
+        font-size: 1.75rem !important;
+        text-align: center;
+    }
+    
+    .mobile-hero-subtitle {
+        text-align: center;
+        font-size: 1rem !important;
+    }
+    
+    .mobile-grid-cols-1 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .mobile-padding {
+        padding: 1rem !important;
+    }
+    
+    .mobile-text-center {
+        text-align: center !important;
+    }
+    
+    .mobile-flex-col {
+        flex-direction: column !important;
+    }
+    
+    .mobile-gap-4 {
+        gap: 1rem !important;
+    }
+    
+    .mobile-w-full {
+        width: 100% !important;
+    }
+    
+    .mobile-card-compact {
+        padding: 1rem !important;
+    }
+    
+    .mobile-stack {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .mobile-buttons {
+        flex-direction: column !important;
+        gap: 0.5rem;
+    }
+    
+    .mobile-button {
+        width: 100% !important;
+        justify-content: center;
+    }
+    
+    .mobile-talent-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+    
+    .mobile-pagination-horizontal {
+        flex-direction: row !important;
+        gap: 0.5rem;
+    }
+    
+    .mobile-pagination-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+    
+    .mobile-pagination-info {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+}
 </style>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <div class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 mobile-hero">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
+            <div class="flex-1 mobile-text-center lg:text-left">
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3 justify-center lg:justify-start mobile-hero-title">
+                    <span class="iconify" data-icon="mdi:account-search" data-width="32" data-height="32"></span>
+                    Halo, <?php echo htmlspecialchars($_SESSION['name']); ?>!
+                </h1>
+                <p class="text-[#E0F7FF] text-base sm:text-lg opacity-90 mb-4 sm:mb-6 mobile-hero-subtitle">Temukan talenta-talenta terbaik untuk kebutuhan perusahaan Anda.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8 mobile-grid-cols-1 md:mobile-grid-cols-3">
+                    <div class="bg-white/10 rounded-xl p-4 sm:p-6 border border-white/20 text-center">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto">
+                            <span class="iconify text-white" data-icon="mdi:account-multiple" data-width="20" data-height="20"></span>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold mb-2">Jelajahi Talenta</h3>
+                        <p class="text-[#E0F7FF] text-xs sm:text-sm">Cari berdasarkan skill, spesialisasi, atau jurusan</p>
+                    </div>
+                    
+                    <div class="bg-white/10 rounded-xl p-4 sm:p-6 border border-white/20 text-center">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto">
+                            <span class="iconify text-white" data-icon="mdi:file-document-edit" data-width="20" data-height="20"></span>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold mb-2">Lihat Portofolio</h3>
+                        <p class="text-[#E0F7FF] text-xs sm:text-sm">Review project dan skill yang telah diverifikasi</p>
+                    </div>
+                    
+                    <div class="bg-white/10 rounded-xl p-4 sm:p-6 border border-white/20 text-center">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto">
+                            <span class="iconify text-white" data-icon="mdi:handshake" data-width="20" data-height="20"></span>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold mb-2">Hubungi & Kolaborasi</h3>
+                        <p class="text-[#E0F7FF] text-xs sm:text-sm">Mulai percakapan dan bangun tim terbaik</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6 sm:mb-8 mobile-padding">
+        <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-4 sm:mb-6 flex items-center gap-2 text-left">
+            <span class="iconify" data-icon="mdi:magnify" data-width="24" data-height="24"></span>
+            Cari Talenta
+        </h2>
+        
+        <form method="GET" action="" class="space-y-4 sm:space-y-6">
+            <div class="relative">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cari Talenta</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
+                    </span>
+                    <input type="text" 
+                        name="q" 
+                        value="<?php echo htmlspecialchars($query_filter); ?>" 
+                        class="w-full pl-10 pr-3 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-base" 
+                        placeholder="Ketik nama, skill (React, Python), atau jurusan..."
+                        id="main-search"
+                        autocomplete="off">
+                </div>
+                
+                <div id="search-suggestions" class="hidden absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 mt-1 max-h-80 overflow-y-auto">
+                    <div class="p-3 border-b border-gray-100">
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Suggestions</p>
+                    </div>
+                    
+                    <?php if (!empty($search_suggestions['skills'])): ?>
+                    <div class="p-2">
+                        <p class="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
+                            <span class="iconify" data-icon="mdi:code-braces" data-width="12"></span>
+                            Skills
+                        </p>
+                        <div class="flex flex-wrap gap-1">
+                            <?php foreach ($search_suggestions['skills'] as $skill): ?>
+                                <button type="button" class="suggestion-tag bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm hover:bg-blue-200 transition-colors" data-value="<?php echo htmlspecialchars($skill); ?>">
+                                    <?php echo htmlspecialchars($skill); ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($search_suggestions['majors'])): ?>
+                    <div class="p-2">
+                        <p class="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
+                            <span class="iconify" data-icon="mdi:book-education" data-width="12"></span>
+                            Jurusan
+                        </p>
+                        <div class="flex flex-wrap gap-1">
+                            <?php foreach ($search_suggestions['majors'] as $major): ?>
+                                <button type="button" class="suggestion-tag bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm hover:bg-purple-200 transition-colors" data-value="<?php echo htmlspecialchars($major); ?>">
+                                    <?php echo htmlspecialchars($major); ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-flex-col md:mobile-flex-row">
+                <div class="mobile-w-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Spesialisasi</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <span class="iconify" data-icon="mdi:tag" data-width="18"></span>
+                        </span>
+                        <select name="specialization" class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                            <option value="">Semua Spesialisasi</option>
+                            <?php foreach ($all_specializations as $spec): ?>
+                                <option value="<?php echo htmlspecialchars($spec); ?>" 
+                                        <?php echo $specialization_filter == $spec ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($spec); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mobile-w-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Skill Tertentu</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <span class="iconify" data-icon="mdi:code-braces" data-width="18"></span>
+                        </span>
+                        <select name="skill" class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                            <option value="">Semua Skill</option>
+                            <?php foreach ($all_skills as $skill): ?>
+                                <option value="<?php echo htmlspecialchars($skill['name']); ?>" 
+                                        <?php echo $skill_filter == $skill['name'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($skill['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-3 sm:pt-4 mobile-buttons">
+                <button type="submit" class="bg-[#51A3B9] text-white px-6 sm:px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 shadow-sm flex items-center justify-center gap-2 mobile-button">
+                    <span class="iconify" data-icon="mdi:magnify" data-width="18" data-height="18"></span>
+                    Cari Talenta
+                </button>
+                <a href="index.php?show_all=1" class="bg-gray-200 text-gray-700 px-6 sm:px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center justify-center gap-2 mobile-button">
+                    <span class="iconify" data-icon="mdi:refresh" data-width="18" data-height="18"></span>
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <?php if ($is_show_all_mode || !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || $total_students > 0): ?>
+        
+        <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mobile-stack">
+            <p class="text-gray-600 text-sm mobile-text-center sm:text-left">
+                Menampilkan <span class="font-bold text-[#2A8FA9]"><?php echo count($students); ?></span> dari <span class="font-bold text-[#2A8FA9]"><?php echo $total_students; ?></span> talenta
+                <?php if ($is_show_all_mode && empty($query_filter) && empty($specialization_filter) && empty($skill_filter)): ?>
+                    (Semua Mahasiswa Eligible)
+                <?php elseif (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
+                    berdasarkan filter yang dipilih
+                <?php elseif (!$is_filter_active): ?>
+                    (Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?>)
+                <?php endif; ?>
+            </p>
+            
+            <?php if (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
+            <div class="flex flex-wrap gap-2 justify-center sm:justify-start mobile-w-full sm:mobile-w-auto">
+                <?php if (!empty($query_filter)): ?>
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                        <span class="iconify" data-icon="mdi:magnify" data-width="14"></span>
+                        "<?php echo htmlspecialchars($query_filter); ?>"
+                        <button onclick="removeFilter('q')" class="text-blue-600 hover:text-blue-800 ml-1">
+                            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+                        </button>
+                    </span>
+                <?php endif; ?>
+                <?php if (!empty($specialization_filter)): ?>
+                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                        <span class="iconify" data-icon="mdi:tag" data-width="14"></span>
+                        <?php echo htmlspecialchars($specialization_filter); ?>
+                        <button onclick="removeFilter('specialization')" class="text-green-600 hover:text-green-800 ml-1">
+                            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+                        </button>
+                    </span>
+                <?php endif; ?>
+                <?php if (!empty($skill_filter)): ?>
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                        <span class="iconify" data-icon="mdi:code-braces" data-width="14"></span>
+                        <?php echo htmlspecialchars($skill_filter); ?>
+                        <button onclick="removeFilter('skill')" class="text-purple-600 hover:text-purple-800 ml-1">
+                            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+                        </button>
+                    </span>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <?php if (count($students) > 0): ?>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8 mobile-talent-grid">
+                <?php foreach ($students as $student): ?>
+                    <?php
+                    $skills_with_count = [];
+                    try {
+                        $skills_query = "
+                            SELECT s.name, s.skill_type, COUNT(DISTINCT p.id) as project_count 
+                            FROM project_skills ps 
+                            JOIN projects p ON ps.project_id = p.id
+                            JOIN skills s ON ps.skill_id = s.id 
+                            WHERE p.student_id = ?
+                            GROUP BY s.id
+                            ORDER BY project_count DESC, s.skill_type, s.name
+                            LIMIT 10
+                        ";
+                        $skills_stmt = $conn->prepare($skills_query);
+                        if ($skills_stmt) {
+                            $skills_stmt->bind_param("i", $student['id']);
+                            $skills_stmt->execute();
+                            $skills_result = $skills_stmt->get_result();
+                            while ($skill_row = $skills_result->fetch_assoc()) {
+                                $skills_with_count[] = $skill_row;
+                            }
+                            $skills_stmt->close();
+                        }
+                    } catch (Exception $e) {}
+                    
+                    $display_name = shortenName($student['name'], 22);
+                    $display_bio = shortenBio($student['bio'] ?? '');
+                    ?>
+                    
+                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group talent-card h-full flex flex-col">
+                        <a href="student-profile.php?id=<?php echo $student['id']; ?>" class="block flex-1 p-5">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <?php if (!empty($student['profile_picture'])): ?>
+                                    <img class="h-16 w-16 rounded-full object-cover border-2 border-[#E0F7FF]" 
+                                        src="<?php echo htmlspecialchars($student['profile_picture']); ?>" 
+                                        alt="<?php echo htmlspecialchars($student['name']); ?>">
+                                <?php else: ?>
+                                    <div class="h-16 w-16 rounded-full bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex items-center justify-center border-2 border-[#E0F7FF]">
+                                        <span class="iconify text-white" data-icon="mdi:account" data-width="32"></span>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-bold text-[#2A8FA9] group-hover:text-[#51A3B9] transition-colors truncate" 
+                                        title="<?php echo htmlspecialchars($student['name']); ?>">
+                                        <?php echo htmlspecialchars($display_name); ?>
+                                    </h3>
+                                    <p class="text-gray-600 text-sm truncate" title="<?php echo htmlspecialchars($student['major'] ?? 'Jurusan'); ?>">
+                                        <?php echo htmlspecialchars($student['major'] ?? 'Jurusan'); ?>
+                                    </p>
+                                    <p class="text-gray-500 text-sm truncate" title="Semester <?php echo htmlspecialchars($student['semester'] ?? ''); ?>">
+                                        Semester <?php echo htmlspecialchars($student['semester'] ?? ''); ?>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mb-1 flex-1 min-h-[96px]">
+                                <p class="text-gray-700 text-sm leading-relaxed break-words">
+                                    <?php 
+                                    echo htmlspecialchars($display_bio, ENT_QUOTES, 'UTF-8');
+                                    ?>
+                                </p>
+                            </div>
+                        </a>
+
+                        <?php if (!empty($skills_with_count)): ?>
+                        <div class="px-0 pb-1">
+                            <div class="flex items-center gap-0">
+                                <button class="skill-scroll-btn flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-[#51A3B9] rounded-full p-1 transition-all duration-200"
+                                        onclick="scrollSkills(this, -120)">
+                                    <span class="iconify" data-icon="mdi:chevron-left" data-width="16"></span>
+                                </button>
+                                
+                                <div class="horizontal-scroll flex flex-nowrap gap-2 overflow-x-auto flex-1"
+                                    style="scrollbar-width: none; -ms-overflow-style: none;">
+                                    <?php foreach ($skills_with_count as $skill): 
+                                        $color_class = [
+                                            'technical' => 'bg-blue-100 text-blue-800',
+                                            'soft' => 'bg-green-100 text-green-800',
+                                            'tool' => 'bg-purple-100 text-purple-800'
+                                        ][$skill['skill_type']] ?? 'bg-gray-100 text-gray-800';
+                                    ?>
+                                        <span class="inline-block <?php echo $color_class; ?> text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap flex-shrink-0"
+                                            title="Digunakan di <?php echo $skill['project_count']; ?> project">
+                                            <?php echo htmlspecialchars($skill['name']); ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                                
+                                <button class="skill-scroll-btn flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-[#51A3B9] rounded-full p-1 transition-all duration-200"
+                                        onclick="scrollSkills(this, 120)">
+                                    <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <?php endif; ?>
+
+                        <div class="p-4 bg-gray-50 border-t border-gray-100">
+                            <a href="student-profile.php?id=<?php echo $student['id']; ?>" 
+                            class="block w-full text-center bg-[#51A3B9] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 text-sm">
+                                Lihat Profil
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <?php if (!$is_filter_active && $total_pages > 1): ?>
+            <div class="flex flex-row justify-center items-center gap-2 sm:gap-4 mt-6 sm:mt-8 mb-6 sm:mb-8 mobile-pagination-horizontal">
+                <!-- Previous Button -->
+                <a href="?page=<?php echo max(1, $current_page - 1); ?>" 
+                class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-xs sm:text-base mobile-pagination-btn <?php echo $current_page == 1 ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                    <span class="iconify" data-icon="mdi:chevron-left" data-width="16" data-height="16"></span>
+                    <span class="hidden sm:inline">Sebelumnya</span>
+                </a>
+
+                <!-- Page Info -->
+                <div class="flex items-center gap-2 bg-[#E0F7FF] rounded-xl px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-base mobile-pagination-info">
+                    <span class="text-[#2A8FA9] font-bold">Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?></span>
+                </div>
+
+                <!-- Next Button -->
+                <a href="?page=<?php echo min($total_pages, $current_page + 1); ?>" 
+                class="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-white border border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-xs sm:text-base mobile-pagination-btn <?php echo $current_page == $total_pages ? 'opacity-50 cursor-not-allowed' : ''; ?>">
+                    <span class="hidden sm:inline">Selanjutnya</span>
+                    <span class="iconify" data-icon="mdi:chevron-right" data-width="16" data-height="16"></span>
+                </a>
+            </div>
+            <?php endif; ?>
+
+        <?php else: ?>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
+                <div class="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4 sm:mb-6">
+                    <span class="iconify text-gray-400" data-icon="mdi:account-search" data-width="40" data-height="40"></span>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-3">Tidak ada talenta yang ditemukan</h3>
+                <p class="text-gray-600 text-base sm:text-lg mb-6 sm:mb-8 max-w-md mx-auto">Coba ubah filter pencarian Anda atau lihat semua talenta tanpa filter.</p>
+                <a href="index.php?show_all=1" class="bg-[#51A3B9] text-white px-6 sm:px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center justify-center gap-2 mobile-button">
+                    <span class="iconify" data-icon="mdi:refresh" data-width="18" data-height="18"></span>
+                    Tampilkan Semua Mahasiswa Eligible
+                </a>
+            </div>
+        <?php endif; ?>
+    <?php else: ?>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 sm:p-12 text-center">
+            <div class="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-[#E0F7FF] rounded-full flex items-center justify-center mb-4 sm:mb-6">
+                <span class="iconify text-[#51A3B9]" data-icon="mdi:magnify" data-width="40" data-height="40"></span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-3">Mulai Pencarian Talenta</h3>
+            <p class="text-gray-600 text-base sm:text-lg mb-6 sm:mb-8 max-w-md mx-auto">Gunakan form pencarian di atas untuk menemukan talenta terbaik berdasarkan skill, spesialisasi, atau latar belakang pendidikan.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-2xl mx-auto mb-6 sm:mb-8">
+                <div class="bg-[#E0F7FF] rounded-xl p-4 border border-[#51A3B9]">
+                    <div class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-1">
+                        <?php 
+                        $total_students_count = $conn->query("SELECT COUNT(*) as total FROM users WHERE role = 'student' AND eligibility_status = 'eligible'")->fetch_assoc()['total'];
+                        echo $total_students_count;
+                        ?>
+                    </div>
+                    <div class="text-[#409BB2] text-sm">Talenta Eligible</div>
+                </div>
+                <div class="bg-green-50 rounded-xl p-4 border border-green-100">
+                    <div class="text-xl sm:text-2xl font-bold text-green-900 mb-1">
+                        <?php echo count($all_specializations); ?>
+                    </div>
+                    <div class="text-green-700 text-sm">Spesialisasi</div>
+                </div>
+                <div class="bg-purple-50 rounded-xl p-4 border border-purple-100">
+                    <div class="text-xl sm:text-2xl font-bold text-purple-900 mb-1">
+                        <?php echo count($all_skills); ?>
+                    </div>
+                    <div class="text-purple-700 text-sm">Skills Tersedia</div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mobile-buttons">
+                <a href="index.php?show_all=1" class="bg-[#51A3B9] text-white px-6 sm:px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center justify-center gap-2 mobile-button">
+                    <span class="iconify" data-icon="mdi:account-multiple" data-width="18" data-height="18"></span>
+                    Lihat Semua Talenta Eligible
+                </a>
+                <button onclick="document.getElementById('main-search').focus()" class="bg-[#2A8FA9] text-white px-6 sm:px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center justify-center gap-2 mobile-button">
+                    <span class="iconify" data-icon="mdi:magnify" data-width="18" data-height="18"></span>
+                    Mulai Pencarian
+                </button>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
 
 <script>
 function scrollSkills(button, scrollAmount) {
@@ -831,6 +890,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         });
     }
+
+    const talentCardsTouch = document.querySelectorAll('.talent-card');
+    
+    talentCardsTouch.forEach(card => {
+        card.addEventListener('touchstart', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        card.addEventListener('touchend', function() {
+            this.style.transform = '';
+        });
+    });
+
+    const skillContainers = document.querySelectorAll('.horizontal-scroll');
+    skillContainers.forEach(container => {
+        container.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        });
+    });
 });
 </script>
 

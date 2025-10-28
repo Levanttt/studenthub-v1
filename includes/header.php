@@ -51,6 +51,7 @@
             transform: translateY(0);
         }
 
+<<<<<<< Updated upstream
         /* Mobile Optimizations */
         @media (max-width: 640px) {
             .mobile-dropdown {
@@ -58,6 +59,47 @@
                 width: 200px;
             }
         }
+=======
+        @media (max-width: 768px) {
+            .mobile-menu {
+                padding: 0.75rem 1rem;
+            }
+            
+            .mobile-logo-text {
+                display: none;
+            }
+            
+            .mobile-profile-name {
+                display: none;
+            }
+            
+            .mobile-auth-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .mobile-auth-button {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            
+            .dropdown-menu {
+                right: 0.5rem;
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .mobile-container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .mobile-logo {
+                height: 24px;
+            }
+        }
+>>>>>>> Stashed changes
     </style>
 </head>
 <body class="bg-gray-100">
@@ -72,14 +114,14 @@
     $folder_name = $role_folder_map[$current_role] ?? $current_role;
     ?>
 
-    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-200 px-4 py-3 mobile-menu">
+        <div class="max-w-7xl mx-auto flex justify-between items-center mobile-container">
 
             <a href="/cakrawala-connect/index.php"
                 class="flex items-center gap-2 transition-opacity hover:opacity-80">
                 <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" alt="Logo Universitas Cakrawala"
-                    class="h-6">
-                <span class="text-lg font-bold text-cakrawala-primary sm:hidden lg:inline-block">
+                    class="h-6 mobile-logo">
+                <span class="text-lg font-bold text-cakrawala-primary sm:inline-block mobile-logo-text">
                     Cakrawala Connect
                 </span>
             </a>
@@ -97,7 +139,11 @@
                                     <span class="iconify text-white" data-icon="mdi:account" data-width="18"></span>
                                 </div>
                             <?php endif; ?>
+<<<<<<< Updated upstream
                             <span class="text-sm font-medium text-gray-700 hidden sm:inline-block">
+=======
+                            <span class="text-sm font-medium text-gray-700 sm:inline-block mobile-profile-name">
+>>>>>>> Stashed changes
                                 <?php echo htmlspecialchars($_SESSION['name'] ?? 'User'); ?>
                                 <?php if($current_role === 'admin'): ?>
                                     <span class="text-xs text-gray-500 block">Admin</span>
@@ -129,6 +175,7 @@
                         </div>
                     </div>
                 <?php else: ?>
+<<<<<<< Updated upstream
                     <div class="flex items-center space-x-3">
                         <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
                             <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
@@ -137,6 +184,16 @@
                         <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
                             <span class="iconify" data-icon="mdi:login" data-width="16"></span>
                             <span class="hidden sm:inline">Login</span>
+=======
+                    <div class="flex items-center space-x-3 mobile-auth-buttons">
+                        <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1 mobile-auth-button">
+                            <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
+                            <span class="sm:inline-block">Daftar</span>
+                        </a>
+                        <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-3 sm:px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm mobile-auth-button">
+                            <span class="iconify" data-icon="mdi:login" data-width="18"></span>
+                            <span class="sm:inline-block">Login</span>
+>>>>>>> Stashed changes
                         </a>
                     </div>
                 <?php endif; ?>
@@ -167,6 +224,21 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
         });
     }
+
+    const handleResize = () => {
+        if (window.innerWidth < 768) {
+            document.querySelectorAll('.mobile-profile-name, .mobile-logo-text').forEach(el => {
+                el.style.display = 'none';
+            });
+        } else {
+            document.querySelectorAll('.mobile-profile-name, .mobile-logo-text').forEach(el => {
+                el.style.display = 'inline-block';
+            });
+        }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
 });
 
 function confirmLogout() {

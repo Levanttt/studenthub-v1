@@ -180,19 +180,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
     <!-- Header -->
-    <div class="mb-8">
+    <div class="mb-6 sm:mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <div>
-                <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:account-tie" data-width="32"></span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:account-tie" data-width="28"></span>
                     Kelola Profil Mitra Industri
                 </h1>
-                <p class="text-gray-600 mt-2">Lengkapi informasi profil perusahaan Anda untuk meningkatkan kredibilitas</p>
+                <p class="text-gray-600 mt-2 text-sm sm:text-base">Lengkapi informasi profil perusahaan Anda untuk meningkatkan kredibilitas</p>
             </div>
-            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
-                <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
+            <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2 w-full sm:w-auto justify-center text-sm sm:text-base">
+                <span class="iconify" data-icon="mdi:arrow-left" data-width="16"></span>
                 Kembali ke Dashboard
             </a>
         </div>
@@ -200,68 +200,68 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Alerts -->
     <?php if ($error): ?>
-        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
-            <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
+            <span class="iconify" data-icon="mdi:alert-circle" data-width="18"></span>
             <?php echo htmlspecialchars($error); ?>
         </div>
     <?php endif; ?>
     
     <?php if ($success): ?>
-        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
-            <span class="iconify" data-icon="mdi:check-circle" data-width="20"></span>
+        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
+            <span class="iconify" data-icon="mdi:check-circle" data-width="18"></span>
             <?php echo htmlspecialchars($success); ?>
         </div>
     <?php endif; ?>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
         <!-- Profile Form -->
         <div class="lg:col-span-3">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] mb-8 flex items-center gap-3">
-                    <span class="iconify" data-icon="mdi:account-edit" data-width="28"></span>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 lg:p-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-6 sm:mb-8 flex items-center gap-3">
+                    <span class="iconify" data-icon="mdi:account-edit" data-width="24"></span>
                     Informasi Profil
                 </h2>
 
-                <form method="POST" action="" class="space-y-8" id="profileForm" enctype="multipart/form-data">
+                <form method="POST" action="" class="space-y-6 sm:space-y-8" id="profileForm" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     
                     <!-- Profile Picture Upload -->
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Foto Profil</h3>
+                    <div class="space-y-4 sm:space-y-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Foto Profil</h3>
                         
-                        <div class="flex flex-col lg:flex-row items-start gap-8">
+                        <div class="flex flex-col items-center lg:flex-row lg:items-start gap-6">
                             <!-- Current Profile Picture -->
                             <div class="flex-shrink-0">
                                 <div class="relative group">
                                     <?php if (!empty($user['profile_picture'])): ?>
                                         <img src="<?php echo htmlspecialchars($user['profile_picture']); ?>" 
                                             alt="Profile Picture" 
-                                            class="w-36 h-36 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg">
+                                            class="w-28 h-28 sm:w-32 sm:h-32 lg:w-36 lg:h-36 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg">
                                     <?php else: ?>
-                                        <div class="w-36 h-36 rounded-full bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex items-center justify-center border-4 border-[#E0F7FF] shadow-lg">
-                                            <span class="iconify text-white" data-icon="mdi:account-tie" data-width="48"></span>
+                                        <div class="w-28 h-28 sm:w-32 sm:h-32 lg:w-36 lg:h-36 rounded-full bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex items-center justify-center border-4 border-[#E0F7FF] shadow-lg">
+                                            <span class="iconify text-white" data-icon="mdi:account-tie" data-width="36"></span>
                                         </div>
                                     <?php endif; ?>
-                                    <div class="absolute -bottom-2 -right-2 bg-[#51A3B9] rounded-full p-2 shadow-lg">
-                                        <span class="iconify text-white" data-icon="mdi:camera" data-width="18"></span>
+                                    <div class="absolute -bottom-2 -right-2 bg-[#51A3B9] rounded-full p-1.5 sm:p-2 shadow-lg">
+                                        <span class="iconify text-white" data-icon="mdi:camera" data-width="14"></span>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Upload Controls -->
-                            <div class="flex-1 space-y-4">
-                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
+                            <div class="flex-1 space-y-4 w-full">
+                                <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 sm:p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50">
                                     <div class="flex flex-col items-center justify-center mb-3">
                                         <div class="text-gray-400 mb-2">
-                                            <span class="iconify" data-icon="mdi:cloud-upload" data-width="48"></span>
+                                            <span class="iconify" data-icon="mdi:cloud-upload" data-width="36"></span>
                                         </div>
-                                        <p class="text-lg font-medium text-gray-700 mb-1">Upload Foto Profil</p>
-                                        <p class="text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
+                                        <p class="text-base sm:text-lg font-medium text-gray-700 mb-1">Upload Foto Profil</p>
+                                        <p class="text-xs sm:text-sm text-gray-500">Drag & drop file atau klik untuk memilih</p>
                                     </div>
                                     
                                     <label class="cursor-pointer inline-block">
-                                        <span class="bg-[#51A3B9] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2">
-                                            <span class="iconify" data-icon="mdi:folder-open" data-width="20"></span>
+                                        <span class="bg-[#51A3B9] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-[#409BB2] transition-colors duration-300 inline-flex items-center gap-2 text-sm sm:text-base">
+                                            <span class="iconify" data-icon="mdi:folder-open" data-width="16"></span>
                                             Pilih File
                                         </span>
                                         <input type="file" name="profile_picture" accept="image/*" 
@@ -276,8 +276,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <?php if (!empty($user['profile_picture'])): ?>
                                 <button type="button" 
                                         onclick="removeProfilePicture()"
-                                        class="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1 transition-colors">
-                                    <span class="iconify" data-icon="mdi:delete" data-width="16"></span>
+                                        class="text-red-600 hover:text-red-700 text-xs sm:text-sm font-medium flex items-center gap-1 transition-colors">
+                                    <span class="iconify" data-icon="mdi:delete" data-width="14"></span>
                                     Hapus Foto Profil
                                 </button>
                                 <?php endif; ?>
@@ -286,18 +286,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <!-- Personal Information -->
-                    <div class="space-y-6">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Informasi Pribadi</h3>
+                    <div class="space-y-4 sm:space-y-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Informasi Pribadi</h3>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <span class="iconify" data-icon="mdi:account" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:account" data-width="18"></span>
                                     </span>
                                     <input type="text" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" 
-                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        class="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm sm:text-base" 
                                         required maxlength="100">
                                 </div>
                             </div>
@@ -306,24 +306,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Posisi / Jabatan</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <span class="iconify" data-icon="mdi:briefcase" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:briefcase" data-width="18"></span>
                                     </span>
                                     <input type="text" name="position" value="<?php echo htmlspecialchars($user['position'] ?? ''); ?>" 
-                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        class="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm sm:text-base" 
                                         placeholder="HR Manager, Recruiter, dll" maxlength="100">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Perusahaan</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <span class="iconify" data-icon="mdi:office-building" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:office-building" data-width="18"></span>
                                     </span>
                                     <input type="text" name="company" value="<?php echo htmlspecialchars($user['company_name'] ?? ''); ?>" 
-                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        class="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm sm:text-base" 
                                         placeholder="Nama perusahaan" maxlength="100">
                                 </div>
                             </div>
@@ -332,10 +332,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon</label>
                                 <div class="relative">
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <span class="iconify" data-icon="mdi:phone" data-width="20"></span>
+                                        <span class="iconify" data-icon="mdi:phone" data-width="18"></span>
                                     </span>
                                     <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" 
-                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                        class="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm sm:text-base" 
                                         placeholder="Contoh: 081234567890" 
                                         pattern="^[0-9+\-\s()]{10,20}$"
                                         title="Format: +62xxx atau 08xxx"
@@ -348,10 +348,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <span class="iconify" data-icon="mdi:linkedin" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:linkedin" data-width="18"></span>
                                 </span>
                                 <input type="url" name="linkedin" value="<?php echo htmlspecialchars($user['linkedin'] ?? ''); ?>" 
-                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors" 
+                                    class="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm sm:text-base" 
                                     placeholder="https://linkedin.com/in/username" 
                                     pattern="^(https?:\/\/)?(www\.)?linkedin\.com\/.+\/?$"
                                     title="Masukkan URL LinkedIn yang valid"
@@ -363,15 +363,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <!-- Bio Section -->
                     <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Tentang Saya / Perusahaan</h3>
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Tentang Saya / Perusahaan</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Bio / Deskripsi</label>
                             <div class="relative">
                                 <span class="absolute top-3 left-3 text-gray-400">
-                                    <span class="iconify" data-icon="mdi:text" data-width="20"></span>
+                                    <span class="iconify" data-icon="mdi:text" data-width="18"></span>
                                 </span>
-                                <textarea name="bio" rows="5" 
-                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none" 
+                                <textarea name="bio" rows="4" 
+                                        class="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors resize-none text-sm sm:text-base" 
                                         placeholder="Ceritakan tentang diri Anda, perusahaan, atau bidang yang Anda tekuni..." 
                                         maxlength="500"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></textarea>
                             </div>
@@ -383,13 +383,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                        <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-8 py-3 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#2A8FA9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md" id="submitBtn">
-                            <span class="iconify" data-icon="mdi:content-save" data-width="20"></span>
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
+                        <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#2A8FA9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md text-sm sm:text-base" id="submitBtn">
+                            <span class="iconify" data-icon="mdi:content-save" data-width="18"></span>
                             Simpan Perubahan
                         </button>
-                        <a href="index.php" class="bg-gray-100 text-gray-700 px-8 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2">
-                            <span class="iconify" data-icon="mdi:close" data-width="20"></span>
+                        <a href="index.php" class="bg-gray-100 text-gray-700 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center justify-center gap-2 text-sm sm:text-base">
+                            <span class="iconify" data-icon="mdi:close" data-width="18"></span>
                             Batal
                         </a>
                     </div>
@@ -397,8 +397,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
 
-        <!-- Sidebar - Account Info -->
-        <div class="space-y-6">
+        <!-- Sidebar - Account Info (Hidden on Mobile) -->
+        <div class="hidden lg:block space-y-6">
             <!-- Profile Summary -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
@@ -584,7 +584,7 @@ function initializeProfilePictureDragDrop() {
                         profilePic = document.createElement('img');
                         profilePic.src = e.target.result;
                         profilePic.alt = 'Profile Picture';
-                        profilePic.className = 'w-32 h-32 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg';
+                        profilePic.className = 'w-28 h-28 sm:w-32 sm:h-32 lg:w-36 lg:h-36 rounded-full object-cover border-4 border-[#E0F7FF] shadow-lg';
                         defaultIcon.parentNode.replaceChild(profilePic, defaultIcon);
                     }
                 } else {
@@ -696,7 +696,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form && submitBtn) {
         form.addEventListener('submit', function() {
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="iconify" data-icon="mdi:loading" data-width="20"></span> Menyimpan...';
+            submitBtn.innerHTML = '<span class="iconify" data-icon="mdi:loading" data-width="18"></span> Menyimpan...';
         });
     }
 
