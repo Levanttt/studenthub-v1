@@ -52,6 +52,7 @@
         }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         /* Mobile Optimizations */
         @media (max-width: 640px) {
             .mobile-dropdown {
@@ -60,6 +61,8 @@
             }
         }
 =======
+=======
+>>>>>>> Stashed changes
         @media (max-width: 768px) {
             .mobile-menu {
                 padding: 0.75rem 1rem;
@@ -99,6 +102,9 @@
                 height: 24px;
             }
         }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     </style>
 </head>
@@ -140,7 +146,11 @@
                                 </div>
                             <?php endif; ?>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                             <span class="text-sm font-medium text-gray-700 hidden sm:inline-block">
+=======
+                            <span class="text-sm font-medium text-gray-700 sm:inline-block mobile-profile-name">
+>>>>>>> Stashed changes
 =======
                             <span class="text-sm font-medium text-gray-700 sm:inline-block mobile-profile-name">
 >>>>>>> Stashed changes
@@ -176,6 +186,7 @@
                     </div>
                 <?php else: ?>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                     <div class="flex items-center space-x-3">
                         <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1">
                             <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
@@ -184,6 +195,16 @@
                         <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm">
                             <span class="iconify" data-icon="mdi:login" data-width="16"></span>
                             <span class="hidden sm:inline">Login</span>
+=======
+                    <div class="flex items-center space-x-3 mobile-auth-buttons">
+                        <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1 mobile-auth-button">
+                            <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
+                            <span class="sm:inline-block">Daftar</span>
+                        </a>
+                        <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-3 sm:px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm mobile-auth-button">
+                            <span class="iconify" data-icon="mdi:login" data-width="18"></span>
+                            <span class="sm:inline-block">Login</span>
+>>>>>>> Stashed changes
 =======
                     <div class="flex items-center space-x-3 mobile-auth-buttons">
                         <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1 mobile-auth-button">
