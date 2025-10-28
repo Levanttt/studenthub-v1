@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 if ($user['role'] == 'mitra_industri' && $user['verification_status'] != 'verified') {
                     $status_text = $user['verification_status'] == 'pending' ? 'menunggu verifikasi' : 'ditolak';
-                    $error = "Akun mitra industri Anda {$status_text}. Silakan tunggu verifikasi admin.";
+                    $error = "Akun anda sedang {$status_text}. Silakan tunggu verifikasi admin.";
                 } else {
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['email'] = $user['email'];
