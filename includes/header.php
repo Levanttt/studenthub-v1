@@ -65,13 +65,18 @@
             }
             
             .mobile-auth-buttons {
-                flex-direction: column;
+                flex-direction: row;
                 gap: 0.5rem;
             }
             
-            .mobile-auth-button {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.875rem;
+            .mobile-auth-icon {
+                padding: 0.5rem;
+                border-radius: 0.5rem;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             
             .dropdown-menu {
@@ -88,6 +93,16 @@
             
             .mobile-logo {
                 height: 24px;
+            }
+            
+            .mobile-auth-icon {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .mobile-auth-icon .iconify {
+                width: 18px;
+                height: 18px;
             }
         }
     </style>
@@ -161,14 +176,29 @@
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="flex items-center space-x-3 mobile-auth-buttons">
-                        <a href="/cakrawala-connect/register.php" class="text-gray-600 hover:text-cakrawala-primary transition-colors text-sm flex items-center gap-1 mobile-auth-button">
+                    <div class="flex items-center space-x-2 mobile-auth-buttons">
+                        <!-- Desktop: Teks lengkap -->
+                        <a href="/cakrawala-connect/register.php" 
+                           class="hidden sm:flex items-center gap-2 text-gray-600 hover:text-cakrawala-primary transition-colors text-sm">
                             <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
-                            <span class="sm:inline-block">Daftar</span>
+                            <span>Daftar</span>
                         </a>
-                        <a href="/cakrawala-connect/login.php" class="bg-cakrawala-primary text-white px-3 sm:px-4 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2 text-sm mobile-auth-button">
+                        
+                        <a href="/cakrawala-connect/login.php" 
+                           class="hidden sm:flex items-center gap-2 bg-cakrawala-primary text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm text-sm">
                             <span class="iconify" data-icon="mdi:login" data-width="18"></span>
-                            <span class="sm:inline-block">Login</span>
+                            <span>Login</span>
+                        </a>
+                        
+                        <!-- Mobile: Icon saja -->
+                        <a href="/cakrawala-connect/register.php" 
+                           class="sm:hidden text-gray-600 hover:text-cakrawala-primary transition-colors mobile-auth-icon">
+                            <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
+                        </a>
+                        
+                        <a href="/cakrawala-connect/login.php" 
+                           class="sm:hidden bg-cakrawala-primary text-white hover:opacity-90 transition-opacity shadow-sm mobile-auth-icon">
+                            <span class="iconify" data-icon="mdi:login" data-width="18"></span>
                         </a>
                     </div>
                 <?php endif; ?>

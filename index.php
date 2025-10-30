@@ -200,17 +200,12 @@ if (isLoggedIn()) {
                 </div>
             </div>
             
-            <!-- Illustration Section - Hidden on Mobile -->
             <div class="hidden lg:flex justify-center animate-slide-in-right">
                 <div class="relative w-full max-w-md">
-                    <!-- Main Illustration Card -->
                     <div class="relative bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
-                        <!-- Connection Visualization -->
                         <div class="relative h-80">
-                            <!-- Students Side -->
                             <div class="absolute left-0 top-1/2 transform -translate-y-1/2">
                                 <div class="relative">
-                                    <!-- Student utama -->
                                     <div class="w-20 h-20 bg-[#F9A825] rounded-full flex items-center justify-center shadow-lg">
                                         <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
@@ -218,7 +213,6 @@ if (isLoggedIn()) {
                                     </div>
                                     <div class="absolute -top-2 -right-2 w-6 h-6 bg-green-400 rounded-full border-2 border-white"></div>
                                 </div>
-                                <!-- Multiple students indicators -->
                                 <div class="absolute -bottom-3 -left-3 w-12 h-12 bg-[#F9A825]/70 rounded-full flex items-center justify-center animate-pulse" style="animation-delay: 0.5s;">
                                     <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
@@ -231,7 +225,6 @@ if (isLoggedIn()) {
                                 </div>
                             </div>
                             
-                            <!-- Connection Lines with Animation -->
                             <svg class="absolute inset-0 w-full h-full" style="z-index: 1;">
                                 <defs>
                                     <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -239,7 +232,6 @@ if (isLoggedIn()) {
                                         <stop offset="100%" style="stop-color:#fff;stop-opacity:1" />
                                     </linearGradient>
                                 </defs>
-                                <!-- Animated connection lines -->
                                 <path d="M 80 160 Q 200 120, 320 160" stroke="url(#lineGradient)" stroke-width="3" fill="none" stroke-dasharray="5,5">
                                     <animate attributeName="stroke-dashoffset" from="0" to="-10" dur="0.5s" repeatCount="indefinite"/>
                                 </path>
@@ -251,7 +243,6 @@ if (isLoggedIn()) {
                                 </path>
                             </svg>
                             
-                            <!-- Industry Side -->
                             <div class="absolute right-0 top-1/2 transform -translate-y-1/2">
                                 <div class="relative">
                                     <div class="w-24 h-24 bg-white rounded-2xl flex items-center justify-center shadow-xl">
@@ -259,12 +250,10 @@ if (isLoggedIn()) {
                                             <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
                                         </svg>
                                     </div>
-                                    <!-- Industry badge -->
                                     <div class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow">850+</div>
                                 </div>
                             </div>
                             
-                            <!-- Floating Icons -->
                             <div class="absolute top-10 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center animate-float" style="animation-delay: 0.5s;">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -279,11 +268,9 @@ if (isLoggedIn()) {
                         </div>
                     </div>
                     
-                    <!-- Decorative Elements -->
                     <div class="absolute -top-6 -right-6 w-32 h-32 bg-[#F9A825] rounded-full opacity-20 blur-2xl animate-pulse"></div>
                     <div class="absolute -bottom-6 -left-6 w-40 h-40 bg-white rounded-full opacity-10 blur-2xl animate-pulse" style="animation-delay: 1s;"></div>
                     
-                    <!-- Floating Stats -->
                     <div class="absolute -left-8 top-20 bg-white rounded-lg shadow-xl p-3 animate-float">
                         <div class="text-2xl font-bold text-[#2A8FA9]">500+</div>
                         <div class="text-xs text-gray-600">Mahasiswa</div>
@@ -337,24 +324,19 @@ if (isLoggedIn()) {
 
 <!-- Untuk Mahasiswa Section -->
 <section class="py-20 bg-gradient-to-br from-white via-blue-50 to-white relative overflow-hidden">
-    <!-- Background decoration -->
     <div class="absolute top-0 right-0 w-96 h-96 bg-[#2A8FA9] rounded-full opacity-5 blur-3xl"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div class="order-2 lg:order-1 scroll-reveal">
                 <div class="relative">
-                    <!-- Main Card -->
                     <div class="bg-gradient-to-br from-[#2A8FA9] to-[#409BB2] rounded-3xl p-12 transform hover:scale-105 transition-transform duration-300 shadow-2xl relative overflow-hidden">
-                        <!-- Animated background pattern -->
                         <div class="absolute inset-0 opacity-10">
                             <div class="absolute top-0 left-0 w-32 h-32 border-4 border-white rounded-full animate-ping"></div>
                             <div class="absolute bottom-0 right-0 w-40 h-40 border-4 border-white rounded-full animate-ping" style="animation-delay: 1s;"></div>
                         </div>
                         
-                        <!-- Portfolio Illustration -->
                         <div class="relative z-10 grid grid-cols-2 gap-6">
-                            <!-- Portfolio cards -->
                             <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6 animate-float">
                                 <div class="w-12 h-12 bg-[#F9A825] rounded-lg mb-3 flex items-center justify-center">
                                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,7 +373,6 @@ if (isLoggedIn()) {
                         </div>
                     </div>
                     
-                    <!-- Floating badge -->
                     <div class="absolute -top-4 -right-4 bg-[#F9A825] text-white px-6 py-3 rounded-full font-bold shadow-xl animate-bounce">
                         Verified ✓
                     </div>
@@ -452,7 +433,6 @@ if (isLoggedIn()) {
 
 <!-- Untuk Mitra Industri Section -->
 <section class="py-20 bg-gradient-to-br from-amber-50 via-white to-amber-50 relative overflow-hidden">
-    <!-- Background decoration -->
     <div class="absolute bottom-0 left-0 w-96 h-96 bg-[#F9A825] rounded-full opacity-5 blur-3xl"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -465,7 +445,7 @@ if (isLoggedIn()) {
                     <div class="feature-card flex items-start gap-4 bg-white p-6 rounded-xl shadow-lg border-l-4 border-[#F9A825]">
                         <div class="bg-gradient-to-br from-[#F9A825] to-[#F57F17] text-white p-3 rounded-lg mt-1 flex-shrink-0">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
                         </div>
                         <div>
@@ -507,17 +487,13 @@ if (isLoggedIn()) {
             
             <div class="scroll-reveal">
                 <div class="relative">
-                    <!-- Main Card -->
                     <div class="bg-gradient-to-br from-[#F9A825] to-[#F57F17] rounded-3xl p-12 transform hover:scale-105 transition-transform duration-300 shadow-2xl relative overflow-hidden">
-                        <!-- Animated background pattern -->
                         <div class="absolute inset-0 opacity-10">
                             <div class="absolute top-10 right-10 w-24 h-24 border-4 border-white rounded-lg animate-spin" style="animation-duration: 10s;"></div>
                             <div class="absolute bottom-10 left-10 w-32 h-32 border-4 border-white rounded-lg animate-spin" style="animation-duration: 15s; animation-direction: reverse;"></div>
                         </div>
                         
-                        <!-- Industry Dashboard Illustration -->
                         <div class="relative z-10 space-y-6">
-                            <!-- Search bar -->
                             <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 flex items-center gap-3">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -527,7 +503,6 @@ if (isLoggedIn()) {
                                 </div>
                             </div>
                             
-                            <!-- Candidate cards -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 animate-float">
                                     <div class="w-12 h-12 bg-white rounded-full mb-3 flex items-center justify-center">
@@ -564,7 +539,6 @@ if (isLoggedIn()) {
                                 </div>
                             </div>
                             
-                            <!-- Stats -->
                             <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 flex justify-between items-center animate-float" style="animation-delay: 1s;">
                                 <div class="text-center">
                                     <div class="text-2xl font-bold text-white">250+</div>
@@ -584,7 +558,6 @@ if (isLoggedIn()) {
                         </div>
                     </div>
                     
-                    <!-- Floating notification -->
                     <div class="absolute -top-4 -left-4 bg-white rounded-lg shadow-xl p-3 animate-bounce max-w-xs">
                         <div class="flex items-center gap-2">
                             <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -599,7 +572,6 @@ if (isLoggedIn()) {
 
 <!-- CTA Section -->
 <section class="relative bg-gradient-to-br from-[#2A8FA9] via-[#409BB2] to-[#2A8FA9] text-white">
-    <!-- Animated background -->
     <div class="absolute inset-0 opacity-30">
         <div class="absolute top-0 left-1/4 w-64 h-64 bg-[#F9A825] rounded-full blur-3xl animate-pulse"></div>
         <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
@@ -633,7 +605,6 @@ if (isLoggedIn()) {
                 </a>
             </div>
             
-            <!-- Trust indicators -->
             <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
                 <div class="flex items-center justify-center gap-2 text-blue-100 text-sm">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -657,12 +628,12 @@ if (isLoggedIn()) {
         </div>
     </div>
 </section>
+
 <!-- Footer -->
     <footer class="bg-[#E0F2F7] border-t border-[#ABD0D8]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"> 
             <div class="flex flex-col md:flex-row justify-between items-start gap-6"> 
                 
-                <!-- Logo & Address -->
                 <div class="space-y-2"> 
                     <a href="<?php echo $dashboard_url; ?>" class="inline-flex items-center gap-2 mb-1 group"> 
                         <img src="/cakrawala-connect/assets/images/Logo Universitas Cakrawala1.png" 
@@ -679,7 +650,6 @@ if (isLoggedIn()) {
                     </p>
                 </div>
 
-                <!-- Quick Links -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 mt-5"> 
                     <div>
                         <a href="/cakrawala-connect/about.php" 
@@ -717,8 +687,7 @@ if (isLoggedIn()) {
 
             </div>
 
-            <!-- Bottom Section -->
-            <div class="flex flex-col md:flex-row justify-between items-center text-xs text-[#495057] border-t border-[#ABD0D8] mt-6 pt-4"> <!-- text-sm jadi text-xs, mt-8 jadi mt-6, pt-6 jadi pt-4 -->
+            <div class="flex flex-col md:flex-row justify-between items-center text-xs text-[#495057] border-t border-[#ABD0D8] mt-6 pt-4">
                 <span>© <?php echo date('Y'); ?> Cakrawala Connect - Universitas Cakrawala. All Rights Reserved.</span>
                 <div class="flex space-x-3 mt-3 md:mt-0"> 
                     <a href="https://www.tiktok.com/@cakrawalauniversity" 
@@ -740,7 +709,6 @@ if (isLoggedIn()) {
         </div>
     </footer>
 
-<!-- Scripts -->
 <script>
 function createParticles() {
     const container = document.getElementById('particles');
@@ -770,7 +738,6 @@ function createParticles() {
 
 window.addEventListener('load', createParticles);
 
-
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
@@ -798,4 +765,3 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 </script>
-
