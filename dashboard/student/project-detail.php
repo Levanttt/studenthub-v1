@@ -212,7 +212,7 @@ $skills_stmt->close();
                         target="_blank"
                         class="flex-1 bg-gray-800 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-gray-900 transition-colors duration-300 flex items-center justify-center gap-2 text-sm sm:text-base mobile-full">
                         <span class="iconify" data-icon="mdi:github" data-width="16"></span>
-                        <span class="hidden sm:inline">Lihat Kode di GitHub</span>
+                        <span class="hidden sm:inline">Lihat Repository</span>
                         <span class="sm:hidden">GitHub</span>
                     </a>
                     <?php endif; ?>
@@ -232,7 +232,7 @@ $skills_stmt->close();
                         target="_blank"
                         class="flex-1 bg-green-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors duration-300 flex items-center justify-center gap-2 text-sm sm:text-base mobile-full">
                         <span class="iconify" data-icon="mdi:palette" data-width="16"></span>
-                        <span class="hidden sm:inline">Lihat Desain Figma</span>
+                        <span class="hidden sm:inline">Lihat Desain</span>
                         <span class="sm:hidden">Figma</span>
                     </a>
                     <?php endif; ?>
@@ -242,7 +242,7 @@ $skills_stmt->close();
                         target="_blank"
                         class="flex-1 bg-red-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-red-700 transition-colors duration-300 flex items-center justify-center gap-2 text-sm sm:text-base mobile-full">
                         <span class="iconify" data-icon="mdi:video" data-width="16"></span>
-                        <span class="hidden sm:inline">Lihat Video Demo</span>
+                        <span class="hidden sm:inline">Lihat Video</span>
                         <span class="sm:hidden">Video</span>
                     </a>
                     <?php endif; ?>

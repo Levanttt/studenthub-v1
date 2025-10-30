@@ -160,34 +160,86 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Token keamanan tidak valid";
     } else {
         if (isset($_POST['delete_account'])) {
-            if (!empty($user['profile_picture'])) {
-                $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
-                if (file_exists($old_picture_path)) {
-                    unlink($old_picture_path);
-                }
-            }
+            // Mulai transaction untuk konsistensi data
+            $conn->begin_transaction();
             
-            if (!empty($user['cv_file_path'])) {
-                $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
-                if (file_exists($old_cv_path)) {
-                    unlink($old_cv_path);
+            try {
+                // 1. Hapus file profile picture jika ada
+                if (!empty($user['profile_picture'])) {
+                    $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
+                    if (file_exists($old_picture_path)) {
+                        unlink($old_picture_path);
+                    }
                 }
-            }
-            
-            $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
-            if ($stmt) {
-                $stmt->bind_param("i", $user_id);
                 
-                if ($stmt->execute()) {
-                    session_destroy();
-                    header("Location: ../../login.php?message=account_deleted");
-                    exit();
-                } else {
-                    $error = "Gagal menghapus akun: " . $conn->error;
+                // 2. Hapus file CV jika ada
+                if (!empty($user['cv_file_path'])) {
+                    $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
+                    if (file_exists($old_cv_path)) {
+                        unlink($old_cv_path);
+                    }
                 }
-                $stmt->close();
-            } else {
-                $error = "Error preparing delete query: " . $conn->error;
+                
+                // 3. Hapus data terkait di tabel lain TERLEBIH DAHULU
+                
+                // Hapus certificates
+                $delete_certificates = $conn->prepare("DELETE FROM certificates WHERE student_id = ?");
+                if ($delete_certificates) {
+                    $delete_certificates->bind_param("i", $user_id);
+                    if (!$delete_certificates->execute()) {
+                        throw new Exception("Gagal menghapus certificates: " . $delete_certificates->error);
+                    }
+                    $delete_certificates->close();
+                }
+                
+                // Hapus project skills
+                $delete_project_skills = $conn->prepare("DELETE ps FROM project_skills ps JOIN projects p ON ps.project_id = p.id WHERE p.student_id = ?");
+                if ($delete_project_skills) {
+                    $delete_project_skills->bind_param("i", $user_id);
+                    if (!$delete_project_skills->execute()) {
+                        throw new Exception("Gagal menghapus project skills: " . $delete_project_skills->error);
+                    }
+                    $delete_project_skills->close();
+                }
+                
+                // Hapus projects
+                $delete_projects = $conn->prepare("DELETE FROM projects WHERE student_id = ?");
+                if ($delete_projects) {
+                    $delete_projects->bind_param("i", $user_id);
+                    if (!$delete_projects->execute()) {
+                        throw new Exception("Gagal menghapus projects: " . $delete_projects->error);
+                    }
+                    $delete_projects->close();
+                }
+                
+                // Hapus data lain yang mungkin terkait...
+                // Tambahkan query DELETE untuk tabel lain yang memiliki foreign key ke users
+                
+                // 4. Baru hapus user
+                $delete_user = $conn->prepare("DELETE FROM users WHERE id = ?");
+                if ($delete_user) {
+                    $delete_user->bind_param("i", $user_id);
+                    
+                    if ($delete_user->execute()) {
+                        // Commit transaction jika semua berhasil
+                        $conn->commit();
+                        
+                        session_destroy();
+                        header("Location: ../../login.php?message=account_deleted");
+                        exit();
+                    } else {
+                        throw new Exception("Gagal menghapus akun: " . $delete_user->error);
+                    }
+                    $delete_user->close();
+                } else {
+                    throw new Exception("Error preparing delete query: " . $conn->error);
+                }
+                
+            } catch (Exception $e) {
+                // Rollback transaction jika ada error
+                $conn->rollback();
+                $error = $e->getMessage();
+                error_log("Error deleting account: " . $e->getMessage());
             }
         } else {
             $name = sanitize($_POST['name']);
@@ -334,105 +386,94 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php include '../../includes/header.php'; ?>
 
 <style>
-    /* Mobile Optimizations untuk Profile Page */
+    /* TAMBAHAN/UPDATE CSS Mobile */
     @media (max-width: 768px) {
-        .mobile-profile-container {
-            padding-left: 1rem;
-            padding-right: 1rem;
+        /* Pastikan container tidak overflow */
+        .max-w-7xl {
+            max-width: 100%;
+            overflow-x: hidden;
         }
         
-        .mobile-profile-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
+        /* Fix untuk gambar profil di mobile */
+        .mobile-profile-image {
+            width: 100px !important;
+            height: 100px !important;
+        }
+        
+        /* Spacing yang lebih baik */
+        .mobile-profile-card {
+            padding: 1.25rem;
+        }
+        
+        /* Upload zone lebih compact */
+        .mobile-profile-upload {
+            padding: 1.25rem;
+        }
+        
+        /* Button sizing */
+        .mobile-profile-button {
+            padding: 0.875rem 1rem;
+            font-size: 0.9375rem;
+        }
+        
+        /* Textarea height */
+        .mobile-profile-textarea {
+            min-height: 100px;
+        }
+        
+        /* Tag wrapping */
+        .mobile-profile-skill-tags,
+        .mobile-profile-spec-tags {
+            gap: 0.5rem;
+        }
+        
+        /* Form inputs touch-friendly */
+        input[type="text"],
+        input[type="tel"],
+        input[type="url"],
+        select,
+        textarea {
+            font-size: 16px !important; /* Prevents zoom on iOS */
+            -webkit-appearance: none;
+        }
+        
+        /* Sidebar HARUS tersembunyi */
+        .lg\:col-span-1 {
+            display: none !important;
+        }
+        
+        /* Form mengambil full width */
+        .lg\:col-span-3 {
+            grid-column: 1 / -1 !important;
+        }
+        
+        /* Danger Zone mobile positioning */
+        .mobile-profile-danger-zone {
+            margin-top: 2rem;
+        }
+    }
+
+    @media (max-width: 640px) {
+        /* Extra small screens */
+        .mobile-profile-text {
+            font-size: 1.375rem;
         }
         
         .mobile-profile-card {
-            padding: 1.5rem;
-        }
-        
-        .mobile-profile-form-grid {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-        
-        .mobile-profile-flex {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        
-        .mobile-profile-gap {
-            gap: 1rem;
-        }
-        
-        .mobile-profile-space-y {
-            margin-top: 1.5rem;
-        }
-        
-        .mobile-profile-text {
-            font-size: 1.5rem;
-        }
-        
-        .mobile-profile-buttons {
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        .mobile-profile-button {
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .mobile-profile-image {
-            width: 120px;
-            height: 120px;
-        }
-        
-        .mobile-profile-upload {
             padding: 1rem;
         }
         
-        .mobile-profile-sidebar {
-            display: none; /* Sembunyikan sidebar di mobile */
-        }
-        
-        .mobile-profile-danger-zone {
-            margin-top: 1.5rem;
-            order: 999; /* Pastikan zona berbahaya di paling bawah */
-        }
-        
-        .mobile-profile-skill-tags {
-            justify-content: center;
-        }
-        
-        .mobile-profile-spec-tags {
-            justify-content: center;
-        }
-        
-        .mobile-profile-textarea {
-            min-height: 120px;
-        }
-        
-        .mobile-profile-select {
-            font-size: 16px; /* Mencegah zoom di iOS */
+        /* Stack all buttons vertically */
+        .flex.gap-4 button,
+        .flex.gap-4 a {
+            width: 100%;
         }
     }
-    
-    @media (max-width: 640px) {
-        .mobile-profile-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-        
-        .mobile-profile-header-buttons {
-            width: 100%;
-            justify-content: space-between;
-        }
-        
-        .mobile-profile-back-button {
-            width: 100%;
-            justify-content: center;
+
+    /* Touch-friendly buttons */
+    @media (hover: none) {
+        button, a {
+            -webkit-tap-highlight-color: transparent;
         }
     }
 </style>
@@ -1046,37 +1087,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
 
             <!-- Danger Zone -->
-            <div class="bg-white rounded-2xl shadow-sm border border-red-100 p-4 sm:p-6 mobile-profile-card hidden lg:block">
-                <h3 class="text-lg font-bold text-red-800 mb-4 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:alert-circle" data-width="18"></span>
-                    Zona Berbahaya
-                </h3>
-                <p class="text-red-600 text-xs sm:text-sm mb-4">Tindakan ini tidak dapat dibatalkan</p>
-                
-                <div class="space-y-3">
-                    <!-- Logout Button -->
-                    <button type="button" 
-                            onclick="confirmLogout()"
-                            class="w-full bg-red-500 text-white py-2 sm:py-3 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer text-sm sm:text-base">
-                        <span class="iconify" data-icon="mdi:logout" data-width="16"></span>
-                        Logout
-                    </button>
+            <!-- Mobile Danger Zone (Only visible on mobile) -->
+            <div class="lg:hidden mt-8 pt-6 border-t-2 border-red-100 mobile-profile-danger-zone">
+                <div class="bg-red-50 rounded-2xl border border-red-200 p-6">
+                    <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center gap-2">
+                        <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
+                        Zona Berbahaya
+                    </h3>
+                    <p class="text-red-600 text-sm mb-4">Tindakan ini tidak dapat dibatalkan</p>
                     
-                    <!-- Delete Account Button -->
-                    <button type="button" 
-                            onclick="confirmDelete()"
-                            class="w-full bg-red-100 text-red-700 py-2 sm:py-3 px-4 rounded-lg font-semibold hover:bg-red-200 transition-colors duration-300 flex items-center justify-center gap-2 cursor-pointer text-sm sm:text-base">
-                        <span class="iconify" data-icon="mdi:delete-forever" data-width="16"></span>
-                        Hapus Akun
-                    </button>
-                    
-                    <!-- Delete Account Form (Hidden) -->
-                    <form method="POST" action="" id="deleteAccountForm" class="hidden">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                        <input type="hidden" name="delete_account" value="1">
-                    </form>
+                    <div class="space-y-3">
+                        <!-- Logout Button -->
+                        <button type="button" 
+                                onclick="confirmLogout()"
+                                class="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2">
+                            <span class="iconify" data-icon="mdi:logout" data-width="18"></span>
+                            Logout
+                        </button>
+                        
+                        <!-- Delete Account Button -->
+                        <button type="button" 
+                                onclick="confirmDelete()"
+                                class="w-full bg-red-100 text-red-700 py-3 px-4 rounded-lg font-semibold hover:bg-red-200 transition-colors duration-300 flex items-center justify-center gap-2">
+                            <span class="iconify" data-icon="mdi:delete-forever" data-width="18"></span>
+                            Hapus Akun Permanen
+                        </button>
+                    </div>
                 </div>
-            </div>
         </div>
     </div>
 </div>

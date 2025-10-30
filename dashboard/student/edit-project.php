@@ -65,6 +65,61 @@ if ($skills_stmt) {
     $skills_stmt->close();
 }
 
+// Fungsi untuk mendapatkan full path file
+function getFullUploadPath($web_path) {
+    if (strpos($web_path, '/cakrawala-connect/') === 0) {
+        return $_SERVER['DOCUMENT_ROOT'] . $web_path;
+    }
+    return $_SERVER['DOCUMENT_ROOT'] . '/cakrawala-connect' . $web_path;
+}
+
+// Fungsi untuk menghapus file gambar proyek
+function deleteProjectImage($image_path, $conn = null, $image_id = null) {
+    // Hapus file fisik
+    $full_path = getFullUploadPath($image_path);
+    if (file_exists($full_path)) {
+        if (unlink($full_path)) {
+            error_log("DEBUG: Successfully deleted image file: " . $full_path);
+        } else {
+            error_log("DEBUG: Failed to delete image file: " . $full_path);
+        }
+    } else {
+        error_log("DEBUG: Image file not found: " . $full_path);
+    }
+    
+    // Hapus dari database jika ID diberikan
+    if ($image_id && $conn) {
+        $delete_stmt = $conn->prepare("DELETE FROM project_images WHERE id = ?");
+        if ($delete_stmt) {
+            $delete_stmt->bind_param("i", $image_id);
+            $delete_stmt->execute();
+            $delete_stmt->close();
+            error_log("DEBUG: Successfully deleted image record from database, ID: " . $image_id);
+        }
+    }
+    
+    return true;
+}
+
+// Fungsi untuk menghapus file sertifikat
+function deleteCertificateFile($certificate_path) {
+    if (!empty($certificate_path)) {
+        $full_path = getFullUploadPath($certificate_path);
+        if (file_exists($full_path)) {
+            if (unlink($full_path)) {
+                error_log("DEBUG: Successfully deleted certificate file: " . $full_path);
+                return true;
+            } else {
+                error_log("DEBUG: Failed to delete certificate file: " . $full_path);
+                return false;
+            }
+        } else {
+            error_log("DEBUG: Certificate file not found: " . $full_path);
+        }
+    }
+    return true;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = sanitize($_POST['title'] ?? '');
     $description = sanitize($_POST['description'] ?? '');
@@ -135,6 +190,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_FILES['project_image']) && $_FILES['project_image']['error'] === UPLOAD_ERR_OK) {
             $upload_result = handleFileUpload($_FILES['project_image'], $user_id);
             if ($upload_result['success']) {
+                // Hapus gambar utama lama jika ada
+                if (!empty($project['image_path'])) {
+                    deleteProjectImage($project['image_path']);
+                }
                 $main_image_path = $upload_result['file_path'];
             } else {
                 $error = $upload_result['error'];
@@ -166,6 +225,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $certificate_path = $project['certificate_path'];
         if ($delete_certificate) {
+            // Hapus file sertifikat lama
+            if (!empty($project['certificate_path'])) {
+                deleteCertificateFile($project['certificate_path']);
+            }
             $certificate_path = '';
             $certificate_issue_date = null;
             $certificate_expiry_date = null;
@@ -174,6 +237,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } elseif (isset($_FILES['certificate_file']) && $_FILES['certificate_file']['error'] === UPLOAD_ERR_OK) {
             $upload_result = handleCertificateUpload($_FILES['certificate_file'], $user_id);
             if ($upload_result['success']) {
+                // Hapus sertifikat lama jika ada
+                if (!empty($project['certificate_path'])) {
+                    deleteCertificateFile($project['certificate_path']);
+                }
                 $certificate_path = $upload_result['file_path'];
             } else {
                 $error = $upload_result['error'];
@@ -184,6 +251,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $conn->begin_transaction();
             
             try {
+                // Hapus gambar yang dipilih untuk dihapus
+                if (!empty($delete_images)) {
+                    error_log("DEBUG: Starting to delete images: " . implode(', ', $delete_images));
+                    
+                    // Ambil path gambar yang akan dihapus
+                    $get_images_stmt = $conn->prepare("SELECT id, image_path FROM project_images WHERE id IN (" . implode(',', array_fill(0, count($delete_images), '?')) . ") AND project_id = ?");
+                    if ($get_images_stmt) {
+                        $types = str_repeat('i', count($delete_images)) . 'i';
+                        $params = array_merge($delete_images, [$project_id]);
+                        $get_images_stmt->bind_param($types, ...$params);
+                        $get_images_stmt->execute();
+                        $images_to_delete = $get_images_stmt->get_result();
+                        
+                        while ($image = $images_to_delete->fetch_assoc()) {
+                            error_log("DEBUG: Deleting image ID: " . $image['id'] . ", Path: " . $image['image_path']);
+                            // Hapus file fisik
+                            deleteProjectImage($image['image_path'], null, $image['id']);
+                        }
+                        $get_images_stmt->close();
+                    }
+                    
+                    // Hapus dari database
+                    $delete_stmt = $conn->prepare("DELETE FROM project_images WHERE id IN (" . implode(',', array_fill(0, count($delete_images), '?')) . ") AND project_id = ?");
+                    if ($delete_stmt) {
+                        $types = str_repeat('i', count($delete_images)) . 'i';
+                        $params = array_merge($delete_images, [$project_id]);
+                        $delete_stmt->bind_param($types, ...$params);
+                        $delete_stmt->execute();
+                        $delete_stmt->close();
+                        error_log("DEBUG: Successfully deleted image records from database");
+                    }
+                }
+
                 $update_stmt = $conn->prepare("UPDATE projects SET 
                 title = ?, 
                 description = ?, 
@@ -232,19 +332,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         
                 if ($update_stmt->execute()) {
                     error_log("DEBUG: Project update successful");
-
-                    if (!empty($delete_images)) {
-                        $delete_stmt = $conn->prepare("DELETE FROM project_images WHERE id = ? AND project_id = ?");
-                        if ($delete_stmt) {
-                            foreach ($delete_images as $image_id) {
-                                $image_id = intval($image_id);
-                                $delete_stmt->bind_param("ii", $image_id, $project_id);
-                                $delete_stmt->execute();
-                            }
-                            $delete_stmt->close();
-                        }
-                    }
                     
+                    // Tambahkan gambar gallery baru
                     if (!empty($gallery_images)) {
                         $image_stmt = $conn->prepare("INSERT INTO project_images (project_id, image_path, is_primary) VALUES (?, ?, ?)");
                         if ($image_stmt) {
@@ -252,6 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 $is_primary = 0;
                                 $image_stmt->bind_param("isi", $project_id, $image_path, $is_primary);
                                 $image_stmt->execute();
+                                error_log("DEBUG: Added gallery image: " . $image_path);
                             }
                             $image_stmt->close();
                         }
@@ -331,6 +421,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $success = "Proyek berhasil diperbarui!";
                     error_log("DEBUG: Transaction committed successfully");
                     
+                    // Refresh data setelah update
                     $refresh_stmt = $conn->prepare("SELECT * FROM projects WHERE id = ? AND student_id = ?");
                     if ($refresh_stmt) {
                         $refresh_stmt->bind_param("ii", $project_id, $user_id);
@@ -481,9 +572,11 @@ function handleCertificateUpload($file, $user_id) {
 }
 ?>
 
+<!-- Kode HTML dan JavaScript tetap sama seperti sebelumnya -->
 <?php include '../../includes/header.php'; ?>
 
 <style>
+/* CSS tetap sama seperti sebelumnya */
 .searchable-dropdown {
     position: relative;
 }

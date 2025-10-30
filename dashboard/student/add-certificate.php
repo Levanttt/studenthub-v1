@@ -91,118 +91,238 @@ function handleCertificateUpload($file, $user_id) {
 <?php include '../../includes/header.php'; ?>
 
 <style>
-@media (max-width: 1023px) {
-    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.5rem;
-    }
-    
-    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 {
-        width: 100%;
-    }
-    
-    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 a.bg-\[\#E0F7FF\] {
-        align-self: flex-end;
-        width: auto;
-        min-width: 140px;
-    }
-    
-    .grid.grid-cols-1.lg\:grid-cols-2.gap-8 {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    .bg-white.rounded-2xl.shadow-sm.border.border-gray-100.p-8 {
-        padding: 1.5rem;
-    }
-    
-    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 {
-        flex-direction: column-reverse;
-        gap: 1rem;
-    }
-    
-    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 a,
-    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 button {
-        width: 100%;
-        justify-content: center;
-        text-align: center;
-    }
+.flex.justify-between.items-center.w-full.mb-8 {
+    margin-bottom: 1.5rem !important;
 }
 
-@media (max-width: 767px) {
-    .max-w-6xl.mx-auto.px-4.sm\:px-6.lg\:px-8.py-8 {
+.flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.flex.justify-between.items-center.w-full.mb-8 .flex-1 p {
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    input[type="text"],
+    input[type="url"],
+    input[type="date"],
+    input[type="file"],
+    select,
+    textarea,
+    button,
+    a {
+        font-size: 16px !important;
+        -webkit-appearance: none;
+    }
+
+    .max-w-6xl.mx-auto.px-4 {
         padding-left: 1rem;
         padding-right: 1rem;
         padding-top: 1.5rem;
         padding-bottom: 1.5rem;
     }
-    
-    .text-3xl.font-bold.text-\[\#2A8FA9\] {
-        font-size: 1.5rem;
+
+    .flex.justify-between.items-center.w-full.mb-8 {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
     }
-    
+
+    .flex.justify-between.items-center.w-full.mb-8 .flex-1 {
+        width: 100%;
+    }
+
+    .flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 {
+        font-size: 1.75rem;
+        text-align: left;
+    }
+
+    .flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 .iconify {
+        width: 28px;
+        height: 28px;
+    }
+
+    .flex.justify-between.items-center.w-full.mb-8 .flex-1 p {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        text-align: left;
+    }
+
+    .flex.justify-between.items-center.w-full.mb-8 a {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        text-align: center;
+    }
+
+    .bg-white.rounded-2xl.shadow-sm.border.p-8 {
+        padding: 1.25rem;
+        border-radius: 1rem;
+    }
+
+    .space-y-8 {
+        gap: 1.5rem;
+    }
+
     .text-2xl.font-bold.text-\[\#2A8FA9\] {
         font-size: 1.25rem;
     }
-    
-    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 a.bg-\[\#E0F7FF\] {
-        width: 100%;
-        justify-content: center;
+
+    .text-2xl.font-bold.text-\[\#2A8FA9\] .iconify {
+        width: 20px;
+        height: 20px;
     }
-    
-    .space-y-8 .space-y-6 {
+
+    .grid.grid-cols-1.lg\:grid-cols-2.gap-8 {
+        grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
-    .w-full.px-4.py-3.border.border-gray-300.rounded-lg {
+
+    .space-y-6 {
+        gap: 1rem;
+    }
+
+    .w-full.px-4.py-3 {
         padding: 0.75rem 1rem;
     }
-    
-    .max-w-2xl {
-        width: 100%;
-    }
-    
+
     .bg-\[\#2A8FA9\]\/10.border.border-\[\#2A8FA9\]\/30.rounded-lg.p-6 {
         padding: 1rem;
+    }
+
+    .bg-\[\#2A8FA9\]\/10.border.border-\[\#2A8FA9\]\/30.rounded-lg.p-6 .text-sm {
+        font-size: 0.8125rem;
+    }
+
+    .max-w-2xl {
+        max-width: 100%;
+    }
+
+    .flex.justify-end.gap-4.pt-8 {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+        padding-top: 1.5rem;
+    }
+
+    .flex.justify-end.gap-4.pt-8 a,
+    .flex.justify-end.gap-4.pt-8 button {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9375rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .bg-red-50,
+    .bg-green-50 {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+    }
+
+    input[type="file"] {
+        padding: 0.625rem 0.75rem !important;
+    }
+
+    input[type="file"]::file-selector-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+        margin-right: 0.75rem;
+    }
+
+    textarea {
+        min-height: 100px;
+    }
+}
+
+@media (max-width: 640px) {
+    .flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 {
+        font-size: 1.5rem;
+    }
+
+    .flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 .iconify {
+        width: 24px;
+        height: 24px;
+    }
+
+    .text-2xl.font-bold.text-\[\#2A8FA9\] {
+        font-size: 1.125rem;
+    }
+
+    .bg-white.rounded-2xl.shadow-sm.border.p-8 {
+        padding: 1rem;
+    }
+
+    .space-y-8 {
+        gap: 1.25rem;
+    }
+
+    .flex.justify-end.gap-4.pt-8 a,
+    .flex.justify-end.gap-4.pt-8 button {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
     }
 }
 
 @media (max-width: 480px) {
-    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 {
-        font-size: 1.25rem;
+    .flex.justify-between.items-center.w-full.mb-8 .flex-1 h1 {
+        font-size: 1.375rem;
     }
-    
-    .max-w-6xl.mx-auto .flex.justify-between.items-center.w-full.mb-8 .flex-1 p {
-        font-size: 0.875rem;
+
+    .flex.justify-between.items-center.w-full.mb-8 .flex-1 p {
+        font-size: 0.8125rem;
     }
-    
-    .space-y-8 {
-        gap: 1.5rem;
+
+    .text-2xl.font-bold.text-\[\#2A8FA9\] {
+        font-size: 1rem;
     }
-    
-    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 button,
-    .flex.justify-end.gap-4.pt-8.border-t.border-gray-200 a {
-        font-size: 0.875rem;
-        padding: 0.75rem 1rem;
+
+    .text-sm {
+        font-size: 0.8125rem;
+    }
+
+    .text-xs {
+        font-size: 0.75rem;
     }
 }
 
-@media (max-width: 1023px) {
-    a, button, input[type="submit"] {
-        min-height: 44px;
-        display: inline-flex;
-        align-items: center;
+a, button {
+    min-height: 44px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (hover: none) {
+    button,
+    a {
+        -webkit-tap-highlight-color: transparent;
     }
     
-    input, textarea, select {
-        font-size: 16px; 
+    button:active,
+    a:active {
+        opacity: 0.8;
+        transform: scale(0.98);
+    }
+}
+
+@supports (padding: max(0px)) {
+    .max-w-6xl.mx-auto {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
     }
 }
 </style>
 
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
     <div class="flex justify-between items-center w-full mb-8">
         <div class="flex-1">
             <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
@@ -218,7 +338,6 @@ function handleCertificateUpload($file, $user_id) {
         </a>
     </div>
 
-    <!-- Alerts -->
     <?php if ($error): ?>
         <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
             <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
@@ -233,10 +352,8 @@ function handleCertificateUpload($file, $user_id) {
         </div>
     <?php endif; ?>
 
-    <!-- Certificate Form -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <form method="POST" action="" enctype="multipart/form-data" class="space-y-8">
-            <!-- Certificate Information -->
             <div class="space-y-8">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:information" data-width="24"></span>
@@ -277,7 +394,6 @@ function handleCertificateUpload($file, $user_id) {
                     </div>
                 </div>
 
-                <!-- Informasi Kredensial -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">ID Kredensial</label>
@@ -304,7 +420,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- File Upload -->
             <div class="space-y-6 pt-6 border-t border-gray-200">
                 <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-3">
                     <span class="iconify" data-icon="mdi:file-upload" data-width="24"></span>
@@ -331,7 +446,6 @@ function handleCertificateUpload($file, $user_id) {
                 </div>
             </div>
 
-            <!-- Submit Button -->
             <div class="flex justify-end gap-4 pt-8 border-t border-gray-200">
                 <a href="certificates.php" 
                 class="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">

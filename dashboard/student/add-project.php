@@ -498,6 +498,212 @@ function handleCertificateUpload($file, $user_id) {
         z-index: 1001 !important;
     }
 }
+
+@media (max-width: 768px) {
+    input[type="text"],
+    input[type="url"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 16px !important;
+        -webkit-appearance: none;
+    }
+    
+    .custom-dropdown-container {
+        position: relative;
+    }
+    
+    .custom-dropdown-options {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90vw !important;
+        max-width: 400px !important;
+        max-height: 70vh !important;
+        overflow-y: auto !important;
+        z-index: 1001 !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    .dropdown-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+        backdrop-filter: blur(2px);
+    }
+    
+    [data-option] {
+        padding: 16px !important;
+        font-size: 15px !important;
+        min-height: 52px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        transition: background-color 0.2s ease;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    [data-option]:active {
+        background-color: #E0F7FF !important;
+        transform: scale(0.98);
+    }
+    
+    [data-option].bg-\[#E0F7FF\] {
+        background-color: #E0F7FF !important;
+        color: #2A8FA9 !important;
+        font-weight: 600;
+    }
+    
+    .searchable-dropdown .dropdown-options {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90vw !important;
+        max-width: 400px !important;
+        max-height: 70vh !important;
+        z-index: 1001 !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    .search-input {
+        font-size: 16px !important;
+        padding: 14px 16px !important;
+        border-bottom: 2px solid #e5e7eb;
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+    }
+    
+    .options-list {
+        max-height: calc(70vh - 60px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .skill-tag {
+        font-size: 13px !important;
+        padding: 8px 14px !important;
+        border-radius: 20px !important;
+    }
+    
+    .skill-tag button {
+        padding: 2px !important;
+        margin-left: 6px !important;
+    }
+    
+    .skill-dropdown-toggle,
+    [data-toggle] {
+        min-height: 52px !important;
+        font-size: 15px !important;
+        padding: 14px 16px !important;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+    }
+    
+    .skill-dropdown-toggle:active,
+    [data-toggle]:active {
+        background-color: #f9fafb;
+        transform: scale(0.99);
+    }
+    
+    body.dropdown-open {
+        overflow: hidden !important;
+        position: fixed !important;
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .custom-dropdown-options {
+        width: 95vw !important;
+    }
+    
+    .searchable-dropdown .dropdown-options {
+        width: 95vw !important;
+    }
+    
+    [data-option] {
+        padding: 14px !important;
+        font-size: 14px !important;
+    }
+}
+
+.custom-dropdown-options,
+.dropdown-options {
+    scroll-behavior: smooth;
+}
+
+.custom-dropdown-options::-webkit-scrollbar,
+.options-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-dropdown-options::-webkit-scrollbar-track,
+.options-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.custom-dropdown-options::-webkit-scrollbar-thumb,
+.options-list::-webkit-scrollbar-thumb {
+    background: #51A3B9;
+    border-radius: 10px;
+}
+
+.custom-dropdown-options::-webkit-scrollbar-thumb:hover,
+.options-list::-webkit-scrollbar-thumb:hover {
+    background: #2A8FA9;
+}
+
+.loading-spinner {
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid #51A3B9;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (hover: none) {
+    button,
+    [data-option],
+    .skill-dropdown-toggle,
+    [data-toggle] {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    button:active,
+    [data-option]:active,
+    .skill-dropdown-toggle:active,
+    [data-toggle]:active {
+        opacity: 0.8;
+    }
+}
+
+@supports (padding: max(0px)) {
+    .custom-dropdown-options,
+    .searchable-dropdown .dropdown-options {
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+    }
+}
 </style>
 
 <div class="px-4 sm:px-6 lg:px-8 py-8 mobile-project-container">
@@ -1196,12 +1402,22 @@ function handleCertificateUpload($file, $user_id) {
 class CustomDropdown {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
+        if (!this.container) {
+            console.error(`Container ${containerId} not found`);
+            return;
+        }
+        
         this.toggle = this.container.querySelector('[data-toggle]');
         this.options = this.container.querySelector('[data-options]');
         this.hiddenInput = this.container.querySelector('input[type="hidden"]');
         this.selectedText = this.container.querySelector('[data-selected-text]');
         this.selectedIcon = this.container.querySelector('[data-selected-icon]');
         this.overlay = document.getElementById('dropdown-overlay');
+        
+        if (!this.toggle || !this.options || !this.hiddenInput || !this.selectedText) {
+            console.error(`Missing required elements in ${containerId}`);
+            return;
+        }
         
         this.init();
     }
@@ -1217,14 +1433,20 @@ class CustomDropdown {
         });
         
         this.options.querySelectorAll('[data-option]').forEach(option => {
-            option.addEventListener('click', () => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
                 const value = option.getAttribute('data-value');
                 const text = option.textContent.trim();
                 const icon = option.getAttribute('data-icon');
+                const displayName = option.getAttribute('data-display-name');
                 
                 this.hiddenInput.value = value;
-                this.selectedText.textContent = text;
-                this.selectedIcon.setAttribute('data-icon', icon);
+                this.selectedText.textContent = displayName || text;
+                
+                if (this.selectedIcon && icon) {
+                    this.selectedIcon.setAttribute('data-icon', icon);
+                }
                 
                 this.options.querySelectorAll('[data-option]').forEach(opt => {
                     opt.classList.remove('bg-[#E0F7FF]', 'text-[#2A8FA9]');
@@ -1232,6 +1454,11 @@ class CustomDropdown {
                 option.classList.add('bg-[#E0F7FF]', 'text-[#2A8FA9]');
                 
                 this.closeDropdown();
+                
+                this.toggle.classList.add('border-green-500', 'bg-green-50');
+                setTimeout(() => {
+                    this.toggle.classList.remove('border-green-500', 'bg-green-50');
+                }, 500);
             });
         });
         
@@ -1239,7 +1466,6 @@ class CustomDropdown {
             e.stopPropagation();
         });
 
-        // Close on overlay click
         if (this.overlay) {
             this.overlay.addEventListener('click', () => {
                 this.closeDropdown();
@@ -1249,20 +1475,28 @@ class CustomDropdown {
 
     toggleDropdown() {
         const isOpen = !this.options.classList.contains('hidden');
+        
         this.closeAllDropdowns();
         
         if (!isOpen) {
             this.options.classList.remove('hidden');
+            
             if (window.innerWidth <= 768) {
-                this.overlay.style.display = 'block';
+                if (this.overlay) {
+                    this.overlay.style.display = 'block';
+                }
                 document.body.style.overflow = 'hidden';
             }
         }
     }
 
     closeDropdown() {
-        this.options.classList.add('hidden');
-        this.overlay.style.display = 'none';
+        if (this.options) {
+            this.options.classList.add('hidden');
+        }
+        if (this.overlay) {
+            this.overlay.style.display = 'none';
+        }
         document.body.style.overflow = '';
     }
 
@@ -1270,7 +1504,9 @@ class CustomDropdown {
         document.querySelectorAll('.custom-dropdown-options').forEach(dropdown => {
             dropdown.classList.add('hidden');
         });
-        this.overlay.style.display = 'none';
+        if (this.overlay) {
+            this.overlay.style.display = 'none';
+        }
         document.body.style.overflow = '';
     }
 }
@@ -1315,7 +1551,6 @@ class SearchableDropdown {
             this.closeAllDropdowns();
         });
 
-        // Close on overlay click
         if (this.overlay) {
             this.overlay.addEventListener('click', () => {
                 this.closeAllDropdowns();
@@ -1325,6 +1560,8 @@ class SearchableDropdown {
 
     toggleDropdown(category) {
         const dropdown = document.querySelector(`.dropdown-options[data-category="${category}"]`);
+        if (!dropdown) return;
+        
         const isOpen = dropdown.style.display === 'block';
         
         this.closeAllDropdowns();
@@ -1332,12 +1569,16 @@ class SearchableDropdown {
         if (!isOpen) {
             dropdown.style.display = 'block';
             const searchInput = dropdown.querySelector('.search-input');
-            searchInput.value = '';
-            searchInput.focus();
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+            }
             this.filterOptions(category, '');
             
             if (window.innerWidth <= 768) {
-                this.overlay.style.display = 'block';
+                if (this.overlay) {
+                    this.overlay.style.display = 'block';
+                }
                 document.body.style.overflow = 'hidden';
             }
         }
@@ -1347,62 +1588,73 @@ class SearchableDropdown {
         document.querySelectorAll('.dropdown-options').forEach(dropdown => {
             dropdown.style.display = 'none';
         });
-        this.overlay.style.display = 'none';
+        if (this.overlay) {
+            this.overlay.style.display = 'none';
+        }
         document.body.style.overflow = '';
     }
 
     filterOptions(category, query) {
         const optionsList = document.querySelector(`.options-list[data-category="${category}"]`);
+        if (!optionsList) return;
+        
         const options = optionsList.querySelectorAll('.option-item');
         const lowerQuery = query.toLowerCase();
 
         options.forEach(option => {
             const text = option.textContent.toLowerCase();
-            if (text.includes(lowerQuery)) {
-                option.style.display = 'flex';
-            } else {
-                option.style.display = 'none';
-            }
+            option.style.display = text.includes(lowerQuery) ? 'flex' : 'none';
         });
     }
 
     selectSkill(skillName, category) {
-        if (this.selectedSkills.has(skillName)) return;
+        if (this.selectedSkills.has(skillName)) {
+            this.closeAllDropdowns();
+            return;
+        }
 
         this.selectedSkills.add(skillName);
         
         const container = document.getElementById(`selected-${category}-skills`);
+        if (!container) return;
+        
         const tag = document.createElement('span');
         tag.className = `skill-tag ${category}-tag`;
         tag.innerHTML = `
             ${skillName}
-            <button type="button" onclick="searchableDropdown.removeSkill('${skillName}', '${category}')">
+            <button type="button" onclick="searchableDropdown.removeSkill('${skillName.replace(/'/g, "\\'")}', '${category}')">
                 <span class="iconify" data-icon="mdi:close" data-width="14"></span>
             </button>
         `;
         container.appendChild(tag);
 
         const hiddenContainer = document.getElementById('skills-hidden-container');
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'skills[]';
-        hiddenInput.value = skillName;
-        hiddenInput.id = `skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`;
-        hiddenContainer.appendChild(hiddenInput);
+        if (hiddenContainer) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'skills[]';
+            hiddenInput.value = skillName;
+            hiddenInput.id = `skill-${category}-${skillName.replace(/\s+/g, '-').toLowerCase()}`;
+            hiddenContainer.appendChild(hiddenInput);
+        }
 
         this.closeAllDropdowns();
 
         const dropdownToggle = document.querySelector(`.skill-dropdown-toggle[data-category="${category}"]`);
-        dropdownToggle.classList.add('border-green-500', 'bg-green-50');
-        setTimeout(() => {
-            dropdownToggle.classList.remove('border-green-500', 'bg-green-50');
-        }, 1000);
+        if (dropdownToggle) {
+            dropdownToggle.classList.add('border-green-500', 'bg-green-50');
+            setTimeout(() => {
+                dropdownToggle.classList.remove('border-green-500', 'bg-green-50');
+            }, 1000);
+        }
     }
 
     removeSkill(skillName, category) {
         this.selectedSkills.delete(skillName);
         
         const container = document.getElementById(`selected-${category}-skills`);
+        if (!container) return;
+        
         const tags = container.querySelectorAll('.skill-tag');
         tags.forEach(tag => {
             if (tag.textContent.includes(skillName)) {
@@ -1418,160 +1670,139 @@ class SearchableDropdown {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    new CustomDropdown('project-type-dropdown');
-    new CustomDropdown('category-dropdown');
-    new CustomDropdown('status-dropdown');
-    new CustomDropdown('year-dropdown');
-    new CustomDropdown('duration-dropdown');
+    try {
+        new CustomDropdown('category-dropdown');
+        new CustomDropdown('status-dropdown');
+        new CustomDropdown('year-dropdown');
+        new CustomDropdown('duration-dropdown');
+        new CustomDropdown('project-type-dropdown');
+    } catch (error) {
+        console.error('Error initializing custom dropdowns:', error);
+    }
 
-    window.searchableDropdown = new SearchableDropdown();
+    try {
+        window.searchableDropdown = new SearchableDropdown();
+    } catch (error) {
+        console.error('Error initializing searchable dropdown:', error);
+    }
 
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const technicalSkillsContainer = document.getElementById('selected-technical-skills');
-        if (technicalSkillsContainer && technicalSkillsContainer.children.length === 0) {
-            e.preventDefault();
-            alert('Pilih minimal 1 technical skill!');
-            const technicalDropdown = document.querySelector('.skill-dropdown-toggle[data-category="technical"]');
-            technicalDropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    });
-
-    const mainFileInput = document.getElementById('project-image-input');
-    const mainFileNamesDisplay = document.getElementById('main-file-names');
-
-    mainFileInput.addEventListener('change', function(e) {
-        if (this.files.length > 0) {
-            let fileList = 'File terpilih:<br>';
-            for (let i = 0; i < this.files.length; i++) {
-                fileList += `• ${this.files[i].name}<br>`;
-            }
-            mainFileNamesDisplay.innerHTML = fileList;
-            mainFileNamesDisplay.classList.remove('hidden');
-        } else {
-            mainFileNamesDisplay.classList.add('hidden');
-        }
-    });
-
-    const galleryFileInput = document.getElementById('project-gallery-input');
-    const galleryFileNamesDisplay = document.getElementById('gallery-file-names');
-
-    galleryFileInput.addEventListener('change', function(e) {
-        if (this.files.length > 0) {
-            let fileList = 'File terpilih:<br>';
-            const maxFiles = 6;
-            
-            if (this.files.length > maxFiles) {
-                fileList = `Maksimal ${maxFiles} file!<br>`;
-                this.value = '';
-            } else {
-                for (let i = 0; i < this.files.length && i < maxFiles; i++) {
-                    fileList += `• ${this.files[i].name}<br>`;
-                }
-            }
-            
-            galleryFileNamesDisplay.innerHTML = fileList;
-            galleryFileNamesDisplay.classList.remove('hidden');
-        } else {
-            galleryFileNamesDisplay.classList.add('hidden');
-        }
-    });
-
-    const certificateInput = document.getElementById('certificate-input');
-    const certificateFileNamesDisplay = document.getElementById('certificate-file-names');
-    const certificateInfoForm = document.getElementById('certificate-info-form');
-
-    certificateInput.addEventListener('change', function(e) {
-        if (this.files.length > 0) {
-            let fileList = 'File terpilih:<br>';
-            for (let i = 0; i < this.files.length; i++) {
-                fileList += `• ${this.files[i].name}<br>`;
-            }
-            certificateFileNamesDisplay.innerHTML = fileList;
-            certificateFileNamesDisplay.classList.remove('hidden');
-            
-            certificateInfoForm.classList.remove('hidden');
-            
-            setTimeout(() => {
-                certificateInfoForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 300);
-        } else {
-            certificateFileNamesDisplay.classList.add('hidden');
-            certificateInfoForm.classList.add('hidden');
-        }
-    });
-
-    function setupDragAndDrop(uploadArea, fileInput, fileNamesDisplay, maxFiles = 1) {
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.classList.add('border-[#51A3B9]', 'bg-[#E0F7FF]');
-        });
-
-        uploadArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            this.classList.remove('border-[#51A3B9]', 'bg-[#E0F7FF]');
-        });
-
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('border-[#51A3B9]', 'bg-[#E0F7FF]');
-            
-            if (e.dataTransfer.files.length > 0) {
-                if (maxFiles > 1) {
-                    const files = e.dataTransfer.files;
-                    if (files.length > maxFiles) {
-                        fileNamesDisplay.innerHTML = `Maksimal ${maxFiles} file!<br>`;
-                        fileNamesDisplay.classList.remove('hidden');
-                    } else {
-                        const dt = new DataTransfer();
-                        for (let i = 0; i < files.length && i < maxFiles; i++) {
-                            dt.items.add(files[i]);
-                        }
-                        fileInput.files = dt.files;
-                        
-                        let fileList = 'File terpilih:<br>';
-                        for (let i = 0; i < files.length && i < maxFiles; i++) {
-                            fileList += `• ${files[i].name}<br>`;
-                        }
-                        fileNamesDisplay.innerHTML = fileList;
-                        fileNamesDisplay.classList.remove('hidden');
-                    }
-                } else {
-                    fileInput.files = e.dataTransfer.files;
-                    
-                    let fileList = 'File terpilih:<br>';
-                    for (let i = 0; i < e.dataTransfer.files.length; i++) {
-                        fileList += `• ${e.dataTransfer.files[i].name}<br>`;
-                    }
-                    fileNamesDisplay.innerHTML = fileList;
-                    fileNamesDisplay.classList.remove('hidden');
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const technicalSkillsContainer = document.getElementById('selected-technical-skills');
+            if (technicalSkillsContainer && technicalSkillsContainer.children.length === 0) {
+                e.preventDefault();
+                alert('Pilih minimal 1 technical skill!');
+                const technicalDropdown = document.querySelector('.skill-dropdown-toggle[data-category="technical"]');
+                if (technicalDropdown) {
+                    technicalDropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
         });
     }
 
-    setupDragAndDrop(mainFileInput.closest('div'), mainFileInput, mainFileNamesDisplay, 1);
-    setupDragAndDrop(galleryFileInput.closest('div'), galleryFileInput, galleryFileNamesDisplay, 5);
-    setupDragAndDrop(certificateInput.closest('div'), certificateInput, certificateFileNamesDisplay, 1);
+    setupFileInput('project-image-input', 'main-file-names', 1);
+    setupFileInput('project-gallery-input', 'gallery-file-names', 6);
+    setupFileInput('certificate-input', 'certificate-file-names', 1, true);
+
+    setupDragAndDrop('project-image-input', 1);
+    setupDragAndDrop('project-gallery-input', 6);
+    setupDragAndDrop('certificate-input', 1);
 });
+
+function setupFileInput(inputId, displayId, maxFiles, showCertForm = false) {
+    const input = document.getElementById(inputId);
+    const display = document.getElementById(displayId);
+    
+    if (!input || !display) return;
+    
+    input.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            if (this.files.length > maxFiles) {
+                display.innerHTML = `Maksimal ${maxFiles} file!`;
+                display.classList.remove('hidden');
+                this.value = '';
+                return;
+            }
+            
+            let fileList = 'File terpilih:<br>';
+            for (let i = 0; i < this.files.length; i++) {
+                fileList += `• ${this.files[i].name}<br>`;
+            }
+            display.innerHTML = fileList;
+            display.classList.remove('hidden');
+            
+            if (showCertForm) {
+                const certForm = document.getElementById('certificate-info-form');
+                if (certForm) {
+                    certForm.classList.remove('hidden');
+                    setTimeout(() => {
+                        certForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 300);
+                }
+            }
+        } else {
+            display.classList.add('hidden');
+            if (showCertForm) {
+                const certForm = document.getElementById('certificate-info-form');
+                if (certForm) certForm.classList.add('hidden');
+            }
+        }
+    });
+}
+
+function setupDragAndDrop(inputId, maxFiles) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    
+    const uploadArea = input.closest('.border-dashed');
+    if (!uploadArea) return;
+    
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('border-[#51A3B9]', 'bg-[#E0F7FF]');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-[#51A3B9]', 'bg-[#E0F7FF]');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('border-[#51A3B9]', 'bg-[#E0F7FF]');
+        
+        if (e.dataTransfer.files.length > 0) {
+            const dt = new DataTransfer();
+            const files = e.dataTransfer.files;
+            
+            for (let i = 0; i < files.length && i < maxFiles; i++) {
+                dt.items.add(files[i]);
+            }
+            
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change'));
+        }
+    });
+}
 
 function removeCertificate() {
     const certificateInput = document.getElementById('certificate-input');
     const certificateFileNamesDisplay = document.getElementById('certificate-file-names');
     const certificateInfoForm = document.getElementById('certificate-info-form');
     
-    certificateInput.value = '';
-    certificateFileNamesDisplay.classList.add('hidden');
-    certificateInfoForm.classList.add('hidden');
-    
-    const formFields = certificateInfoForm.querySelectorAll('input');
-    formFields.forEach(field => {
-        field.value = '';
-    });
+    if (certificateInput) certificateInput.value = '';
+    if (certificateFileNamesDisplay) certificateFileNamesDisplay.classList.add('hidden');
+    if (certificateInfoForm) {
+        certificateInfoForm.classList.add('hidden');
+        const formFields = certificateInfoForm.querySelectorAll('input, textarea');
+        formFields.forEach(field => field.value = '');
+    }
 }
 
 window.addEventListener('resize', function() {
     const overlay = document.getElementById('dropdown-overlay');
-    if (window.innerWidth > 768) {
+    if (window.innerWidth > 768 && overlay) {
         overlay.style.display = 'none';
         document.body.style.overflow = '';
     }

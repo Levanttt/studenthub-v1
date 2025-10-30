@@ -145,12 +145,20 @@ $recent_projects_result = $recent_projects_stmt->get_result();
 
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
-                <span class="iconify" data-icon="mdi:clock" data-width="28"></span>
-                Proyek Terbaru
-            </h2>
+            <div class="flex items-center justify-between w-full sm:w-auto">
+                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:clock" data-width="28"></span>
+                    Proyek Terbaru
+                </h2>
+                <?php if ($project_count > 0): ?>
+                    <a href="projects.php" class="sm:hidden bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center gap-2 text-sm ml-4">
+                        Lihat Semua
+                        <span class="iconify" data-icon="mdi:chevron-right" data-width="16"></span>
+                    </a>
+                <?php endif; ?>
+            </div>
             <?php if ($project_count > 0): ?>
-                <a href="projects.php" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 flex items-center gap-2">
+                <a href="projects.php" class="hidden sm:flex bg-gray-100 text-gray-700 px-6 py-2 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-300 border border-gray-200 items-center gap-2">
                     Lihat Semua
                     <span class="iconify" data-icon="mdi:chevron-right" data-width="20"></span>
                 </a>
