@@ -194,6 +194,30 @@ try {
 usort($certificates, function($a, $b) {
     return strtotime($b['issue_date']) - strtotime($a['issue_date']);
 });
+
+$work_preferences = [];
+try {
+    $work_pref_query = "
+        SELECT wl.name 
+        FROM user_work_locations uwl 
+        JOIN work_locations wl ON uwl.work_location_id = wl.id 
+        WHERE uwl.user_id = ? 
+        ORDER BY wl.name
+    ";
+    
+    $work_pref_stmt = $conn->prepare($work_pref_query);
+    $work_pref_stmt->bind_param("i", $student_id);
+    $work_pref_stmt->execute();
+    $work_pref_result = $work_pref_stmt->get_result();
+    
+    while ($pref = $work_pref_result->fetch_assoc()) {
+        $work_preferences[] = $pref['name'];
+    }
+    $work_pref_stmt->close();
+    
+} catch (Exception $e) {
+    error_log("Work preferences query error: " . $e->getMessage());
+}
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -398,6 +422,24 @@ usort($certificates, function($a, $b) {
                         <?php endif; ?>
                     </div>
                 </div>
+
+                <!-- Work Preferences -->
+                <?php if (!empty($work_preferences)): ?>
+                <div class="border-t border-gray-200 pt-6 mt-4">
+                    <h3 class="text-lg font-semibold text-[#2A8FA9] mb-4 flex items-center gap-2">
+                        <span class="iconify" data-icon="mdi:briefcase-check" data-width="20"></span>
+                        Preferensi Kerja
+                    </h3>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <?php foreach ($work_preferences as $pref): ?>
+                            <span class="bg-green-100 text-green-800 px-3 py-1.5 rounded-full text-xs font-medium border border-green-200">
+                                <?php echo htmlspecialchars($pref); ?>
+                            </span>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- Skills Summary -->
                 <div class="border-t border-gray-200 pt-6 mt-4">
@@ -881,7 +923,7 @@ usort($certificates, function($a, $b) {
         </div>
     </div>
 
-    <!-- Mobile: Contact & Skills Section (Last) -->
+    <!-- Mobile: Contact & Skills Section  -->
     <div class="lg:hidden mt-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <!-- Contact Info -->
@@ -920,6 +962,24 @@ usort($certificates, function($a, $b) {
                     <?php endif; ?>
                 </div>
             </div>
+
+            <!-- Work Preferences  -->
+            <?php if (!empty($work_preferences)): ?>
+            <div class="border-t border-gray-200 pt-4 sm:pt-6 mt-4">
+                <h3 class="text-base sm:text-lg font-semibold text-[#2A8FA9] mb-3 sm:mb-4 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:briefcase-check" data-width="18"></span>
+                    Preferensi Kerja
+                </h3>
+                
+                <div class="flex flex-wrap gap-1.5 sm:gap-2">
+                    <?php foreach ($work_preferences as $pref): ?>
+                        <span class="bg-green-100 text-green-800 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium border border-green-200">
+                            <?php echo htmlspecialchars($pref); ?>
+                        </span>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Skills Summary -->
             <div class="pt-4 sm:pt-6">

@@ -28,6 +28,39 @@ try {
     error_log("Error fetching specializations: " . $e->getMessage());
 }
 
+$availableWorkLocations = [];
+try {
+    $work_locations_query = "SELECT id, name FROM work_locations ORDER BY name ASC";
+    $work_locations_result = $conn->query($work_locations_query);
+    if ($work_locations_result) {
+        while ($row = $work_locations_result->fetch_assoc()) {
+            $availableWorkLocations[$row['id']] = $row['name'];
+        }
+    }
+} catch (Exception $e) {
+    error_log("Error fetching work locations: " . $e->getMessage());
+}
+
+$userWorkLocations = [];
+try {
+    $user_work_locations_query = "SELECT wl.id, wl.name 
+                                 FROM user_work_locations uwl 
+                                 JOIN work_locations wl ON uwl.work_location_id = wl.id 
+                                 WHERE uwl.user_id = ?";
+    $user_work_locations_stmt = $conn->prepare($user_work_locations_query);
+    if ($user_work_locations_stmt) {
+        $user_work_locations_stmt->bind_param("i", $user_id);
+        $user_work_locations_stmt->execute();
+        $user_work_locations_result = $user_work_locations_stmt->get_result();
+        while ($row = $user_work_locations_result->fetch_assoc()) {
+            $userWorkLocations[$row['id']] = $row['name'];
+        }
+        $user_work_locations_stmt->close();
+    }
+} catch (Exception $e) {
+    error_log("Error fetching user work locations: " . $e->getMessage());
+}
+
 $semesterOptions = [
     '1' => 'Semester 1',
     '2' => 'Semester 2', 
@@ -160,11 +193,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Token keamanan tidak valid";
     } else {
         if (isset($_POST['delete_account'])) {
-            // Mulai transaction untuk konsistensi data
             $conn->begin_transaction();
             
             try {
-                // 1. Hapus file profile picture jika ada
                 if (!empty($user['profile_picture'])) {
                     $old_picture_path = $_SERVER['DOCUMENT_ROOT'] . $user['profile_picture'];
                     if (file_exists($old_picture_path)) {
@@ -172,7 +203,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
                 
-                // 2. Hapus file CV jika ada
                 if (!empty($user['cv_file_path'])) {
                     $old_cv_path = $_SERVER['DOCUMENT_ROOT'] . $user['cv_file_path'];
                     if (file_exists($old_cv_path)) {
@@ -180,9 +210,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
                 
-                // 3. Hapus data terkait di tabel lain TERLEBIH DAHULU
-                
-                // Hapus certificates
                 $delete_certificates = $conn->prepare("DELETE FROM certificates WHERE student_id = ?");
                 if ($delete_certificates) {
                     $delete_certificates->bind_param("i", $user_id);
@@ -192,7 +219,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $delete_certificates->close();
                 }
                 
-                // Hapus project skills
                 $delete_project_skills = $conn->prepare("DELETE ps FROM project_skills ps JOIN projects p ON ps.project_id = p.id WHERE p.student_id = ?");
                 if ($delete_project_skills) {
                     $delete_project_skills->bind_param("i", $user_id);
@@ -202,7 +228,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $delete_project_skills->close();
                 }
                 
-                // Hapus projects
                 $delete_projects = $conn->prepare("DELETE FROM projects WHERE student_id = ?");
                 if ($delete_projects) {
                     $delete_projects->bind_param("i", $user_id);
@@ -211,17 +236,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                     $delete_projects->close();
                 }
+
+                $delete_user_work_locations = $conn->prepare("DELETE FROM user_work_locations WHERE user_id = ?");
+                if ($delete_user_work_locations) {
+                    $delete_user_work_locations->bind_param("i", $user_id);
+                    if (!$delete_user_work_locations->execute()) {
+                        throw new Exception("Gagal menghapus user work locations: " . $delete_user_work_locations->error);
+                    }
+                    $delete_user_work_locations->close();
+                }
                 
-                // Hapus data lain yang mungkin terkait...
-                // Tambahkan query DELETE untuk tabel lain yang memiliki foreign key ke users
-                
-                // 4. Baru hapus user
                 $delete_user = $conn->prepare("DELETE FROM users WHERE id = ?");
                 if ($delete_user) {
                     $delete_user->bind_param("i", $user_id);
                     
                     if ($delete_user->execute()) {
-                        // Commit transaction jika semua berhasil
                         $conn->commit();
                         
                         session_destroy();
@@ -236,7 +265,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
                 
             } catch (Exception $e) {
-                // Rollback transaction jika ada error
                 $conn->rollback();
                 $error = $e->getMessage();
                 error_log("Error deleting account: " . $e->getMessage());
@@ -249,6 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $linkedin = sanitize($_POST['linkedin'] ?? '');
             $specializations = sanitize($_POST['specializations'] ?? '');
             $phone = sanitize($_POST['phone'] ?? '');
+            $work_locations = isset($_POST['work_locations']) ? $_POST['work_locations'] : [];
 
             if (empty($name)) {
                 $error = "Nama lengkap wajib diisi";
@@ -349,32 +378,77 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
 
                 if (empty($error)) {
-                    $stmt = $conn->prepare("UPDATE users SET name = ?, semester = ?, major = ?, bio = ?, linkedin = ?, phone = ?, profile_picture = ?, specializations = ?, cv_file_path = ? WHERE id = ?");
+                    $conn->begin_transaction();
                     
-                    if ($stmt) {
-                        $stmt->bind_param("sssssssssi", $name, $semester, $major, $bio, $linkedin, $phone, $profile_picture_path, $specializations, $cv_file_path, $user_id);
+                    try {
+                        $stmt = $conn->prepare("UPDATE users SET name = ?, semester = ?, major = ?, bio = ?, linkedin = ?, phone = ?, profile_picture = ?, specializations = ?, cv_file_path = ? WHERE id = ?");
                         
-                        if ($stmt->execute()) {
-                            $_SESSION['name'] = $name;
-                            $_SESSION['profile_picture'] = $profile_picture_path;
-                            $success = "Profil berhasil diperbarui!";
-                            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                        if ($stmt) {
+                            $stmt->bind_param("sssssssssi", $name, $semester, $major, $bio, $linkedin, $phone, $profile_picture_path, $specializations, $cv_file_path, $user_id);
                             
-                            $refresh_stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-                            if ($refresh_stmt) {
-                                $refresh_stmt->bind_param("i", $user_id);
-                                $refresh_stmt->execute();
-                                $refresh_result = $refresh_stmt->get_result();
-                                $user = $refresh_result->fetch_assoc();
-                                $refresh_stmt->close();
+                            if ($stmt->execute()) {
+                                $delete_work_locations = $conn->prepare("DELETE FROM user_work_locations WHERE user_id = ?");
+                                if ($delete_work_locations) {
+                                    $delete_work_locations->bind_param("i", $user_id);
+                                    $delete_work_locations->execute();
+                                    $delete_work_locations->close();
+                                }
+                                
+                                if (!empty($work_locations)) {
+                                    $insert_work_locations = $conn->prepare("INSERT INTO user_work_locations (user_id, work_location_id) VALUES (?, ?)");
+                                    if ($insert_work_locations) {
+                                        foreach ($work_locations as $work_location_id) {
+                                            $work_location_id = intval($work_location_id);
+                                            if (array_key_exists($work_location_id, $availableWorkLocations)) {
+                                                $insert_work_locations->bind_param("ii", $user_id, $work_location_id);
+                                                $insert_work_locations->execute();
+                                            }
+                                        }
+                                        $insert_work_locations->close();
+                                    }
+                                }
+                                
+                                $conn->commit();
+                                
+                                $_SESSION['name'] = $name;
+                                $_SESSION['profile_picture'] = $profile_picture_path;
+                                $success = "Profil berhasil diperbarui!";
+                                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                                
+                                $refresh_stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+                                if ($refresh_stmt) {
+                                    $refresh_stmt->bind_param("i", $user_id);
+                                    $refresh_stmt->execute();
+                                    $refresh_result = $refresh_stmt->get_result();
+                                    $user = $refresh_result->fetch_assoc();
+                                    $refresh_stmt->close();
+                                }
+                                
+                                $userWorkLocations = [];
+                                $user_work_locations_query = "SELECT wl.id, wl.name FROM user_work_locations uwl JOIN work_locations wl ON uwl.work_location_id = wl.id WHERE uwl.user_id = ?";
+                                $user_work_locations_stmt = $conn->prepare($user_work_locations_query);
+                                if ($user_work_locations_stmt) {
+                                    $user_work_locations_stmt->bind_param("i", $user_id);
+                                    $user_work_locations_stmt->execute();
+                                    $user_work_locations_result = $user_work_locations_stmt->get_result();
+                                    while ($row = $user_work_locations_result->fetch_assoc()) {
+                                        $userWorkLocations[$row['id']] = $row['name'];
+                                    }
+                                    $user_work_locations_stmt->close();
+                                }
+                                
+                            } else {
+                                throw new Exception("Terjadi kesalahan saat memperbarui profil: " . $conn->error);
                             }
+                            $stmt->close();
                         } else {
-                            error_log("Database error: " . $conn->error);
-                            $error = "Terjadi kesalahan saat memperbarui profil: " . $conn->error;
+                            throw new Exception("Gagal mempersiapkan query update: " . $conn->error);
                         }
-                        $stmt->close();
-                    } else {
-                        $error = "Gagal mempersiapkan query update: " . $conn->error;
+                        
+                    } catch (Exception $e) {
+                        $conn->rollback();
+                        $error = $e->getMessage();
+                        error_log("Error updating profile: " . $e->getMessage());
                     }
                 }
             }
@@ -386,75 +460,62 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php include '../../includes/header.php'; ?>
 
 <style>
-    /* TAMBAHAN/UPDATE CSS Mobile */
     @media (max-width: 768px) {
-        /* Pastikan container tidak overflow */
         .max-w-7xl {
             max-width: 100%;
             overflow-x: hidden;
         }
         
-        /* Fix untuk gambar profil di mobile */
         .mobile-profile-image {
             width: 100px !important;
             height: 100px !important;
         }
         
-        /* Spacing yang lebih baik */
         .mobile-profile-card {
             padding: 1.25rem;
         }
         
-        /* Upload zone lebih compact */
         .mobile-profile-upload {
             padding: 1.25rem;
         }
         
-        /* Button sizing */
         .mobile-profile-button {
             padding: 0.875rem 1rem;
             font-size: 0.9375rem;
         }
         
-        /* Textarea height */
         .mobile-profile-textarea {
             min-height: 100px;
         }
         
-        /* Tag wrapping */
         .mobile-profile-skill-tags,
         .mobile-profile-spec-tags {
             gap: 0.5rem;
         }
         
-        /* Form inputs touch-friendly */
         input[type="text"],
         input[type="tel"],
         input[type="url"],
         select,
         textarea {
-            font-size: 16px !important; /* Prevents zoom on iOS */
+            font-size: 16px !important;
             -webkit-appearance: none;
         }
         
-        /* Sidebar HARUS tersembunyi */
         .lg\:col-span-1 {
             display: none !important;
         }
         
-        /* Form mengambil full width */
         .lg\:col-span-3 {
             grid-column: 1 / -1 !important;
         }
         
-        /* Danger Zone mobile positioning */
         .mobile-profile-danger-zone {
             margin-top: 2rem;
         }
     }
 
     @media (max-width: 640px) {
-        /* Extra small screens */
         .mobile-profile-text {
             font-size: 1.375rem;
         }
@@ -463,23 +524,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             padding: 1rem;
         }
         
-        /* Stack all buttons vertically */
         .flex.gap-4 button,
         .flex.gap-4 a {
             width: 100%;
         }
     }
 
-    /* Touch-friendly buttons */
     @media (hover: none) {
         button, a {
             -webkit-tap-highlight-color: transparent;
         }
     }
+
+    .multi-select-dropdown {
+        position: relative;
+    }
+
+    .multi-select-options {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .multi-select-option {
+        transition: background-color 0.2s;
+    }
+
+    .multi-select-option:hover {
+        background-color: #f3f4f6;
+    }
+
+    #workLocationsDropdown::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #workLocationsDropdown::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    #workLocationsDropdown::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+
+    #workLocationsDropdown::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
 </style>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mobile-profile-container">
-    <!-- Header -->
     <div class="mb-8">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 mobile-profile-header">
             <div class="w-full sm:w-auto">
@@ -496,7 +589,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
-    <!-- Alerts -->
     <?php if ($error): ?>
         <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
             <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
@@ -511,7 +603,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     <?php endif; ?>
 
-    <!-- Database Structure Warning -->
     <?php 
     $check_columns = $conn->query("SHOW COLUMNS FROM users LIKE 'specializations'");
     $has_specializations = $check_columns->num_rows > 0;
@@ -534,7 +625,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php endif; ?>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 mobile-profile-grid">
-        <!-- Profile Form -->
         <div class="lg:col-span-3">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 mobile-profile-card">
                 <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-6 sm:mb-8 flex items-center gap-3">
@@ -545,12 +635,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <form method="POST" action="" class="space-y-6 sm:space-y-8" id="profileForm" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     
-                    <!-- Profile Picture Upload -->
                     <div class="space-y-4 sm:space-y-6">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Foto Profil</h3>
                         
                         <div class="flex flex-col lg:flex-row items-start gap-6 mobile-profile-flex">
-                            <!-- Current Profile Picture -->
                             <div class="flex-shrink-0">
                                 <div class="relative group">
                                     <?php if (!empty($user['profile_picture'])): ?>
@@ -568,9 +656,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                             </div>
                             
-                            <!-- Upload Controls -->
                             <div class="flex-1 space-y-4 w-full">
-                                <!-- Upload Button -->
                                 <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 sm:p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50 mobile-profile-upload">
                                     <div class="flex flex-col items-center justify-center mb-3">
                                         <div class="text-gray-400 mb-2">
@@ -606,12 +692,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- CV Upload Section -->
                     <div class="space-y-4 sm:space-y-6">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Curriculum Vitae (CV)</h3>
                         
                         <div class="flex flex-col lg:flex-row items-start gap-6 mobile-profile-flex">
-                            <!-- Current CV Info -->
                             <div class="flex-shrink-0">
                                 <div class="w-24 h-24 sm:w-36 sm:h-36 rounded-xl bg-gradient-to-br from-[#51A3B9] to-[#2A8FA9] flex flex-col items-center justify-center border-4 border-[#E0F7FF] shadow-lg p-3 sm:p-4 mobile-profile-image">
                                     <span class="iconify text-white mb-1 sm:mb-2" data-icon="mdi:file-document" data-width="32"></span>
@@ -622,9 +706,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                             </div>
                             
-                            <!-- Upload Controls -->
                             <div class="flex-1 space-y-4 w-full">
-                                <!-- Upload Button with Drag & Drop -->
                                 <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 sm:p-6 text-center hover:border-[#51A3B9] transition-colors duration-300 bg-gray-50/50 mobile-profile-upload" id="cv-drop-zone">
                                     <div class="flex flex-col items-center justify-center mb-3">
                                         <div class="text-gray-400 mb-2">
@@ -645,7 +727,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     
                                     <p class="text-xs text-gray-500 mt-3">Max. 2MB (PDF only)</p>
                                     
-                                    <!-- File name display -->
                                     <div id="cv-file-name" class="text-sm text-[#2A8FA9] mt-2">
                                         <?php if (!empty($user['cv_file_path'])): ?>
                                             <?php 
@@ -678,7 +759,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Personal Information -->
                     <div class="space-y-4 sm:space-y-6">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Informasi Dasar</h3>
                         
@@ -762,7 +842,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                             </div>
                             
-                            <!-- Nomor Telepon -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon *</label>
                                 <div class="relative">
@@ -796,7 +875,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Bio Section -->
                     <div class="space-y-4">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Tentang Saya</h3>
                         <div>
@@ -817,13 +895,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Specializations Section -->
                     <div class="space-y-4">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Spesialisasi / Bidang Fokus</h3>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Pilih hingga 3 bidang spesialisasi</label>
                             
-                            <!-- Dropdown -->
                             <div class="relative mb-3">
                                 <select id="specialization-select" 
                                         class="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-300 appearance-none bg-white hover:border-green-400 text-sm sm:text-base mobile-profile-select">
@@ -839,7 +915,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             
                             <p class="text-gray-500 text-xs mb-3">Pilih dari daftar yang tersedia</p>
                             
-                            <!-- Selected Specializations Display -->
                             <div id="specializations-container" class="flex flex-wrap gap-2 mt-3 min-h-12 p-3 bg-green-50 border border-green-200 rounded-lg transition-colors duration-300 mobile-profile-spec-tags">
                                 <?php
                                 if (!empty($user['specializations'])) {
@@ -868,7 +943,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <input type="hidden" name="specializations" id="specializations-hidden" 
                                 value="<?php echo htmlspecialchars($user['specializations'] ?? ''); ?>">
                             
-                            <!-- Counter progress bar -->
                             <div class="mt-4 space-y-2">
                                 <div class="flex justify-between items-center">
                                     <p class="text-gray-600 text-sm font-medium">Progress Pemilihan</p>
@@ -885,7 +959,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                             </div>
                             
-                            <!-- Success message -->
                             <div id="specSuccessMessage" class="hidden mt-3 p-3 bg-green-100 border border-green-300 rounded-lg">
                                 <p class="text-green-700 text-sm flex items-center gap-2">
                                     <span class="iconify" data-icon="mdi:check-circle" data-width="14"></span>
@@ -893,9 +966,66 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </p>
                             </div>
                         </div>
-                    </div> 
+                    </div>
 
-                    <!-- Skills from Projects Section -->
+                    <div class="space-y-4">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Preferensi Lokasi Kerja</h3>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih satu atau lebih lokasi</label>
+                            
+                            <div class="relative">
+                                <button type="button" 
+                                        id="workLocationsDropdownButton"
+                                        class="w-full pl-3 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors duration-300 appearance-none bg-white hover:border-[#51A3B9] text-left text-sm sm:text-base mobile-profile-select flex justify-between items-center">
+                                    <span id="workLocationsPlaceholder">Pilih satu atau lebih lokasi</span>
+                                    <span class="iconify" data-icon="mdi:chevron-down" data-width="18"></span>
+                                </button>
+                                
+                                <div id="workLocationsDropdown" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    <div class="p-2 space-y-2">
+                                        <?php
+                                        $selectedWorkLocations = !empty($userWorkLocations) ? $userWorkLocations : [];
+                                        
+                                        foreach ($availableWorkLocations as $id => $name):
+                                        ?>
+                                            <label class="flex items-center space-x-3 p-2 hover:bg-gray-100 rounded cursor-pointer">
+                                                <input type="checkbox" 
+                                                       name="work_locations[]" 
+                                                       value="<?php echo htmlspecialchars($id); ?>"
+                                                       class="rounded border-gray-300 text-[#51A3B9] focus:ring-[#51A3B9]"
+                                                       <?php echo in_array($name, $selectedWorkLocations) ? 'checked' : ''; ?>>
+                                                <span class="text-sm text-gray-700"><?php echo htmlspecialchars($name); ?></span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="selectedWorkLocations" class="flex flex-wrap gap-2 mt-3 min-h-12 p-3 bg-purple-50 border border-purple-200 rounded-lg transition-colors duration-300 mobile-profile-spec-tags">
+                                <?php
+                                if (!empty($userWorkLocations)) {
+                                    foreach ($userWorkLocations as $workLocation) {
+                                        if (!empty($workLocation)) {
+                                            echo '<span class="work-location-tag bg-purple-500 text-white px-3 py-2 rounded-full text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-200">';
+                                            echo '<span class="iconify" data-icon="mdi:map-marker" data-width="14"></span>';
+                                            echo htmlspecialchars($workLocation);
+                                            echo '<button type="button" onclick="removeWorkLocation(this)" class="text-white hover:text-purple-200 transition-colors ml-1">';
+                                            echo '<span class="iconify" data-icon="mdi:close" data-width="12"></span>';
+                                            echo '</button>';
+                                            echo '</span>';
+                                        }
+                                    }
+                                } else {
+                                    echo '<p class="text-gray-500 text-sm flex items-center gap-2 justify-center sm:justify-start">';
+                                    echo '<span class="iconify" data-icon="mdi:information" data-width="14"></span>';
+                                    echo 'Belum ada lokasi kerja yang dipilih';
+                                    echo '</p>';
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="space-y-4">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Skills dari Project</h3>
                         <div>
@@ -915,17 +1045,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         switch($category) {
                                             case 'technical':
                                                 $icon = 'mdi:code-braces';
-                                                $color = 'text-green-600';
+                                                $color = 'text-blue-600';
                                                 $categoryName = 'Technical Skills';
                                                 break;
                                             case 'soft':
                                                 $icon = 'mdi:account-group';
-                                                $color = 'text-purple-600';
+                                                $color = 'text-green-600';
                                                 $categoryName = 'Soft Skills';
                                                 break;
                                             case 'tool':
                                                 $icon = 'mdi:tools';
-                                                $color = 'text-orange-600';
+                                                $color = 'text-purple-600';
                                                 $categoryName = 'Tools';
                                                 break;
                                             default:
@@ -943,9 +1073,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             <span class="skill-tag 
                                                 <?php 
                                                 switch($category) {
-                                                    case 'technical': echo 'bg-green-100 text-green-800 border-green-200'; break;
-                                                    case 'soft': echo 'bg-purple-100 text-purple-800 border-purple-200'; break;
-                                                    case 'tool': echo 'bg-orange-100 text-orange-800 border-orange-200'; break;
+                                                    case 'technical': echo 'bg-blue-100 text-blue-800 border-blue-200'; break; 
+                                                    case 'soft': echo 'bg-green-100 text-green-800 border-green-200'; break; 
+                                                    case 'tool': echo 'bg-purple-100 text-purple-800 border-purple-200'; break; 
                                                     default: echo 'bg-gray-100 text-gray-800 border-gray-200';
                                                 }
                                                 ?> 
@@ -973,7 +1103,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6 border-t border-gray-200 mobile-profile-buttons">
                         <button type="submit" class="bg-gradient-to-r from-[#51A3B9] to-[#2A8FA9] text-white px-6 sm:px-8 py-3 rounded-xl font-semibold hover:from-[#409BB2] hover:to-[#2A8FA9] transition-all duration-300 flex items-center justify-center gap-2 shadow-md mobile-profile-button" id="submitBtn">
                             <span class="iconify" data-icon="mdi:content-save" data-width="18"></span>
@@ -988,9 +1117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
 
-        <!-- Sidebar - Account Info -->
         <div class="lg:col-span-1 space-y-6 mobile-profile-sidebar">
-            <!-- Profile Summary -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mobile-profile-card">
                 <h3 class="text-lg font-bold text-[#2A8FA9] mb-4 flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:account-box" data-width="18"></span>
@@ -1057,7 +1184,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
 
-                    <!-- Specializations Summary -->
+                    <?php if (!empty($userWorkLocations)): ?>
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="iconify text-purple-600" data-icon="mdi:map-marker" data-width="14"></span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs sm:text-sm text-gray-600 mb-2">Lokasi Kerja</p>
+                            <div class="flex flex-wrap gap-1 justify-center sm:justify-start">
+                                <?php
+                                foreach ($userWorkLocations as $workLocation):
+                                    if (!empty($workLocation)):
+                                ?>
+                                    <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium my-0.5">
+                                        <?php echo htmlspecialchars($workLocation); ?>
+                                    </span>
+                                <?php
+                                    endif;
+                                endforeach;
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <?php if (!empty($user['specializations'])): ?>
                     <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                         <div class="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -1086,9 +1236,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
 
-            <!-- Danger Zone -->
-            <!-- Mobile Danger Zone (Only visible on mobile) -->
-            <div class="lg:hidden mt-8 pt-6 border-t-2 border-red-100 mobile-profile-danger-zone">
+            <!-- Zona Berbahaya untuk Desktop -->
+            <div class="hidden lg:block">
                 <div class="bg-red-50 rounded-2xl border border-red-200 p-6">
                     <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center gap-2">
                         <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
@@ -1097,7 +1246,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p class="text-red-600 text-sm mb-4">Tindakan ini tidak dapat dibatalkan</p>
                     
                     <div class="space-y-3">
-                        <!-- Logout Button -->
                         <button type="button" 
                                 onclick="confirmLogout()"
                                 class="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2">
@@ -1105,7 +1253,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             Logout
                         </button>
                         
-                        <!-- Delete Account Button -->
                         <button type="button" 
                                 onclick="confirmDelete()"
                                 class="w-full bg-red-100 text-red-700 py-3 px-4 rounded-lg font-semibold hover:bg-red-200 transition-colors duration-300 flex items-center justify-center gap-2">
@@ -1114,6 +1261,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Zona Berbahaya untuk Mobile -->
+        <div class="lg:hidden mt-8 pt-6 border-t-2 border-red-100 mobile-profile-danger-zone">
+            <div class="bg-red-50 rounded-2xl border border-red-200 p-6">
+                <h3 class="text-lg font-bold text-red-800 mb-3 flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:alert-circle" data-width="20"></span>
+                    Zona Berbahaya
+                </h3>
+                <p class="text-red-600 text-sm mb-4">Tindakan ini tidak dapat dibatalkan</p>
+                
+                <div class="space-y-3">
+                    <button type="button" 
+                            onclick="confirmLogout()"
+                            class="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2">
+                        <span class="iconify" data-icon="mdi:logout" data-width="18"></span>
+                        Logout
+                    </button>
+                    
+                    <button type="button" 
+                            onclick="confirmDelete()"
+                            class="w-full bg-red-100 text-red-700 py-3 px-4 rounded-lg font-semibold hover:bg-red-200 transition-colors duration-300 flex items-center justify-center gap-2">
+                        <span class="iconify" data-icon="mdi:delete-forever" data-width="18"></span>
+                        Hapus Akun Permanen
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1229,6 +1404,92 @@ function updateSpecCounter() {
     } else {
         progressBar.className = 'bg-green-600 h-2 rounded-full transition-all duration-500 ease-out';
     }
+}
+
+function initializeWorkLocationsDropdown() {
+    const dropdownButton = document.getElementById('workLocationsDropdownButton');
+    const dropdown = document.getElementById('workLocationsDropdown');
+    const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+    const placeholder = document.getElementById('workLocationsPlaceholder');
+    const selectedContainer = document.getElementById('selectedWorkLocations');
+
+    dropdownButton.addEventListener('click', function() {
+        dropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', function(event) {
+        if (!dropdownButton.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelectedWorkLocations();
+            updateWorkLocationsPlaceholder();
+        });
+    });
+
+    updateSelectedWorkLocations();
+}
+
+function updateSelectedWorkLocations() {
+    const selectedContainer = document.getElementById('selectedWorkLocations');
+    const checkboxes = document.querySelectorAll('input[name="work_locations[]"]:checked');
+    
+    const existingTags = selectedContainer.querySelectorAll('.work-location-tag');
+    existingTags.forEach(tag => tag.remove());
+    
+    const placeholder = selectedContainer.querySelector('p.text-gray-500');
+    if (placeholder) {
+        placeholder.remove();
+    }
+    
+    checkboxes.forEach(checkbox => {
+        const tag = document.createElement('span');
+        tag.className = 'work-location-tag bg-purple-500 text-white px-3 py-2 rounded-full text-sm flex items-center gap-2 shadow-sm hover:shadow-md transition-all duration-200';
+        tag.innerHTML = `
+            <span class="iconify" data-icon="mdi:map-marker" data-width="14"></span>
+            ${checkbox.parentElement.querySelector('span').textContent}
+            <button type="button" onclick="removeWorkLocation(this)" class="text-white hover:text-purple-200 transition-colors ml-1">
+                <span class="iconify" data-icon="mdi:close" data-width="12"></span>
+            </button>
+        `;
+        selectedContainer.appendChild(tag);
+    });
+    
+    if (checkboxes.length === 0) {
+        const placeholder = document.createElement('p');
+        placeholder.className = 'text-gray-500 text-sm flex items-center gap-2 justify-center sm:justify-start';
+        placeholder.innerHTML = '<span class="iconify" data-icon="mdi:information" data-width="14"></span>Belum ada lokasi kerja yang dipilih';
+        selectedContainer.appendChild(placeholder);
+    }
+}
+
+function updateWorkLocationsPlaceholder() {
+    const placeholder = document.getElementById('workLocationsPlaceholder');
+    const checkboxes = document.querySelectorAll('input[name="work_locations[]"]:checked');
+    
+    if (checkboxes.length === 0) {
+        placeholder.textContent = 'Pilih satu atau lebih lokasi';
+    } else {
+        placeholder.textContent = `${checkboxes.length} lokasi dipilih`;
+    }
+}
+
+function removeWorkLocation(button) {
+    const tag = button.parentElement;
+    const workLocationText = tag.textContent.replace('×', '').replace('map-marker', '').trim();
+    const checkboxes = document.querySelectorAll('input[name="work_locations[]"]');
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox.parentElement.querySelector('span').textContent === workLocationText) {
+            checkbox.checked = false;
+        }
+    });
+    
+    updateSelectedWorkLocations();
+    updateWorkLocationsPlaceholder();
 }
 
 function initializeCVDragDrop() {
@@ -1481,12 +1742,28 @@ function confirmDelete() {
             background: '#ffffff'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('deleteAccountForm').submit();
+                const deleteForm = document.createElement('form');
+                deleteForm.method = 'POST';
+                deleteForm.action = '';
+                deleteForm.innerHTML = `
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="delete_account" value="1">
+                `;
+                document.body.appendChild(deleteForm);
+                deleteForm.submit();
             }
         });
     } else {
         if (confirm('PERINGATAN: Hapus akun permanent?\n\nYakin ingin menghapus?')) {
-            document.getElementById('deleteAccountForm').submit();
+            const deleteForm = document.createElement('form');
+            deleteForm.method = 'POST';
+            deleteForm.action = '';
+            deleteForm.innerHTML = `
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <input type="hidden" name="delete_account" value="1">
+            `;
+            document.body.appendChild(deleteForm);
+            deleteForm.submit();
         }
     }
 }
@@ -1524,6 +1801,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initializeCVDragDrop();
     initializeProfilePictureDragDrop();
+    initializeWorkLocationsDropdown();
 });
 </script>
 
