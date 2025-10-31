@@ -75,15 +75,19 @@ try {
     exit();
 }
 
+$availability_status = $student['availability_status'] ?? 'inactive';
+
 $already_interested = false;
-try {
-    $check_interest_stmt = $conn->prepare("SELECT id FROM mitra_interest WHERE mitra_id = ? AND student_id = ?");
-    $check_interest_stmt->bind_param("ii", $_SESSION['user_id'], $student_id);
-    $check_interest_stmt->execute();
-    $check_interest_result = $check_interest_stmt->get_result();
-    $already_interested = $check_interest_result->num_rows > 0;
-    $check_interest_stmt->close();
-} catch (Exception $e) {}
+if ($availability_status === 'available') {
+    try {
+        $check_interest_stmt = $conn->prepare("SELECT id FROM mitra_interest WHERE mitra_id = ? AND student_id = ?");
+        $check_interest_stmt->bind_param("ii", $_SESSION['user_id'], $student_id);
+        $check_interest_stmt->execute();
+        $check_interest_result = $check_interest_stmt->get_result();
+        $already_interested = $check_interest_result->num_rows > 0;
+        $check_interest_stmt->close();
+    } catch (Exception $e) {}
+}
 
 $all_skills = [
     'technical' => [],
@@ -277,7 +281,6 @@ try {
                 </h1>
                 <p class="text-gray-600 mt-2 text-sm sm:text-base">Lihat detail lengkap talenta dan portofolio project mereka</p>
             </div>
-            <!-- Versi desktop (full text) -->
             <a href="index.php" class="hidden sm:flex bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 items-center gap-2">
                 <span class="iconify" data-icon="mdi:arrow-left" data-width="16"></span>
                 Kembali ke Dashboard
@@ -295,7 +298,7 @@ try {
         </div>
     <?php endif; ?>
 
-    <!-- Mobile: Profile Info Section (First) -->
+    <!-- Mobile: Profile Info Section  -->
     <div class="lg:hidden mb-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
             <!-- Profile Photo & Basic Info -->
@@ -366,16 +369,23 @@ try {
                 <?php endif; ?>
 
                 <!-- Interest Button Mobile -->
-                <?php if (!$already_interested): ?>
-                    <button onclick="openInterestModal()" 
-                            class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 sm:py-3 px-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-amber-400 border-opacity-30 text-sm sm:text-base">
-                        <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
-                        Rekrut Kandidat
-                    </button>
+                <?php if ($availability_status === 'available'): ?>
+                    <?php if (!$already_interested): ?>
+                        <button onclick="openInterestModal()" 
+                                class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 sm:py-3 px-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-amber-400 border-opacity-30 text-sm sm:text-base">
+                            <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
+                            Rekrut Kandidat
+                        </button>
+                    <?php else: ?>
+                        <div class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white py-2 sm:py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-amber-300 border-opacity-30 text-sm sm:text-base">
+                            <span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>
+                            Menunggu Review
+                        </div>
+                    <?php endif; ?>
                 <?php else: ?>
-                    <div class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white py-2 sm:py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-amber-300 border-opacity-30 text-sm sm:text-base">
-                        <span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>
-                        Dalam Proses
+                    <div class="w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white py-2 sm:py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-gray-300 border-opacity-30 text-sm sm:text-base">
+                        <span class="iconify" data-icon="mdi:clock-alert" data-width="16"></span>
+                        <?php echo getAvailabilityText($availability_status); ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -454,55 +464,25 @@ try {
                     <?php endif; ?>
 
                     <!-- Interest Button -->
-                    <?php if (!$already_interested): ?>
-                        <button onclick="openInterestModal()" 
-                                class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 px-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-amber-400 border-opacity-30">
-                            <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
-                            Rekrut Kandidat
-                        </button>
+                    <?php if ($availability_status === 'available'): ?>
+                        <?php if (!$already_interested): ?>
+                            <button onclick="openInterestModal()" 
+                                    class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 px-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-amber-400 border-opacity-30">
+                                <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
+                                Rekrut Kandidat
+                            </button>
+                        <?php else: ?>
+                            <div class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-amber-300 border-opacity-30">
+                                <span class="iconify" data-icon="mdi:check-circle" data-width="18"></span>
+                                Menunggu Review
+                            </div>
+                        <?php endif; ?>
                     <?php else: ?>
-                        <div class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-amber-300 border-opacity-30">
-                            <span class="iconify" data-icon="mdi:check-circle" data-width="18"></span>
-                            Dalam Proses
+                        <div class="w-full bg-gradient-to-r from-gray-400 to-gray-500 text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-gray-300 border-opacity-30">
+                            <span class="iconify" data-icon="mdi:clock-alert" data-width="18"></span>
+                            <?php echo getAvailabilityText($availability_status); ?>
                         </div>
                     <?php endif; ?>
-                </div>
-
-                <!-- Contact Info -->
-                <div class="border-t border-gray-200 pt-6">
-                    <h3 class="text-lg font-semibold text-[#2A8FA9] mb-4 flex items-center gap-2">
-                        <span class="iconify" data-icon="mdi:contact-mail" data-width="20"></span>
-                        Kontak
-                    </h3>
-                    
-                    <div class="space-y-3">
-                        <!-- Email -->
-                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:email" data-width="18"></span>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm text-gray-600">Email</p>
-                                <a href="mailto:<?php echo htmlspecialchars($student['email']); ?>" 
-                                    class="text-[#2A8FA9] hover:text-[#409BB2] font-medium text-sm truncate block">
-                                    <?php echo htmlspecialchars($student['email']); ?>
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <!-- Phone -->
-                        <?php if (!empty($student['phone'])): ?>
-                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <div class="w-10 h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
-                                <span class="iconify text-[#2A8FA9]" data-icon="mdi:school" data-width="18"></span>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm text-gray-600">Nomor Telepon</p>
-                                <p class="text-gray-900 font-medium text-sm"><?php echo htmlspecialchars($student['phone']); ?></p>
-                            </div>
-                        </div>
-                        <?php endif; ?>
-                    </div>
                 </div>
 
                 <!-- Work Preferences -->
@@ -624,6 +604,7 @@ try {
                 <?php endif; ?>
             </div>
 
+            <!-- Portfolio Projects Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
                 <div class="flex justify-between items-center mb-4 sm:mb-6">
                     <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
@@ -777,7 +758,7 @@ try {
                                                                 <?php foreach ($all_project_images as $index => $image): ?>
                                                                     <img src="<?php echo htmlspecialchars($image); ?>" 
                                                                         alt="Thumbnail <?php echo $index + 1; ?>" 
-                                                                        class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded border-2 cursor-pointer transition-all <?php echo $index === 0 ? 'border-cyan-500' : 'border-gray-300'; ?>"
+                                                                        class="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded border-2 cursor-pointer transition-all <?php echo $index === 0 ? 'border-[#2A8FA9]' : 'border-gray-300'; ?>"
                                                                         onclick="changeMainImage(<?php echo $project['id']; ?>, '<?php echo htmlspecialchars($image); ?>', <?php echo $index; ?>)"
                                                                         data-project-id="<?php echo $project['id']; ?>"
                                                                         data-image-index="<?php echo $index; ?>">
@@ -1016,43 +997,6 @@ try {
     <!-- Mobile: Contact & Skills Section  -->
     <div class="lg:hidden mt-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
-            <!-- Contact Info -->
-            <div class="border-b border-gray-200 pb-4 sm:pb-6">
-                <h3 class="text-base sm:text-lg font-semibold text-[#2A8FA9] mb-3 sm:mb-4 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:contact-mail" data-width="18"></span>
-                    Kontak
-                </h3>
-                
-                <div class="space-y-2 sm:space-y-3">
-                    <!-- Email -->
-                    <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
-                            <span class="iconify text-[#2A8FA9]" data-icon="mdi:email" data-width="14"></span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-xs sm:text-sm text-gray-600">Email</p>
-                            <a href="mailto:<?php echo htmlspecialchars($student['email']); ?>" 
-                                class="text-[#2A8FA9] hover:text-[#409BB2] font-medium text-xs sm:text-sm truncate block">
-                                <?php echo htmlspecialchars($student['email']); ?>
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Phone -->
-                    <?php if (!empty($student['phone'])): ?>
-                    <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
-                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#E0F7FF] rounded-full flex items-center justify-center flex-shrink-0">
-                            <span class="iconify text-[#2A8FA9]" data-icon="mdi:school" data-width="14"></span>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-xs sm:text-sm text-gray-600">Nomor Telepon</p>
-                            <p class="text-gray-900 font-medium text-xs sm:text-sm"><?php echo htmlspecialchars($student['phone']); ?></p>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
             <!-- Work Preferences  -->
             <?php if (!empty($work_preferences)): ?>
             <div class="border-t border-gray-200 pt-4 sm:pt-6 mt-4">
@@ -1147,6 +1091,8 @@ try {
     </div>
 </div>
 
+<!-- Interest Modal (Hanya muncul jika status available dan belum ada interest) -->
+<?php if ($availability_status === 'available' && !$already_interested): ?>
 <div id="interestModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
     <div class="bg-white rounded-2xl max-w-2xl w-full p-6">
         <div class="flex justify-between items-center mb-4">
@@ -1267,6 +1213,7 @@ try {
         </form>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- Image Modal -->
 <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">

@@ -21,6 +21,7 @@ try {
                s.university as student_university,
                s.semester as student_semester,
                s.specializations as student_specializations,
+               s.availability_status as student_availability,
                mi.created_at as interest_date,
                mi.updated_at as status_updated
         FROM mitra_interest mi
@@ -43,34 +44,49 @@ try {
 $total_interests = count($interests);
 $pending_count = 0;
 $contacted_count = 0;
+$other_process_count = 0;
 
 foreach ($interests as $interest) {
-    if ($interest['status'] === 'pending') {
-        $pending_count++;
-    } elseif ($interest['status'] === 'contacted') {
+    if ($interest['status'] === 'contacted') {
         $contacted_count++;
+    } elseif ($interest['status'] === 'pending') {
+        if ($interest['student_availability'] === 'available') {
+            $pending_count++;
+        } else {
+            $other_process_count++;
+        }
     }
 }
 
-function getStatusBadgeClass($status) {
+function getDisplayStatus($interest_status, $student_availability) {
+    if ($interest_status === 'contacted') {
+        return [
+            'text' => 'Telah Ditindaklanjuti',
+            'class' => 'bg-green-100 text-green-800 border border-green-200',
+            'icon' => 'mdi:phone-check'
+        ];
+    } elseif ($interest_status === 'pending') {
+        if ($student_availability === 'available') {
+            return [
+                'text' => 'Menunggu Review CDC',
+                'class' => 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+                'icon' => 'mdi:clock-outline'
+            ];
+        } else {
+            return [
+                'text' => 'Kandidat Dalam Proses Lain',
+                'class' => 'bg-gray-100 text-gray-800 border border-gray-200',
+                'icon' => 'mdi:account-clock'
+            ];
+        }
+    }
+    
+    // Default fallback
     return [
-        'pending' => 'bg-yellow-100 text-yellow-800 border border-yellow-200',
-        'contacted' => 'bg-green-100 text-green-800 border border-green-200'
-    ][$status] ?? 'bg-gray-100 text-gray-800 border border-gray-200';
-}
-
-function getStatusText($status) {
-    return [
-        'pending' => 'Sedang Diproses',
-        'contacted' => 'Sudah Dihubungi'
-    ][$status] ?? 'Unknown';
-}
-
-function getStatusIcon($status) {
-    return [
-        'pending' => 'mdi:clock-outline',
-        'contacted' => 'mdi:phone-check'
-    ][$status] ?? 'mdi:help-circle';
+        'text' => 'Unknown',
+        'class' => 'bg-gray-100 text-gray-800 border border-gray-200',
+        'icon' => 'mdi:help-circle'
+    ];
 }
 ?>
 
@@ -95,7 +111,7 @@ function getStatusIcon($status) {
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <!-- Total Kandidat -->
         <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-200">
             <div class="text-[#2A8FA9] mb-3 flex justify-center">
@@ -111,7 +127,7 @@ function getStatusIcon($status) {
                 <span class="iconify" data-icon="mdi:clock" data-width="48"></span>
             </div>
             <h3 class="text-yellow-600 font-bold text-2xl mb-2"><?php echo $pending_count; ?></h3>
-            <p class="text-gray-600 font-medium">Sedang Diproses</p>
+            <p class="text-gray-600 font-medium">Menunggu Review CDC</p>
         </div>
 
         <!-- Sedang Diproses -->
@@ -120,7 +136,16 @@ function getStatusIcon($status) {
                 <span class="iconify" data-icon="mdi:phone-check" data-width="48"></span>
             </div>
             <h3 class="text-green-600 font-bold text-2xl mb-2"><?php echo $contacted_count; ?></h3>
-            <p class="text-gray-600 font-medium">Sudah Dihubungi</p>
+            <p class="text-gray-600 font-medium">Telah Ditindaklanjuti</p>
+        </div>
+
+        <!-- Dalam Proses Lain -->
+        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-200">
+            <div class="text-gray-500 mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:account-clock" data-width="48"></span>
+            </div>
+            <h3 class="text-gray-600 font-bold text-2xl mb-2"><?php echo $other_process_count; ?></h3>
+            <p class="text-gray-600 font-medium">Dalam Proses Lain</p>
         </div>
     </div>
 
@@ -128,7 +153,9 @@ function getStatusIcon($status) {
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <?php if (!empty($interests)): ?>
             <div class="divide-y divide-gray-200">
-                <?php foreach ($interests as $interest): ?>
+                <?php foreach ($interests as $interest): 
+                    $display_status = getDisplayStatus($interest['status'], $interest['student_availability']);
+                ?>
                     <div class="p-6 hover:bg-gray-50 transition-colors">
                         <div class="flex flex-col lg:flex-row gap-6">
                             <!-- Student Info -->
@@ -177,9 +204,9 @@ function getStatusIcon($status) {
 
                                         <!-- Status Badge -->
                                         <div class="flex sm:flex-col items-start sm:items-end gap-2">
-                                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium <?php echo getStatusBadgeClass($interest['status']); ?>">
-                                                <span class="iconify" data-icon="<?php echo getStatusIcon($interest['status']); ?>" data-width="14"></span>
-                                                <?php echo getStatusText($interest['status']); ?>
+                                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium <?php echo $display_status['class']; ?>">
+                                                <span class="iconify" data-icon="<?php echo $display_status['icon']; ?>" data-width="14"></span>
+                                                <?php echo $display_status['text']; ?>
                                             </span>
                                         </div>
                                     </div>
@@ -243,15 +270,20 @@ function getStatusIcon($status) {
                                     Lihat Profil
                                 </a>
                                 
-                                <?php if ($interest['status'] === 'pending'): ?>
+                                <?php if ($display_status['text'] === 'Menunggu Review CDC'): ?>
                                     <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-sm cursor-not-allowed" disabled>
                                         <span class="iconify" data-icon="mdi:clock" data-width="14"></span>
                                         Menunggu CDC
                                     </button>
-                                <?php else: ?>
+                                <?php elseif ($display_status['text'] === 'Telah Ditindaklanjuti'): ?>
                                     <button class="bg-green-100 text-green-700 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-sm cursor-not-allowed" disabled>
                                         <span class="iconify" data-icon="mdi:phone" data-width="14"></span>
                                         CDC Telah Menghubungi
+                                    </button>
+                                <?php else: ?>
+                                    <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 text-sm cursor-not-allowed" disabled>
+                                        <span class="iconify" data-icon="mdi:account-clock" data-width="14"></span>
+                                        Kandidat Sedang Diproses
                                     </button>
                                 <?php endif; ?>
                             </div>

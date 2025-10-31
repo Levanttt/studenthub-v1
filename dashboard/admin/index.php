@@ -366,21 +366,21 @@ function renderStatCard($icon, $count, $label, $color) {
 
 function renderActionCard($link, $icon, $title, $description, $color, $bgColor) {
     $colorClasses = [
-        'blue' => 'text-blue-600 border-blue-200 hover:border-blue-500 bg-blue-50 hover:bg-blue-100',
-        'orange' => 'text-orange-600 border-orange-200 hover:border-orange-500 bg-orange-50 hover:bg-orange-100',
-        'indigo' => 'text-indigo-600 border-indigo-200 hover:border-indigo-500 bg-indigo-50 hover:bg-indigo-100',
-        'green' => 'text-green-600 border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-100'
+        'blue' => 'text-[#2A8FA9] border-[#E0F7FF] hover:border-[#51A3B9] bg-[#E0F7FF] hover:bg-[#F0FAFD]',
+        'orange' => 'text-[#2A8FA9] border-[#E0F7FF] hover:border-[#51A3B9] bg-[#E0F7FF] hover:bg-[#F0FAFD]',
+        'indigo' => 'text-[#2A8FA9] border-[#E0F7FF] hover:border-[#51A3B9] bg-[#E0F7FF] hover:bg-[#F0FAFD]',
+        'green' => 'text-[#2A8FA9] border-[#E0F7FF] hover:border-[#51A3B9] bg-[#E0F7FF] hover:bg-[#F0FAFD]'
     ];
     
     $class = $colorClasses[$bgColor] ?? $colorClasses['blue'];
     ?>
-    <a href="<?php echo $link; ?>" class="group bg-white border-2 border-gray-200 hover:border-<?php echo $color; ?> rounded-xl p-5 transition-all duration-200 hover:shadow-md">
+    <a href="<?php echo $link; ?>" class="group bg-white border-2 border-[#E0F7FF] hover:border-[#51A3B9] rounded-xl p-5 transition-all duration-200 transform hover:scale-[1.02]">
         <div class="flex items-start gap-4">
             <div class="<?php echo $class; ?> p-3 rounded-lg transition-colors">
                 <span class="iconify" data-icon="<?php echo $icon; ?>" data-width="24"></span>
             </div>
             <div>
-                <h3 class="font-bold text-gray-900 mb-1 group-hover:text-<?php echo $color; ?> transition-colors"><?php echo $title; ?></h3>
+                <h3 class="font-bold text-[#2A8FA9] mb-1 transition-colors"><?php echo $title; ?></h3>
                 <p class="text-sm text-gray-600"><?php echo $description; ?></p>
             </div>
         </div>

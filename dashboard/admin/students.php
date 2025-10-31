@@ -287,21 +287,21 @@ if ($stats_result) {
         </h2>
         
         <form method="GET" action="" class="space-y-4 sm:space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
-                <div>
-                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Cari Mahasiswa</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <span class="iconify" data-icon="mdi:magnify" data-width="18"></span>
-                        </span>
-                        <input type="text" 
-                            name="search" 
-                            value="<?php echo htmlspecialchars($search); ?>" 
-                            class="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm" 
-                            placeholder="Nama, NIM, atau Email...">
-                    </div>
+            <div class="mb-4 sm:mb-6">
+                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Cari Mahasiswa</label>
+                <div class="relative max-w-7xl">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <span class="iconify" data-icon="mdi:magnify" data-width="18"></span>
+                    </span>
+                    <input type="text" 
+                        name="search" 
+                        value="<?php echo htmlspecialchars($search); ?>" 
+                        class="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm" 
+                        placeholder="Cari berdasarkan Nama, NIM, atau Email...">
                 </div>
+            </div>
 
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <div>
                     <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Program Studi</label>
                     <div class="relative">
@@ -819,11 +819,10 @@ function updateAvailabilityStatus(userId, newStatus, selectElement) {
     selectElement.style.opacity = '0.6';
     
     const formData = new URLSearchParams();
-    formData.append('action', 'update_availability');
-    formData.append('user_id', userId);
+    formData.append('student_id', userId);
     formData.append('availability_status', newStatus);
     
-    fetch('', {
+    fetch('update-student-availability.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -839,6 +838,9 @@ function updateAvailabilityStatus(userId, newStatus, selectElement) {
     .then(data => {
         if (data.success) {
             console.log('✅ Status availability updated successfully');
+            if (data.reset_performed) {
+                console.log('🔄 Riwayat interest direset');
+            }
             
             Array.from(selectElement.options).forEach(option => {
                 option.selected = (option.value === newStatus);
