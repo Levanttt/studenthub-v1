@@ -18,7 +18,7 @@ $student = [];
 try {
     $student_query = "
         SELECT id, name, email, profile_picture, phone, major, bio, specializations, 
-                cv_file_path, linkedin, created_at, semester, nim
+                cv_file_path, linkedin, created_at, semester, nim, availability_status
         FROM users 
         WHERE id = ? AND role = 'student'
     ";
@@ -451,10 +451,18 @@ usort($certificates, function($a, $b) {
         <div class="lg:col-span-3 order-2 lg:order-2">
             <!-- Bio Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 sm:mb-8">
-                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-3 sm:mb-4 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:account-circle" data-width="22" data-height="22" class="sm:w-6 sm:h-6"></span>
-                    Tentang Mahasiswa
-                </h2>
+                <div class="flex items-center gap-3 mb-3 sm:mb-4">
+                    <div class="flex items-center gap-2 flex-1">
+                        <span class="iconify" data-icon="mdi:account-circle" data-width="22" data-height="22" class="sm:w-6 sm:h-6"></span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9]">Tentang Mahasiswa</h2>
+                    </div>
+                    
+                    <!-- Status Availability Badge -->
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold <?php echo getAvailabilityBadgeColor($student['availability_status']); ?>">
+                        <span class="iconify" data-icon="<?php echo getAvailabilityIcon($student['availability_status']); ?>" data-width="14"></span>
+                        <?php echo getAvailabilityText($student['availability_status']); ?>
+                    </div>
+                </div>
                 
                 <?php if (!empty($student['bio'])): ?>
                     <div class="prose max-w-none text-gray-700 leading-relaxed text-sm sm:text-base">

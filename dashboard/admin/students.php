@@ -11,6 +11,7 @@ $search = $_GET['search'] ?? '';
 $major = $_GET['major'] ?? '';
 $semester = $_GET['semester'] ?? '';
 $eligibility_filter = $_GET['eligibility_status'] ?? '';
+$availability_filter = $_GET['availability_status'] ?? '';
 
 $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $students_per_page = 10;
@@ -27,14 +28,8 @@ if ($major_result) {
     $daftar_major = $major_result->fetch_all(MYSQLI_ASSOC);
 }
 
-$query = "SELECT id, nim, name, email, major, semester, eligibility_status, created_at FROM users WHERE role = 'student'";
+$query = "SELECT id, nim, name, email, major, semester, eligibility_status, availability_status, created_at FROM users WHERE role = 'student'";
 $count_query = "SELECT COUNT(*) as total FROM users WHERE role = 'student'";
-
-$major_query = "SELECT DISTINCT major FROM users WHERE major IS NOT NULL AND major != '' ORDER BY major";
-$major_result = $conn->query($major_query);
-if ($major_result) {
-    $daftar_major = $major_result->fetch_all(MYSQLI_ASSOC);
-}
 
 $params = [];
 $types = "";
@@ -62,6 +57,12 @@ if (!empty($semester)) {
 if (!empty($eligibility_filter)) {
     $where_conditions[] = "eligibility_status = ?";
     $params[] = $eligibility_filter;
+    $types .= "s";
+}
+
+if (!empty($availability_filter)) {
+    $where_conditions[] = "availability_status = ?";
+    $params[] = $availability_filter;
     $types .= "s";
 }
 
@@ -103,44 +104,83 @@ if ($stmt) {
     $stmt->close();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_eligibility') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     
     try {
-        if (!isset($_POST['user_id']) || !isset($_POST['eligibility_status'])) {
-            throw new Exception('Data tidak lengkap');
+        if (!isset($_POST['action'])) {
+            throw new Exception('Aksi tidak valid');
         }
         
-        $user_id = intval($_POST['user_id']);
-        $eligibility_status = $_POST['eligibility_status'];
-        
-        $allowed_statuses = ['pending', 'eligible', 'not_eligible'];
-        if (!in_array($eligibility_status, $allowed_statuses)) {
-            throw new Exception('Status tidak valid');
+        if ($_POST['action'] === 'update_eligibility') {
+            if (!isset($_POST['user_id']) || !isset($_POST['eligibility_status'])) {
+                throw new Exception('Data tidak lengkap');
+            }
+            
+            $user_id = intval($_POST['user_id']);
+            $eligibility_status = $_POST['eligibility_status'];
+            
+            $allowed_statuses = ['pending', 'eligible', 'not_eligible'];
+            if (!in_array($eligibility_status, $allowed_statuses)) {
+                throw new Exception('Status tidak valid');
+            }
+            
+            $update_stmt = $conn->prepare("UPDATE users SET eligibility_status = ? WHERE id = ?");
+            if (!$update_stmt) {
+                throw new Exception('Prepare statement failed: ' . $conn->error);
+            }
+            
+            $update_stmt->bind_param('si', $eligibility_status, $user_id);
+            
+            if ($update_stmt->execute()) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Status berhasil diupdate',
+                    'user_id' => $user_id,
+                    'new_status' => $eligibility_status
+                ]);
+            } else {
+                throw new Exception('Execute failed: ' . $update_stmt->error);
+            }
+            
+            $update_stmt->close();
         }
-        
-        $update_stmt = $conn->prepare("UPDATE users SET eligibility_status = ? WHERE id = ?");
-        if (!$update_stmt) {
-            throw new Exception('Prepare statement failed: ' . $conn->error);
+        elseif ($_POST['action'] === 'update_availability') {
+            if (!isset($_POST['user_id']) || !isset($_POST['availability_status'])) {
+                throw new Exception('Data tidak lengkap');
+            }
+            
+            $user_id = intval($_POST['user_id']);
+            $availability_status = $_POST['availability_status'];
+            
+            $allowed_statuses = ['available', 'interview', 'accepted', 'inactive'];
+            if (!in_array($availability_status, $allowed_statuses)) {
+                throw new Exception('Status tidak valid');
+            }
+            
+            $update_stmt = $conn->prepare("UPDATE users SET availability_status = ? WHERE id = ?");
+            if (!$update_stmt) {
+                throw new Exception('Prepare statement failed: ' . $conn->error);
+            }
+            
+            $update_stmt->bind_param('si', $availability_status, $user_id);
+            
+            if ($update_stmt->execute()) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Status ketersediaan berhasil diupdate',
+                    'user_id' => $user_id,
+                    'new_status' => $availability_status
+                ]);
+            } else {
+                throw new Exception('Execute failed: ' . $update_stmt->error);
+            }
+            
+            $update_stmt->close();
         }
-        
-        $update_stmt->bind_param('si', $eligibility_status, $user_id);
-        
-        if ($update_stmt->execute()) {
-            echo json_encode([
-                'success' => true, 
-                'message' => 'Status berhasil diupdate',
-                'user_id' => $user_id,
-                'new_status' => $eligibility_status
-            ]);
-        } else {
-            throw new Exception('Execute failed: ' . $update_stmt->error);
-        }
-        
-        $update_stmt->close();
         
     } catch (Exception $e) {
-        error_log("Update eligibility error: " . $e->getMessage());
+        error_log("Update status error: " . $e->getMessage());
         echo json_encode([
             'success' => false, 
             'message' => 'Gagal mengupdate status: ' . $e->getMessage()
@@ -155,7 +195,11 @@ $stats_query = "
         COUNT(*) as total_students,
         SUM(eligibility_status = 'eligible') as eligible_students,
         SUM(eligibility_status = 'not_eligible') as not_eligible_students,
-        SUM(eligibility_status = 'pending' OR eligibility_status IS NULL OR eligibility_status = '') as pending_students
+        SUM(eligibility_status = 'pending' OR eligibility_status IS NULL OR eligibility_status = '') as pending_students,
+        SUM(availability_status = 'available') as available_students,
+        SUM(availability_status = 'interview') as interview_students,
+        SUM(availability_status = 'accepted') as accepted_students,
+        SUM(availability_status = 'inactive' OR availability_status IS NULL OR availability_status = '') as inactive_students
     FROM users 
     WHERE role = 'student'
 ";
@@ -168,14 +212,13 @@ if ($stats_result) {
 <?php include '../../includes/header.php'; ?>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero Section -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <div>
             <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
                 <span class="iconify" data-icon="mdi:shield-account" data-width="32"></span>
                 Kelola Status Mahasiswa
             </h1>
-            <p class="text-gray-600 mt-2">Atur status eligibility dan pantau data mahasiswa</p>
+            <p class="text-gray-600 mt-2">Atur status eligibility dan ketersediaan mahasiswa</p>
         </div>
         <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
             <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
@@ -183,14 +226,13 @@ if ($stats_result) {
         </a>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-8">
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8 mt-8">
         <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
             <div class="text-[#51A3B9] mb-3 flex justify-center">
                 <span class="iconify" data-icon="mdi:account-multiple" data-width="48"></span>
             </div>
             <h3 class="text-[#2A8FA9] font-bold text-2xl mb-2"><?php echo $stats['total_students'] ?? 0; ?></h3>
-            <p class="text-gray-600 font-medium">Total Mahasiswa</p>
+            <p class="text-gray-600 font-medium">Total</p>
         </div>
         
         <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
@@ -210,15 +252,30 @@ if ($stats_result) {
         </div>
         
         <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+            <div class="text-green-500 mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:account-check" data-width="48"></span>
+            </div>
+            <h3 class="text-green-600 font-bold text-2xl mb-2"><?php echo $stats['available_students'] ?? 0; ?></h3>
+            <p class="text-gray-600 font-medium">Tersedia</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
             <div class="text-yellow-500 mb-3 flex justify-center">
                 <span class="iconify" data-icon="mdi:clock" data-width="48"></span>
             </div>
             <h3 class="text-yellow-600 font-bold text-2xl mb-2"><?php echo $stats['pending_students'] ?? 0; ?></h3>
             <p class="text-gray-600 font-medium">Pending</p>
         </div>
+        
+        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+            <div class="text-blue-500 mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:account-clock" data-width="48"></span>
+            </div>
+            <h3 class="text-blue-600 font-bold text-2xl mb-2"><?php echo $stats['interview_students'] ?? 0; ?></h3>
+            <p class="text-gray-600 font-medium">Interview</p>
+        </div>
     </div>
 
-    <!-- Search & Filter Section -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
         <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
             <span class="iconify" data-icon="mdi:filter" data-width="28"></span>
@@ -226,8 +283,7 @@ if ($stats_result) {
         </h2>
         
         <form method="GET" action="" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Search Input -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Cari Mahasiswa</label>
                     <div class="relative">
@@ -242,7 +298,6 @@ if ($stats_result) {
                     </div>
                 </div>
 
-                <!-- Major Filter -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Program Studi</label>
                     <div class="relative">
@@ -264,7 +319,6 @@ if ($stats_result) {
                     </div>
                 </div>
 
-                <!-- Semester Filter -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Semester</label>
                     <div class="relative">
@@ -285,7 +339,6 @@ if ($stats_result) {
                     </div>
                 </div>
 
-                <!-- Eligibility Status Filter -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Status Eligibility</label>
                     <div class="relative">
@@ -303,9 +356,27 @@ if ($stats_result) {
                         </span>
                     </div>
                 </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Ketersediaan</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <span class="iconify" data-icon="mdi:account-search" data-width="18"></span>
+                        </span>
+                        <select name="availability_status" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                            <option value="">Semua Status</option>
+                            <option value="available" <?php echo $availability_filter == 'available' ? 'selected' : ''; ?>>Available</option>
+                            <option value="interview" <?php echo $availability_filter == 'interview' ? 'selected' : ''; ?>>Interview</option>
+                            <option value="accepted" <?php echo $availability_filter == 'accepted' ? 'selected' : ''; ?>>Accepted</option>
+                            <option value="inactive" <?php echo $availability_filter == 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex justify-end space-x-4 pt-4">
                 <button type="submit" class="bg-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 shadow-sm flex items-center gap-2">
                     <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
@@ -319,7 +390,6 @@ if ($stats_result) {
         </form>
     </div>
 
-    <!-- Results Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
         <div class="p-6 border-b border-gray-200">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -334,26 +404,25 @@ if ($stats_result) {
             </div>
         </div>
 
-        <!-- Table -->
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-20">No</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">No</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIM</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Program Studi</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Semester</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">Profil</th>
-                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-44">Status</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Semester</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Lihat Profil</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Eligibility</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Availability</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php if (count($students) > 0): ?>
                         <?php foreach ($students as $index => $student): ?>
                             <tr class="hover:bg-gray-50 transition-colors duration-200" data-student-id="<?php echo $student['id']; ?>">
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-left pl-5">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
                                     <?php echo $offset + $index + 1; ?>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -363,19 +432,15 @@ if ($stats_result) {
                                     <?php echo htmlspecialchars($student['name']); ?>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                                    <?php echo htmlspecialchars($student['email']); ?>
-                                </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
                                     <?php echo htmlspecialchars($student['major'] ?? '-'); ?>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-center">
                                     <?php echo htmlspecialchars($student['semester'] ?? '-'); ?>
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
+                                <td class="px-4 py-3 whitespace-nowrap text-center">
                                     <a href="student-profile.php?id=<?php echo $student['id']; ?>" 
-                                            class="bg-[#E0F7FF] text-[#2A8FA9] px-4 py-2 rounded-lg text-xs font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2 w-full justify-center">
-                                        <span class="iconify" data-icon="mdi:eye" data-width="14"></span>
-                                        Lihat Profil
+                                            class="inline-flex items-center justify-center bg-[#E0F7FF] text-[#2A8FA9] p-2 rounded-lg text-xs font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30">
+                                        <span class="iconify" data-icon="mdi:eye" data-width="16"></span>
                                     </a>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">
@@ -385,20 +450,45 @@ if ($stats_result) {
                                     ?>
                                     
                                     <div class="relative" id="status-container-<?php echo $student['id']; ?>">
-                                        <!-- Icon indicator -->
                                         <span class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none z-10 status-icon">
                                             <span class="iconify <?php echo $statusConfig['iconColor']; ?>" 
                                                 data-icon="<?php echo $statusConfig['icon']; ?>" 
                                                 data-width="14"></span>
                                         </span>
                                         
-                                        <!-- Native Select -->
                                         <select onchange="updateEligibilityStatus(<?php echo $student['id']; ?>, this.value, this)" 
-                                                class="status-select bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-8 pr-8 py-2 rounded-lg text-xs font-semibold w-full appearance-none cursor-pointer transition-colors duration-300 flex items-center gap-2"
+                                                class="status-select bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-8 pr-8 py-2 rounded-lg text-xs font-semibold w-full appearance-none cursor-pointer transition-colors duration-300"
                                                 data-current-status="<?php echo $current_status; ?>">
                                             <option value="pending" <?php echo $current_status == 'pending' ? 'selected' : ''; ?>>PENDING</option>
                                             <option value="eligible" <?php echo $current_status == 'eligible' ? 'selected' : ''; ?>>ELIGIBLE</option>
                                             <option value="not_eligible" <?php echo $current_status == 'not_eligible' ? 'selected' : ''; ?>>NOT ELIGIBLE</option>
+                                        </select>
+                                        
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                                            <span class="iconify text-[#2A8FA9]" data-icon="mdi:chevron-down" data-width="14"></span>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <?php
+                                    $current_availability = $student['availability_status'] ?? 'inactive';
+                                    $availabilityConfig = getAvailabilityBadge($current_availability);
+                                    ?>
+                                    
+                                    <div class="relative" id="availability-container-<?php echo $student['id']; ?>">
+                                        <span class="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none z-10 availability-icon">
+                                            <span class="iconify <?php echo $availabilityConfig['iconColor']; ?>" 
+                                                data-icon="<?php echo $availabilityConfig['icon']; ?>" 
+                                                data-width="14"></span>
+                                        </span>
+                                        
+                                        <select onchange="updateAvailabilityStatus(<?php echo $student['id']; ?>, this.value, this)" 
+                                                class="availability-select bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-8 pr-8 py-2 rounded-lg text-xs font-semibold w-full appearance-none cursor-pointer transition-colors duration-300"
+                                                data-current-status="<?php echo $current_availability; ?>">
+                                            <option value="available" <?php echo $current_availability == 'available' ? 'selected' : ''; ?>>AVAILABLE</option>
+                                            <option value="interview" <?php echo $current_availability == 'interview' ? 'selected' : ''; ?>>INTERVIEW</option>
+                                            <option value="accepted" <?php echo $current_availability == 'accepted' ? 'selected' : ''; ?>>ACCEPTED</option>
+                                            <option value="inactive" <?php echo $current_availability == 'inactive' ? 'selected' : ''; ?>>INACTIVE</option>
                                         </select>
                                         
                                         <span class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -423,7 +513,6 @@ if ($stats_result) {
             </table>
         </div>
 
-        <!-- Pagination -->
         <?php if ($total_pages > 1): ?>
         <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
             <div class="flex justify-between items-center">
@@ -432,7 +521,6 @@ if ($stats_result) {
                     <span class="font-medium"><?php echo $total_pages; ?></span>
                 </p>
                 <div class="flex items-center space-x-1">
-                    <!-- First Page -->
                     <?php if ($current_page > 1): ?>
                         <a href="?page=1&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
                             class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
@@ -440,7 +528,6 @@ if ($stats_result) {
                         </a>
                     <?php endif; ?>
 
-                    <!-- Previous Page -->
                     <?php if ($current_page > 1): ?>
                         <a href="?page=<?php echo $current_page - 1; ?>&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
                             class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
@@ -448,7 +535,6 @@ if ($stats_result) {
                         </a>
                     <?php endif; ?>
 
-                    <!-- Page Numbers -->
                     <?php
                     $start_page = max(1, $current_page - 2);
                     $end_page = min($total_pages, $current_page + 2);
@@ -461,7 +547,6 @@ if ($stats_result) {
                         </a>
                     <?php endfor; ?>
 
-                    <!-- Next Page -->
                     <?php if ($current_page < $total_pages): ?>
                         <a href="?page=<?php echo $current_page + 1; ?>&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
                             class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
@@ -469,7 +554,6 @@ if ($stats_result) {
                         </a>
                     <?php endif; ?>
 
-                    <!-- Last Page -->
                     <?php if ($current_page < $total_pages): ?>
                         <a href="?page=<?php echo $total_pages; ?>&<?php echo http_build_query(array_diff_key($_GET, ['page' => ''])); ?>" 
                             class="flex items-center justify-center w-8 h-8 bg-white border border-gray-300 rounded font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-300 text-sm">
@@ -484,128 +568,31 @@ if ($stats_result) {
 </div>
 
 <style>
-.status-select {
-    background-color: #e8e8e8ff;
+.status-select, .availability-select {
+    background-color: #E0F7FF;
     color: #2A8FA9;
-    border: 1px solid #51a2b994;
-    border-opacity: 0.3;
+    border: 1px solid rgba(81, 163, 185, 0.3);
     transition: all 0.3s ease;
-    min-width: 130px;
-    transform: scale(1);
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-radius: 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    width: 100%;
-    appearance: none;
-    cursor: pointer;
+    min-width: 140px;
 }
 
-.status-select:disabled {
+.status-select:disabled, .availability-select:disabled {
     cursor: not-allowed;
     opacity: 0.6;
 }
 
-
 .ring-2 { 
-    box-shadow: 0 0 0 1px rgba(81, 163, 185, 0.5); 
+    box-shadow: 0 0 0 2px rgba(81, 163, 185, 0.5); 
 }
 
-.status-select::-ms-expand {
+.status-select::-ms-expand, .availability-select::-ms-expand {
     display: none;
 }
 
-table {
-    table-layout: auto;
-}
-
-th:nth-child(1), td:nth-child(1) { width: 60px; }
-th:nth-child(6), td:nth-child(6) { width: 100px; padding-right: 6rem; }
-th:nth-child(7), td:nth-child(7) { width: 176px; }
-
-.status-select option {
+.status-select option, .availability-select option {
     background: white;
     color: #1f2937;
     padding: 8px;
-}
-
-.student-profile-modal {
-    background: white;
-    border-radius: 1rem;
-    max-width: 900px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #E0F7FF 0%, #B8E6F5 100%);
-    padding: 1.5rem;
-    border-bottom: 1px solid #51A3B9;
-}
-
-.modal-body {
-    padding: 1.5rem;
-}
-
-.skill-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    margin: 0.125rem;
-}
-
-.skill-technical {
-    background-color: #DBEAFE;
-    color: #1E40AF;
-    border: 1px solid #BFDBFE;
-}
-
-.skill-soft {
-    background-color: #D1FAE5;
-    color: #065F46;
-    border: 1px solid #A7F3D0;
-}
-
-.skill-tool {
-    background-color: #EDE9FE;
-    color: #5B21B6;
-    border: 1px solid #DDD6FE;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
-.stat-card {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 0.75rem;
-    padding: 1rem;
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #2A8FA9;
-    display: block;
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: #64748B;
-    margin-top: 0.25rem;
 }
 </style>
 
@@ -622,6 +609,25 @@ const STATUS_CONFIG = {
     'not_eligible': {
         icon: 'mdi:close-circle',
         iconColor: 'text-[#2A8FA9]'
+    }
+};
+
+const AVAILABILITY_CONFIG = {
+    'available': {
+        icon: 'mdi:check-circle',
+        iconColor: 'text-green-500'
+    },
+    'interview': {
+        icon: 'mdi:clock',
+        iconColor: 'text-yellow-500'
+    },
+    'accepted': {
+        icon: 'mdi:account-check',
+        iconColor: 'text-red-500'
+    },
+    'inactive': {
+        icon: 'mdi:account-off',
+        iconColor: 'text-gray-500'
     }
 };
 
@@ -652,7 +658,7 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
     })
     .then(data => {
         if (data.success) {
-            console.log('✅ Status updated successfully');
+            console.log('✅ Status eligibility updated successfully');
             
             Array.from(selectElement.options).forEach(option => {
                 option.selected = (option.value === newStatus);
@@ -674,12 +680,10 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
                 }
             }
             
-            selectElement.classList.add('ring-2', 'ring-[#51A3B9]', 'scale-105');
+            selectElement.classList.add('ring-2', 'scale-105');
             setTimeout(() => {
-                selectElement.classList.remove('ring-2', 'ring-[#51A3B9]', 'scale-105');
+                selectElement.classList.remove('ring-2', 'scale-105');
             }, 1000);
-            
-            console.log('✨ UI fully updated to:', newStatus);
             
         } else {
             throw new Error(data.message || 'Unknown server error');
@@ -687,7 +691,75 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
     })
     .catch(error => {
         console.error('💥 Error:', error);
-        alert('Error saat update: ' + error.message);
+        alert('Error saat update eligibility: ' + error.message);
+    })
+    .finally(() => {
+        selectElement.disabled = false;
+        selectElement.style.opacity = '1';
+    });
+}
+
+function updateAvailabilityStatus(userId, newStatus, selectElement) {
+    const parentDiv = selectElement.parentElement;
+    const iconElement = parentDiv.querySelector('.availability-icon .iconify');
+    
+    selectElement.disabled = true;
+    selectElement.style.opacity = '0.6';
+    
+    const formData = new URLSearchParams();
+    formData.append('action', 'update_availability');
+    formData.append('user_id', userId);
+    formData.append('availability_status', newStatus);
+    
+    fetch('', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            console.log('✅ Status availability updated successfully');
+            
+            Array.from(selectElement.options).forEach(option => {
+                option.selected = (option.value === newStatus);
+            });
+            
+            selectElement.setAttribute('data-current-status', newStatus);
+            
+            if (iconElement) {
+                const config = AVAILABILITY_CONFIG[newStatus];
+                if (config) {
+                    iconElement.setAttribute('data-icon', config.icon);
+                    iconElement.className = `iconify ${config.iconColor}`;
+                    
+                    if (window.Iconify && window.Iconify.replace) {
+                        window.Iconify.replace(iconElement);
+                    } else if (window.iconify && window.iconify.replace) {
+                        window.iconify.replace(iconElement);
+                    }
+                }
+            }
+            
+            selectElement.classList.add('ring-2', 'scale-105');
+            setTimeout(() => {
+                selectElement.classList.remove('ring-2', 'scale-105');
+            }, 1000);
+            
+        } else {
+            throw new Error(data.message || 'Unknown server error');
+        }
+    })
+    .catch(error => {
+        console.error('💥 Error:', error);
+        alert('Error saat update availability: ' + error.message);
     })
     .finally(() => {
         selectElement.disabled = false;
@@ -697,64 +769,6 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Admin dashboard loaded');
-    console.log('📋 Status config:', STATUS_CONFIG);
-});
-
-function openStudentProfileModal(studentId) {
-    document.getElementById('studentModalContent').innerHTML = `
-        <div class="flex items-center justify-center p-12">
-            <div class="text-center">
-                <span class="iconify text-[#2A8FA9] animate-spin" data-icon="mdi:loading" data-width="32"></span>
-                <p class="text-gray-600 mt-2">Memuat profil mahasiswa...</p>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('studentProfileModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    
-    fetch(`student-profile-modal.php?id=${studentId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
-        .then(html => {
-            document.getElementById('studentModalContent').innerHTML = html;
-        })
-        .catch(error => {
-            console.error('Error loading student profile:', error);
-            document.getElementById('studentModalContent').innerHTML = `
-                <div class="flex items-center justify-center p-12">
-                    <div class="text-center">
-                        <span class="iconify text-red-400" data-icon="mdi:alert-circle" data-width="48"></span>
-                        <p class="text-gray-600 mt-2">Gagal memuat profil mahasiswa.</p>
-                        <button onclick="closeStudentProfileModal()" 
-                                class="mt-4 bg-[#2A8FA9] text-white px-4 py-2 rounded-lg hover:bg-[#51A3B9] transition-colors">
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-}
-
-function closeStudentProfileModal() {
-    document.getElementById('studentProfileModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-}
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeStudentProfileModal();
-    }
-});
-
-document.getElementById('studentProfileModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeStudentProfileModal();
-    }
 });
 </script>
 

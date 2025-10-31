@@ -15,6 +15,7 @@ recordProfileView($student_id, $viewer_id, 'mitra-industri');
 $query_filter = isset($_GET['q']) ? sanitize($_GET['q']) : '';
 $specialization_filter = isset($_GET['specialization']) ? sanitize($_GET['specialization']) : '';
 $skill_filter = isset($_GET['skill']) ? sanitize($_GET['skill']) : '';
+$work_preference_filter = isset($_GET['work_preference']) ? sanitize($_GET['work_preference']) : '';
 $show_all = isset($_GET['show_all']) && $_GET['show_all'] == '1';
 
 $current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
@@ -54,6 +55,26 @@ try {
 
 } catch (Exception $e) {
     error_log("Exception fetching skills for filter: " . $e->getMessage());
+}
+
+// Work Preferences untuk filter
+$all_work_preferences = [];
+try {
+    $work_pref_query = "
+        SELECT DISTINCT wl.id, wl.name 
+        FROM work_locations wl 
+        ORDER BY wl.name
+    ";
+    $work_pref_result = $conn->query($work_pref_query);
+    
+    if ($work_pref_result instanceof mysqli_result) {
+        while ($row = $work_pref_result->fetch_assoc()) {
+            $all_work_preferences[] = $row;
+        }
+        $work_pref_result->free();
+    }
+} catch (Exception $e) {
+    error_log("Error fetching work preferences: " . $e->getMessage());
 }
 
 $search_suggestions = [
@@ -98,6 +119,7 @@ $query = "
     LEFT JOIN projects p ON u.id = p.student_id
     LEFT JOIN project_skills ps ON p.id = ps.project_id
     LEFT JOIN skills s ON ps.skill_id = s.id
+    LEFT JOIN user_work_locations uwl ON u.id = uwl.user_id
     WHERE u.role = 'student' AND u.eligibility_status = 'eligible'
 ";
 
@@ -107,6 +129,7 @@ $count_query = "
     LEFT JOIN projects p ON u.id = p.student_id
     LEFT JOIN project_skills ps ON p.id = ps.project_id
     LEFT JOIN skills s ON ps.skill_id = s.id
+    LEFT JOIN user_work_locations uwl ON u.id = uwl.user_id
     WHERE u.role = 'student' AND u.eligibility_status = 'eligible'
 ";
 
@@ -147,9 +170,16 @@ if (!empty($skill_filter)) {
     $types .= "s";
 }
 
+if (!empty($work_preference_filter)) {
+    $query .= " AND uwl.work_location_id = ?";
+    $count_query .= " AND uwl.work_location_id = ?";
+    $params[] = $work_preference_filter;
+    $types .= "i";
+}
+
 $query .= " GROUP BY u.id ORDER BY u.name ASC";
 
-$is_filter_active = !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || $show_all;
+$is_filter_active = !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || !empty($work_preference_filter) || $show_all;
 if (!$is_filter_active) {
     $query .= " LIMIT ? OFFSET ?";
     $params[] = $students_per_page;
@@ -233,7 +263,7 @@ function shortenBio($bio, $max_length = 140) {
     return $shortened . '...';
 }
 
-$is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_filter) && empty($skill_filter));
+$is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_filter) && empty($skill_filter) && empty($work_preference_filter));
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -492,7 +522,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mobile-flex-col md:mobile-flex-row">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mobile-flex-col md:mobile-flex-row">
                 <div class="mobile-w-full">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Spesialisasi</label>
                     <div class="relative">
@@ -534,6 +564,27 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                         </span>
                     </div>
                 </div>
+
+                <div class="mobile-w-full">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preferensi Kerja</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <span class="iconify" data-icon="mdi:briefcase-check" data-width="18"></span>
+                        </span>
+                        <select name="work_preference" class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                            <option value="">Semua Tipe Kerja</option>
+                            <?php foreach ($all_work_preferences as $pref): ?>
+                                <option value="<?php echo htmlspecialchars($pref['id']); ?>" 
+                                        <?php echo $work_preference_filter == $pref['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($pref['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 pointer-events-none">
+                            <span class="iconify" data-icon="mdi:chevron-down" data-width="16"></span>
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-3 sm:pt-4 mobile-buttons">
@@ -549,21 +600,21 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
         </form>
     </div>
 
-    <?php if ($is_show_all_mode || !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || $total_students > 0): ?>
+    <?php if ($is_show_all_mode || !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || !empty($work_preference_filter) || $total_students > 0): ?>
         
         <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mobile-stack">
             <p class="text-gray-600 text-sm mobile-text-center sm:text-left">
                 Menampilkan <span class="font-bold text-[#2A8FA9]"><?php echo count($students); ?></span> dari <span class="font-bold text-[#2A8FA9]"><?php echo $total_students; ?></span> talenta
-                <?php if ($is_show_all_mode && empty($query_filter) && empty($specialization_filter) && empty($skill_filter)): ?>
+                <?php if ($is_show_all_mode && empty($query_filter) && empty($specialization_filter) && empty($skill_filter) && empty($work_preference_filter)): ?>
                     (Semua Mahasiswa Eligible)
-                <?php elseif (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
+                <?php elseif (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || !empty($work_preference_filter)): ?>
                     berdasarkan filter yang dipilih
                 <?php elseif (!$is_filter_active): ?>
                     (Halaman <?php echo $current_page; ?> dari <?php echo $total_pages; ?>)
                 <?php endif; ?>
             </p>
             
-            <?php if (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter)): ?>
+            <?php if (!empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || !empty($work_preference_filter)): ?>
             <div class="flex flex-wrap gap-2 justify-center sm:justify-start mobile-w-full sm:mobile-w-auto">
                 <?php if (!empty($query_filter)): ?>
                     <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
@@ -588,6 +639,24 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                         <span class="iconify" data-icon="mdi:code-braces" data-width="14"></span>
                         <?php echo htmlspecialchars($skill_filter); ?>
                         <button onclick="removeFilter('skill')" class="text-purple-600 hover:text-purple-800 ml-1">
+                            <span class="iconify" data-icon="mdi:close" data-width="14"></span>
+                        </button>
+                    </span>
+                <?php endif; ?>
+                <?php if (!empty($work_preference_filter)): ?>
+                    <?php 
+                    $selected_pref_name = '';
+                    foreach ($all_work_preferences as $pref) {
+                        if ($pref['id'] == $work_preference_filter) {
+                            $selected_pref_name = $pref['name'];
+                            break;
+                        }
+                    }
+                    ?>
+                    <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                        <span class="iconify" data-icon="mdi:briefcase-check" data-width="14"></span>
+                        <?php echo htmlspecialchars($selected_pref_name); ?>
+                        <button onclick="removeFilter('work_preference')" class="text-amber-600 hover:text-amber-800 ml-1">
                             <span class="iconify" data-icon="mdi:close" data-width="14"></span>
                         </button>
                     </span>

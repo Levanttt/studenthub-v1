@@ -66,6 +66,59 @@ function getEligibilityBadge($status) {
     return $config;
 }
 
+function getAvailabilityBadgeColor($status) {
+    $colors = [
+        'available' => 'bg-[#E0F7FF] text-[#2A8FA9] border-[#51A3B9] border-opacity-30',
+        'interview' => 'bg-[#E0F7FF] text-[#2A8FA9] border-[#51A3B9] border-opacity-30',
+        'accepted' => 'bg-[#E0F7FF] text-[#2A8FA9] border-[#51A3B9] border-opacity-30',
+        'inactive' => 'bg-[#E0F7FF] text-[#2A8FA9] border-[#51A3B9] border-opacity-30'
+    ];
+    return $colors[$status] ?? $colors['inactive'];
+}
+
+function getAvailabilityIcon($status) {
+    $icons = [
+        'available' => 'mdi:check-circle',
+        'interview' => 'mdi:clock',
+        'accepted' => 'mdi:account-check',
+        'inactive' => 'mdi:account-off'
+    ];
+    return $icons[$status] ?? $icons['inactive'];
+}
+
+function getAvailabilityText($status) {
+    $texts = [
+        'available' => 'Aktif Mencari',
+        'interview' => 'Proses Interview',
+        'accepted' => 'Sudah Diterima',
+        'inactive' => 'Belum Aktif'
+    ];
+    return $texts[$status] ?? $texts['inactive'];
+}
+
+function getAvailabilityBadge($status) {
+    $config = [
+        'available' => [
+            'icon' => 'mdi:check-circle',
+            'iconColor' => 'text-[#2A8FA9]'
+        ],
+        'interview' => [
+            'icon' => 'mdi:clock',
+            'iconColor' => 'text-[#2A8FA9]'
+        ],
+        'accepted' => [
+            'icon' => 'mdi:account-check',
+            'iconColor' => 'text-[#2A8FA9]'
+        ],
+        'inactive' => [
+            'icon' => 'mdi:account-off',
+            'iconColor' => 'text-[#2A8FA9]'
+        ]
+    ];
+    
+    return $config[$status] ?? $config['inactive'];
+}
+
 function recordProfileView($student_id, $viewer_id = null, $viewer_role = 'other') {
     global $conn;
     
