@@ -12,7 +12,7 @@ $student = [];
 try {
     $student_query = "
         SELECT id, name, email, profile_picture, phone, major, bio, specializations, 
-                cv_file_path, linkedin, created_at, semester, nim, availability_status
+                cv_file_path, linkedin, created_at, semester, availability_status
         FROM users 
         WHERE id = ? AND role = 'student'
     ";
@@ -262,10 +262,6 @@ usort($certificates, function($a, $b) {
                     <?php endif; ?>
                     
                     <h1 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-2 break-words"><?php echo htmlspecialchars($student['name']); ?></h1>
-                    
-                    <?php if (!empty($student['nim'])): ?>
-                        <p class="text-sm sm:text-base text-gray-600 font-medium mb-1 break-words"><?php echo htmlspecialchars($student['nim']); ?></p>
-                    <?php endif; ?>
                     
                     <?php if (!empty($student['major'])): ?>
                         <p class="text-sm sm:text-base text-gray-600 font-medium mb-1 break-words"><?php echo htmlspecialchars($student['major']); ?></p>

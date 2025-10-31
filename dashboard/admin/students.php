@@ -211,100 +211,104 @@ if ($stats_result) {
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-[#2A8FA9] flex items-center gap-3">
-                <span class="iconify" data-icon="mdi:shield-account" data-width="32"></span>
-                Kelola Status Mahasiswa
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#2A8FA9] flex items-center gap-2 sm:gap-3">
+                <span class="iconify" data-icon="mdi:shield-account" data-width="28" data-height="28"></span>
+                <span class="hidden sm:inline">Kelola Status Mahasiswa</span>
+                <span class="sm:hidden">Kelola Mahasiswa</span>
             </h1>
-            <p class="text-gray-600 mt-2">Atur status eligibility dan ketersediaan mahasiswa</p>
+            <p class="text-gray-600 mt-2 text-sm sm:text-base">Atur status eligibility dan ketersediaan mahasiswa</p>
         </div>
-        <a href="index.php" class="bg-[#E0F7FF] text-[#2A8FA9] px-6 py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center gap-2">
+        <a href="index.php" class="w-full sm:w-auto bg-[#E0F7FF] text-[#2A8FA9] px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30 flex items-center justify-center gap-2 text-sm sm:text-base">
             <span class="iconify" data-icon="mdi:arrow-left" data-width="18"></span>
             Kembali ke Dashboard
         </a>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8 mt-8">
-        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-            <div class="text-[#51A3B9] mb-3 flex justify-center">
-                <span class="iconify" data-icon="mdi:account-multiple" data-width="48"></span>
+    <!-- Stats Section -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 sm:gap-6 mb-6 sm:mb-8 mt-6 sm:mt-8">
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+            <div class="text-[#51A3B9] mb-2 sm:mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:account-multiple" data-width="36" data-height="36"></span>
             </div>
-            <h3 class="text-[#2A8FA9] font-bold text-2xl mb-2"><?php echo $stats['total_students'] ?? 0; ?></h3>
-            <p class="text-gray-600 font-medium">Total</p>
+            <h3 class="text-[#2A8FA9] font-bold text-xl sm:text-2xl mb-1 sm:mb-2"><?php echo $stats['total_students'] ?? 0; ?></h3>
+            <p class="text-gray-600 font-medium text-xs sm:text-sm">Total</p>
         </div>
         
-        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-            <div class="text-green-500 mb-3 flex justify-center">
-                <span class="iconify" data-icon="mdi:check-circle" data-width="48"></span>
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+            <div class="text-green-500 mb-2 sm:mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:check-circle" data-width="36" data-height="36"></span>
             </div>
-            <h3 class="text-green-600 font-bold text-2xl mb-2"><?php echo $stats['eligible_students'] ?? 0; ?></h3>
-            <p class="text-gray-600 font-medium">Eligible</p>
+            <h3 class="text-green-600 font-bold text-xl sm:text-2xl mb-1 sm:mb-2"><?php echo $stats['eligible_students'] ?? 0; ?></h3>
+            <p class="text-gray-600 font-medium text-xs sm:text-sm">Eligible</p>
         </div>
         
-        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-            <div class="text-red-500 mb-3 flex justify-center">
-                <span class="iconify" data-icon="mdi:close-circle" data-width="48"></span>
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+            <div class="text-red-500 mb-2 sm:mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:close-circle" data-width="36" data-height="36"></span>
             </div>
-            <h3 class="text-red-600 font-bold text-2xl mb-2"><?php echo $stats['not_eligible_students'] ?? 0; ?></h3>
-            <p class="text-gray-600 font-medium">Not Eligible</p>
+            <h3 class="text-red-600 font-bold text-xl sm:text-2xl mb-1 sm:mb-2"><?php echo $stats['not_eligible_students'] ?? 0; ?></h3>
+            <p class="text-gray-600 font-medium text-xs sm:text-sm">Not Eligible</p>
         </div>
         
-        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-            <div class="text-green-500 mb-3 flex justify-center">
-                <span class="iconify" data-icon="mdi:account-check" data-width="48"></span>
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+            <div class="text-green-500 mb-2 sm:mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:account-check" data-width="36" data-height="36"></span>
             </div>
-            <h3 class="text-green-600 font-bold text-2xl mb-2"><?php echo $stats['available_students'] ?? 0; ?></h3>
-            <p class="text-gray-600 font-medium">Tersedia</p>
+            <h3 class="text-green-600 font-bold text-xl sm:text-2xl mb-1 sm:mb-2"><?php echo $stats['available_students'] ?? 0; ?></h3>
+            <p class="text-gray-600 font-medium text-xs sm:text-sm">Available</p>
         </div>
         
-        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-            <div class="text-yellow-500 mb-3 flex justify-center">
-                <span class="iconify" data-icon="mdi:clock" data-width="48"></span>
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+            <div class="text-yellow-500 mb-2 sm:mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:clock" data-width="36" data-height="36"></span>
             </div>
-            <h3 class="text-yellow-600 font-bold text-2xl mb-2"><?php echo $stats['pending_students'] ?? 0; ?></h3>
-            <p class="text-gray-600 font-medium">Pending</p>
+            <h3 class="text-yellow-600 font-bold text-xl sm:text-2xl mb-1 sm:mb-2"><?php echo $stats['pending_students'] ?? 0; ?></h3>
+            <p class="text-gray-600 font-medium text-xs sm:text-sm">Pending</p>
         </div>
         
-        <div class="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-            <div class="text-blue-500 mb-3 flex justify-center">
-                <span class="iconify" data-icon="mdi:account-clock" data-width="48"></span>
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+            <div class="text-blue-500 mb-2 sm:mb-3 flex justify-center">
+                <span class="iconify" data-icon="mdi:account-clock" data-width="36" data-height="36"></span>
             </div>
-            <h3 class="text-blue-600 font-bold text-2xl mb-2"><?php echo $stats['interview_students'] ?? 0; ?></h3>
-            <p class="text-gray-600 font-medium">Interview</p>
+            <h3 class="text-blue-600 font-bold text-xl sm:text-2xl mb-1 sm:mb-2"><?php echo $stats['interview_students'] ?? 0; ?></h3>
+            <p class="text-gray-600 font-medium text-xs sm:text-sm">Interview</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
-        <h2 class="text-2xl font-bold text-[#2A8FA9] mb-6 flex items-center gap-2">
-            <span class="iconify" data-icon="mdi:filter" data-width="28"></span>
+    <!-- Filter Section -->
+    <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-6 sm:mb-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-4 sm:mb-6 flex items-center gap-2">
+            <span class="iconify" data-icon="mdi:filter" data-width="24" data-height="24"></span>
             Filter Mahasiswa
         </h2>
         
-        <form method="GET" action="" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <form method="GET" action="" class="space-y-4 sm:space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari Mahasiswa</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Cari Mahasiswa</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                            <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
+                            <span class="iconify" data-icon="mdi:magnify" data-width="18"></span>
                         </span>
                         <input type="text" 
                             name="search" 
                             value="<?php echo htmlspecialchars($search); ?>" 
-                            class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm" 
+                            class="w-full pl-10 pr-3 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] transition-colors text-sm" 
                             placeholder="Nama, NIM, atau Email...">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Program Studi</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Program Studi</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <span class="iconify" data-icon="mdi:book-education" data-width="18"></span>
                         </span>
-                        <select name="major" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                        <select name="major" class="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
                             <option value="">Semua Program Studi</option>
                             <?php foreach ($daftar_major as $m): ?>
                                 <option value="<?php echo htmlspecialchars($m['major']); ?>" 
@@ -320,12 +324,12 @@ if ($stats_result) {
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Semester</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Semester</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <span class="iconify" data-icon="mdi:numeric" data-width="18"></span>
                         </span>
-                        <select name="semester" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                        <select name="semester" class="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
                             <option value="">Semua Semester</option>
                             <?php for ($i = 1; $i <= 8; $i++): ?>
                                 <option value="<?php echo $i; ?>" <?php echo $semester == $i ? 'selected' : ''; ?>>
@@ -340,12 +344,12 @@ if ($stats_result) {
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Eligibility</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status Eligibility</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <span class="iconify" data-icon="mdi:shield-check" data-width="18"></span>
                         </span>
-                        <select name="eligibility_status" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                        <select name="eligibility_status" class="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
                             <option value="">Semua Status</option>
                             <option value="pending" <?php echo $eligibility_filter == 'pending' ? 'selected' : ''; ?>>Pending</option>
                             <option value="eligible" <?php echo $eligibility_filter == 'eligible' ? 'selected' : ''; ?>>Eligible</option>
@@ -358,12 +362,12 @@ if ($stats_result) {
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Ketersediaan</label>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Status Ketersediaan</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <span class="iconify" data-icon="mdi:account-search" data-width="18"></span>
                         </span>
-                        <select name="availability_status" class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
+                        <select name="availability_status" class="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#51A3B9] focus:border-[#51A3B9] text-sm appearance-none bg-white">
                             <option value="">Semua Status</option>
                             <option value="available" <?php echo $availability_filter == 'available' ? 'selected' : ''; ?>>Available</option>
                             <option value="interview" <?php echo $availability_filter == 'interview' ? 'selected' : ''; ?>>Interview</option>
@@ -377,12 +381,12 @@ if ($stats_result) {
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-4 pt-4">
-                <button type="submit" class="bg-[#51A3B9] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 shadow-sm flex items-center gap-2">
+            <div class="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4 pt-4">
+                <button type="submit" class="w-full sm:w-auto bg-[#51A3B9] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 shadow-sm flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-none">
                     <span class="iconify" data-icon="mdi:magnify" data-width="20"></span>
                     Terapkan Filter
                 </button>
-                <a href="students.php" class="bg-gray-200 text-gray-700 px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center gap-2">
+                <a href="students.php" class="w-full sm:w-auto bg-gray-200 text-gray-700 px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center justify-center gap-2 text-sm sm:text-base order-2 sm:order-none">
                     <span class="iconify" data-icon="mdi:refresh" data-width="20"></span>
                     Reset
                 </a>
@@ -390,21 +394,23 @@ if ($stats_result) {
         </form>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div class="p-6 border-b border-gray-200">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h2 class="text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:account-multiple" data-width="28"></span>
+    <!-- Table Section -->
+    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100">
+        <div class="p-4 sm:p-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:account-multiple" data-width="24" data-height="24"></span>
                     Data Mahasiswa
                 </h2>
-                <p class="text-gray-600 text-sm">
+                <p class="text-gray-600 text-xs sm:text-sm">
                     Menampilkan <span class="font-bold text-[#2A8FA9]"><?php echo count($students); ?></span> dari 
                     <span class="font-bold text-[#2A8FA9]"><?php echo $total_students; ?></span> mahasiswa
                 </p>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <!-- Desktop Table View -->
+        <div class="hidden lg:block overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
@@ -413,7 +419,7 @@ if ($stats_result) {
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Program Studi</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Semester</th>
-                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Lihat Profil</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Profil</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Eligibility</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Availability</th>
                     </tr>
@@ -513,10 +519,102 @@ if ($stats_result) {
             </table>
         </div>
 
+        <!-- Mobile Card View -->
+        <div class="lg:hidden divide-y divide-gray-200">
+            <?php if (count($students) > 0): ?>
+                <?php foreach ($students as $index => $student): ?>
+                    <div class="p-4 hover:bg-gray-50 transition-colors duration-200" data-student-id="<?php echo $student['id']; ?>">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-semibold text-gray-500">#<?php echo $offset + $index + 1; ?></span>
+                                    <span class="text-xs font-medium text-gray-400">•</span>
+                                    <span class="text-xs font-medium text-[#2A8FA9]"><?php echo htmlspecialchars($student['nim'] ?? '-'); ?></span>
+                                </div>
+                                <h3 class="text-base font-bold text-gray-900 mb-1"><?php echo htmlspecialchars($student['name']); ?></h3>
+                                <p class="text-xs text-gray-600"><?php echo htmlspecialchars($student['major'] ?? '-'); ?></p>
+                                <p class="text-xs text-gray-500 mt-1">Semester <?php echo htmlspecialchars($student['semester'] ?? '-'); ?></p>
+                            </div>
+                            <a href="student-profile.php?id=<?php echo $student['id']; ?>" 
+                                    class="flex-shrink-0 bg-[#E0F7FF] text-[#2A8FA9] p-2 rounded-lg hover:bg-[#51A3B9] hover:text-white transition-colors duration-300 border border-[#51A3B9] border-opacity-30">
+                                <span class="iconify" data-icon="mdi:eye" data-width="20"></span>
+                            </a>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Status Eligibility</label>
+                                <?php
+                                $current_status = $student['eligibility_status'] ?? 'pending';
+                                $statusConfig = getEligibilityBadge($current_status);
+                                ?>
+                                <div class="relative" id="status-container-mobile-<?php echo $student['id']; ?>">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10 status-icon-mobile">
+                                        <span class="iconify <?php echo $statusConfig['iconColor']; ?>" 
+                                            data-icon="<?php echo $statusConfig['icon']; ?>" 
+                                            data-width="16"></span>
+                                    </span>
+                                    
+                                    <select onchange="updateEligibilityStatus(<?php echo $student['id']; ?>, this.value, this)" 
+                                            class="status-select-mobile bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-10 pr-10 py-2.5 rounded-lg text-sm font-semibold w-full appearance-none cursor-pointer transition-colors duration-300"
+                                            data-current-status="<?php echo $current_status; ?>">
+                                        <option value="pending" <?php echo $current_status == 'pending' ? 'selected' : ''; ?>>PENDING</option>
+                                        <option value="eligible" <?php echo $current_status == 'eligible' ? 'selected' : ''; ?>>ELIGIBLE</option>
+                                        <option value="not_eligible" <?php echo $current_status == 'not_eligible' ? 'selected' : ''; ?>>NOT ELIGIBLE</option>
+                                    </select>
+                                    
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <span class="iconify text-[#2A8FA9]" data-icon="mdi:chevron-down" data-width="16"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Status Ketersediaan</label>
+                                <?php
+                                $current_availability = $student['availability_status'] ?? 'inactive';
+                                $availabilityConfig = getAvailabilityBadge($current_availability);
+                                ?>
+                                <div class="relative" id="availability-container-mobile-<?php echo $student['id']; ?>">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10 availability-icon-mobile">
+                                        <span class="iconify <?php echo $availabilityConfig['iconColor']; ?>" 
+                                            data-icon="<?php echo $availabilityConfig['icon']; ?>" 
+                                            data-width="16"></span>
+                                    </span>
+                                    
+                                    <select onchange="updateAvailabilityStatus(<?php echo $student['id']; ?>, this.value, this)" 
+                                            class="availability-select-mobile bg-[#E0F7FF] text-[#2A8FA9] border border-[#51A3B9] border-opacity-30 pl-10 pr-10 py-2.5 rounded-lg text-sm font-semibold w-full appearance-none cursor-pointer transition-colors duration-300"
+                                            data-current-status="<?php echo $current_availability; ?>">
+                                        <option value="available" <?php echo $current_availability == 'available' ? 'selected' : ''; ?>>AVAILABLE</option>
+                                        <option value="interview" <?php echo $current_availability == 'interview' ? 'selected' : ''; ?>>INTERVIEW</option>
+                                        <option value="accepted" <?php echo $current_availability == 'accepted' ? 'selected' : ''; ?>>ACCEPTED</option>
+                                        <option value="inactive" <?php echo $current_availability == 'inactive' ? 'selected' : ''; ?>>INACTIVE</option>
+                                    </select>
+                                    
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <span class="iconify text-[#2A8FA9]" data-icon="mdi:chevron-down" data-width="16"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="p-8 text-center">
+                    <div class="text-gray-500 flex flex-col items-center">
+                        <span class="iconify text-gray-400 mb-3" data-icon="mdi:account-search" data-width="48"></span>
+                        <p class="text-base font-medium text-gray-900 mb-2">Tidak ada data mahasiswa</p>
+                        <p class="text-sm text-gray-600">Coba ubah filter pencarian Anda.</p>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Pagination -->
         <?php if ($total_pages > 1): ?>
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <div class="flex justify-between items-center">
-                <p class="text-sm text-gray-700">
+        <div class="px-4 sm:px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+                <p class="text-xs sm:text-sm text-gray-700">
                     Halaman <span class="font-medium"><?php echo $current_page; ?></span> dari 
                     <span class="font-medium"><?php echo $total_pages; ?></span>
                 </p>
@@ -536,8 +634,8 @@ if ($stats_result) {
                     <?php endif; ?>
 
                     <?php
-                    $start_page = max(1, $current_page - 2);
-                    $end_page = min($total_pages, $current_page + 2);
+                    $start_page = max(1, $current_page - 1);
+                    $end_page = min($total_pages, $current_page + 1);
                     
                     for ($i = $start_page; $i <= $end_page; $i++):
                     ?>
@@ -568,6 +666,7 @@ if ($stats_result) {
 </div>
 
 <style>
+/* Desktop Styles */
 .status-select, .availability-select {
     background-color: #E0F7FF;
     color: #2A8FA9;
@@ -581,15 +680,30 @@ if ($stats_result) {
     opacity: 0.6;
 }
 
+/* Mobile Styles */
+.status-select-mobile, .availability-select-mobile {
+    background-color: #E0F7FF;
+    color: #2A8FA9;
+    border: 1px solid rgba(81, 163, 185, 0.3);
+    transition: all 0.3s ease;
+}
+
+.status-select-mobile:disabled, .availability-select-mobile:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .ring-2 { 
     box-shadow: 0 0 0 2px rgba(81, 163, 185, 0.5); 
 }
 
-.status-select::-ms-expand, .availability-select::-ms-expand {
+.status-select::-ms-expand, .availability-select::-ms-expand,
+.status-select-mobile::-ms-expand, .availability-select-mobile::-ms-expand {
     display: none;
 }
 
-.status-select option, .availability-select option {
+.status-select option, .availability-select option,
+.status-select-mobile option, .availability-select-mobile option {
     background: white;
     color: #1f2937;
     padding: 8px;
@@ -633,7 +747,7 @@ const AVAILABILITY_CONFIG = {
 
 function updateEligibilityStatus(userId, newStatus, selectElement) {
     const parentDiv = selectElement.parentElement;
-    const iconElement = parentDiv.querySelector('.status-icon .iconify');
+    const iconElement = parentDiv.querySelector('.status-icon .iconify, .status-icon-mobile .iconify');
     
     selectElement.disabled = true;
     selectElement.style.opacity = '0.6';
@@ -674,8 +788,6 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
                     
                     if (window.Iconify && window.Iconify.replace) {
                         window.Iconify.replace(iconElement);
-                    } else if (window.iconify && window.iconify.replace) {
-                        window.iconify.replace(iconElement);
                     }
                 }
             }
@@ -701,7 +813,7 @@ function updateEligibilityStatus(userId, newStatus, selectElement) {
 
 function updateAvailabilityStatus(userId, newStatus, selectElement) {
     const parentDiv = selectElement.parentElement;
-    const iconElement = parentDiv.querySelector('.availability-icon .iconify');
+    const iconElement = parentDiv.querySelector('.availability-icon .iconify, .availability-icon-mobile .iconify');
     
     selectElement.disabled = true;
     selectElement.style.opacity = '0.6';
@@ -742,8 +854,6 @@ function updateAvailabilityStatus(userId, newStatus, selectElement) {
                     
                     if (window.Iconify && window.Iconify.replace) {
                         window.Iconify.replace(iconElement);
-                    } else if (window.iconify && window.iconify.replace) {
-                        window.iconify.replace(iconElement);
                     }
                 }
             }

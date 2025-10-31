@@ -17,11 +17,45 @@ $viewer_id = $_SESSION['user_id'];
 
 recordProfileView($student_id, $viewer_id, 'mitra_industri');
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['express_interest'])) {
+    $mitra_id = $_SESSION['user_id'];
+    $student_id = $student_id;
+    $message = $_POST['message'] ?? '';
+    
+    try {
+        $check_stmt = $conn->prepare("SELECT id FROM mitra_interest WHERE mitra_id = ? AND student_id = ?");
+        $check_stmt->bind_param("ii", $mitra_id, $student_id);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            $interest_message = "Anda sudah menyatakan ketertarikan pada kandidat ini sebelumnya.";
+            $interest_type = "info";
+        } else {
+            $insert_stmt = $conn->prepare("INSERT INTO mitra_interest (mitra_id, student_id, message) VALUES (?, ?, ?)");
+            $insert_stmt->bind_param("iis", $mitra_id, $student_id, $message);
+            
+            if ($insert_stmt->execute()) {
+                $interest_message = "Ketertarikan berhasil dikirim! Admin akan menghubungi Anda segera.";
+                $interest_type = "success";
+            } else {
+                $interest_message = "Terjadi kesalahan. Silakan coba lagi.";
+                $interest_type = "error";
+            }
+            $insert_stmt->close();
+        }
+        $check_stmt->close();
+    } catch (Exception $e) {
+        $interest_message = "Terjadi kesalahan sistem.";
+        $interest_type = "error";
+    }
+}
+
 $student = [];
 try {
     $student_query = "
         SELECT id, name, email, profile_picture, phone, major, bio, specializations, 
-                cv_file_path, linkedin, created_at, semester
+                cv_file_path, linkedin, created_at, semester, availability_status
         FROM users 
         WHERE id = ? AND role = 'student'
     ";
@@ -40,6 +74,16 @@ try {
     header("Location: index.php?error=database_error");
     exit();
 }
+
+$already_interested = false;
+try {
+    $check_interest_stmt = $conn->prepare("SELECT id FROM mitra_interest WHERE mitra_id = ? AND student_id = ?");
+    $check_interest_stmt->bind_param("ii", $_SESSION['user_id'], $student_id);
+    $check_interest_stmt->execute();
+    $check_interest_result = $check_interest_stmt->get_result();
+    $already_interested = $check_interest_result->num_rows > 0;
+    $check_interest_stmt->close();
+} catch (Exception $e) {}
 
 $all_skills = [
     'technical' => [],
@@ -241,6 +285,16 @@ try {
         </div>
     </div>
 
+    <!-- Notification Alert -->
+    <?php if (isset($interest_message)): ?>
+        <div class="mb-6 p-4 rounded-lg <?php echo $interest_type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : ($interest_type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-blue-100 text-blue-800 border border-blue-200') ?>">
+            <div class="flex items-center gap-2">
+                <span class="iconify" data-icon="<?php echo $interest_type === 'success' ? 'mdi:check-circle' : ($interest_type === 'error' ? 'mdi:alert-circle' : 'mdi:information') ?>" data-width="20"></span>
+                <span class="font-medium"><?php echo $interest_message; ?></span>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Mobile: Profile Info Section (First) -->
     <div class="lg:hidden mb-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
@@ -286,17 +340,17 @@ try {
                 <?php endif; ?>
             </div>
 
-            <!-- Action Buttons -->
+            <!-- Action Buttons Mobile -->
             <div class="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                 <?php if (!empty($student['cv_file_path'])): ?>
                     <a href="<?php echo htmlspecialchars($student['cv_file_path']); ?>" 
                     target="_blank"
-                    class="w-full bg-[#2A8FA9] text-white py-2 sm:py-3 px-4 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base">
+                    class="w-full bg-[#2A8FA9] text-white py-2 sm:py-3 px-4 rounded-xl font-bold hover:bg-[#409BB2] transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-[#51A3B9] border-opacity-30 text-sm sm:text-base">
                         <span class="iconify" data-icon="mdi:file-eye" data-width="16"></span>
                         Lihat CV
                     </a>
                 <?php else: ?>
-                    <div class="w-full bg-gray-100 text-gray-500 py-2 sm:py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm cursor-not-allowed text-sm sm:text-base">
+                    <div class="w-full bg-gray-100 text-gray-500 py-2 sm:py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-gray-300 text-sm sm:text-base">
                         <span class="iconify" data-icon="mdi:file-remove" data-width="16"></span>
                         CV Belum Tersedia
                     </div>
@@ -305,10 +359,24 @@ try {
                 <?php if (!empty($student['linkedin'])): ?>
                     <a href="<?php echo htmlspecialchars($student['linkedin']); ?>" 
                         target="_blank"
-                        class="w-full bg-blue-600 text-white py-2 sm:py-3 px-4 rounded-xl font-bold hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm text-sm sm:text-base">
+                        class="w-full bg-blue-600 text-white py-2 sm:py-3 px-4 rounded-xl font-bold hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-blue-500 border-opacity-30 text-sm sm:text-base">
                         <span class="iconify" data-icon="mdi:linkedin" data-width="16"></span>
                         LinkedIn Profile
                     </a>
+                <?php endif; ?>
+
+                <!-- Interest Button Mobile -->
+                <?php if (!$already_interested): ?>
+                    <button onclick="openInterestModal()" 
+                            class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 sm:py-3 px-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-amber-400 border-opacity-30 text-sm sm:text-base">
+                        <span class="iconify" data-icon="mdi:account-plus" data-width="16"></span>
+                        Rekrut Kandidat
+                    </button>
+                <?php else: ?>
+                    <div class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white py-2 sm:py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-amber-300 border-opacity-30 text-sm sm:text-base">
+                        <span class="iconify" data-icon="mdi:check-circle" data-width="16"></span>
+                        Dalam Proses
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -365,12 +433,12 @@ try {
                     <?php if (!empty($student['cv_file_path'])): ?>
                         <a href="<?php echo htmlspecialchars($student['cv_file_path']); ?>" 
                         target="_blank"
-                        class="w-full bg-[#2A8FA9] text-white py-3 px-4 rounded-xl font-bold hover:bg-[#409BB2] transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
+                        class="w-full bg-[#2A8FA9] text-white py-3 px-4 rounded-xl font-bold hover:bg-[#409BB2] transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-[#51A3B9] border-opacity-30">
                             <span class="iconify" data-icon="mdi:file-eye" data-width="18"></span>
                             Lihat CV
                         </a>
                     <?php else: ?>
-                        <div class="w-full bg-gray-100 text-gray-500 py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm cursor-not-allowed">
+                        <div class="w-full bg-gray-100 text-gray-500 py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-gray-300">
                             <span class="iconify" data-icon="mdi:file-remove" data-width="18"></span>
                             CV Belum Tersedia
                         </div>
@@ -379,10 +447,24 @@ try {
                     <?php if (!empty($student['linkedin'])): ?>
                         <a href="<?php echo htmlspecialchars($student['linkedin']); ?>" 
                             target="_blank"
-                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm">
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-bold hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-blue-500 border-opacity-30">
                             <span class="iconify" data-icon="mdi:linkedin" data-width="18"></span>
                             LinkedIn Profile
                         </a>
+                    <?php endif; ?>
+
+                    <!-- Interest Button -->
+                    <?php if (!$already_interested): ?>
+                        <button onclick="openInterestModal()" 
+                                class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 px-4 rounded-xl font-bold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-amber-400 border-opacity-30">
+                            <span class="iconify" data-icon="mdi:account-plus" data-width="18"></span>
+                            Rekrut Kandidat
+                        </button>
+                    <?php else: ?>
+                        <div class="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white py-3 px-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg cursor-not-allowed border border-amber-300 border-opacity-30">
+                            <span class="iconify" data-icon="mdi:check-circle" data-width="18"></span>
+                            Dalam Proses
+                        </div>
                     <?php endif; ?>
                 </div>
 
@@ -520,10 +602,18 @@ try {
         <div class="lg:col-span-3">
             <!-- Bio Section -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 sm:mb-8">
-                <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9] mb-3 sm:mb-4 flex items-center gap-2">
-                    <span class="iconify" data-icon="mdi:account-circle" data-width="20"></span>
-                    Tentang Saya
-                </h2>
+                <div class="flex items-center gap-3 mb-3 sm:mb-4">
+                    <div class="flex items-center gap-2 flex-1">
+                        <span class="iconify" data-icon="mdi:account-circle" data-width="20"></span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-[#2A8FA9]">Tentang Saya</h2>
+                    </div>
+                    
+                    <!-- Status Availability Badge -->
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold <?php echo getAvailabilityBadgeColor($student['availability_status']); ?>">
+                        <span class="iconify" data-icon="<?php echo getAvailabilityIcon($student['availability_status']); ?>" data-width="14"></span>
+                        <?php echo getAvailabilityText($student['availability_status']); ?>
+                    </div>
+                </div>
                 
                 <?php if (!empty($student['bio'])): ?>
                     <div class="prose max-w-none text-gray-700 leading-relaxed text-sm sm:text-base">
@@ -1057,6 +1147,127 @@ try {
     </div>
 </div>
 
+<div id="interestModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-[#2A8FA9]">Ajukan Permintaan</h3>
+            <button onclick="closeInterestModal()" class="text-gray-500 hover:text-gray-700">
+                <span class="iconify" data-icon="mdi:close" data-width="24"></span>
+            </button>
+        </div>
+        
+        <form method="POST" id="interestForm">
+            <input type="hidden" name="express_interest" value="1">
+            <input type="hidden" name="message" id="selectedMessage" value="">
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-3">
+                    Pilih Template Pesan *
+                </label>
+                <div class="space-y-3 max-h-60 overflow-y-auto">
+
+                    <div class="template-option border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-[#2A8FA9] hover:bg-[#2A8FA9]/10 transition-all duration-200"
+                        data-message="Saya tertarik dengan profil <?php echo htmlspecialchars($student['name']); ?> dan ingin menjadwalkan sesi interview untuk membahas peluang kolaborasi. Mohon bantuan untuk koordinasi lebih lanjut.">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 w-5 h-5 mt-0.5">
+                                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center template-radio">
+                                    <div class="w-3 h-3 bg-[#2A8FA9] rounded-full inner-dot hidden"></div>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800 mb-1">Request Interview</h4>
+                                <p class="text-sm text-gray-600">"Saya tertarik dengan profil <?php echo htmlspecialchars($student['name']); ?> dan ingin menjadwalkan sesi interview..."</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="template-option border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-[#2A8FA9] hover:bg-[#2A8FA9]/10 transition-all duration-200"
+                        data-message="Kami memiliki program internship yang cocok dengan skill <?php echo htmlspecialchars($student['name']); ?>. Apakah memungkinkan untuk berdiskusi lebih lanjut mengenai peluang magang di perusahaan kami?">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 w-5 h-5 mt-0.5">
+                                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center template-radio">
+                                    <div class="w-3 h-3 bg-[#2A8FA9] rounded-full inner-dot hidden"></div>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800 mb-1">Tawaran Magang</h4>
+                                <p class="text-sm text-gray-600">"Kami memiliki program internship yang cocok dengan skill <?php echo htmlspecialchars($student['name']); ?>..."</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="template-option border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-[#2A8FA9] hover:bg-[#2A8FA9]/10 transition-all duration-200"
+                        data-message="Kami tertarik dengan profil <?php echo htmlspecialchars($student['name']); ?>. Kami ingin mengundang Anda untuk berdiskusi lebih lanjut mengenai peluang magang di perusahaan kami.">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 w-5 h-5 mt-0.5">
+                                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center template-radio">
+                                    <div class="w-3 h-3 bg-[#2A8FA9] rounded-full inner-dot hidden"></div>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800 mb-1">Diskusi Peluang Magang</h4>
+                                <p class="text-sm text-gray-600">"Kami tertarik dengan profil <?php echo htmlspecialchars($student['name']); ?>. Kami ingin mengundang Anda untuk berdiskusi..."</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="template-option border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-[#2A8FA9] hover:bg-[#2A8FA9]/10 transition-all duration-200"
+                        data-message="">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 w-5 h-5 mt-0.5">
+                                <div class="w-5 h-5 border-2 border-gray-300 rounded-full flex items-center justify-center template-radio">
+                                    <div class="w-3 h-3 bg-[#2A8FA9] rounded-full inner-dot hidden"></div>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800 mb-1">Pesan Custom</h4>
+                                <p class="text-sm text-gray-600">Tulis pesan khusus sesuai kebutuhan Anda</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="customMessageContainer" class="mb-4 hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Tulis Pesan Custom *
+                </label>
+                <textarea id="customMessageTextarea" name="custom_message" rows="3" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2A8FA9] focus:border-transparent"
+                            placeholder="Tulis pesan khusus untuk admin..."></textarea>
+            </div>
+
+            <div id="messagePreview" class="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg hidden">
+                <h4 class="font-semibold text-gray-700 mb-2 text-sm">Preview Pesan:</h4>
+                <p id="previewText" class="text-sm text-gray-600 italic"></p>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <div class="flex items-start gap-2">
+                    <span class="iconify text-blue-600 mt-0.5" data-icon="mdi:information" data-width="16"></span>
+                    <p class="text-blue-700 text-xs">
+                        Pesan akan dikirim ke admin sistem. Tim kami akan menghubungi Anda untuk koordinasi lebih lanjut.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="flex gap-3">
+                <button type="button" onclick="closeInterestModal()" 
+                        class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-400 transition-colors">
+                    Batal
+                </button>
+                <button type="submit" id="submitButton"
+                        class="flex-1 bg-[#2A8FA9] text-white py-2 px-4 rounded-lg font-semibold hover:bg-[#227a94] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    <span class="iconify" data-icon="mdi:send" data-width="16"></span>
+                    Kirim Permintaan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Image Modal -->
 <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
     <div class="relative max-w-4xl max-h-full mx-2 sm:mx-4">
@@ -1069,6 +1280,77 @@ try {
 </div>
 
 <script>
+let selectedTemplate = null;
+
+document.querySelectorAll('.template-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.template-option').forEach(opt => {
+            opt.classList.remove('border-[#2A8FA9]', 'bg-[#2A8FA9]/10', 'border-2');
+            opt.querySelector('.template-radio div').classList.add('hidden');
+        });
+
+        this.classList.add('border-[#2A8FA9]', 'bg-[#2A8FA9]/10', 'border-2');
+        this.querySelector('.template-radio div').classList.remove('hidden');
+
+        selectedTemplate = this;
+        
+        const message = this.getAttribute('data-message');
+        const isCustom = message === '';
+        
+        const customContainer = document.getElementById('customMessageContainer');
+        const preview = document.getElementById('messagePreview');
+        
+        if (isCustom) {
+            customContainer.classList.remove('hidden');
+            preview.classList.add('hidden');
+            document.getElementById('selectedMessage').value = '';
+            const currentCustomMessage = document.querySelector('textarea[name="custom_message"]').value.trim();
+            document.getElementById('submitButton').disabled = currentCustomMessage === '';
+        } else {
+            customContainer.classList.add('hidden');
+            preview.classList.remove('hidden');
+            document.getElementById('previewText').textContent = message;
+            document.getElementById('selectedMessage').value = message;
+            document.getElementById('submitButton').disabled = false;
+        }
+    });
+});
+
+document.querySelector('textarea[name="custom_message"]').addEventListener('input', function() {
+    const message = this.value.trim();
+    document.getElementById('selectedMessage').value = message;
+    document.getElementById('submitButton').disabled = message === '';
+});
+
+function openInterestModal() {
+    document.getElementById('interestModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeInterestModal() {
+    document.getElementById('interestModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    
+    document.querySelectorAll('.template-option').forEach(opt => {
+        opt.classList.remove('border-[#2A8FA9]', 'bg-[#2A8FA9]/10', 'border-2');
+        opt.querySelector('.template-radio div').classList.add('hidden');
+    });
+
+    document.getElementById('customMessageContainer').classList.add('hidden');
+    document.getElementById('messagePreview').classList.add('hidden');
+    document.getElementById('submitButton').disabled = true;
+    selectedTemplate = null;
+
+    document.getElementById('interestForm').reset();
+    document.getElementById('selectedMessage').value = '';
+}
+
+document.getElementById('interestModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeInterestModal();
+    }
+});
+
 let currentImageIndex = {};
 
 function changeMainImage(projectId, imageSrc, index) {

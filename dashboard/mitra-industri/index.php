@@ -426,11 +426,26 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
     <div class="bg-gradient-to-r from-[#2A8FA9] to-[#51A3B9] text-white rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 mobile-hero">
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
             <div class="flex-1 mobile-text-center lg:text-left">
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3 justify-center lg:justify-start mobile-hero-title">
-                    <span class="iconify" data-icon="mdi:account-search" data-width="32" data-height="32"></span>
-                    Halo, <?php echo htmlspecialchars($_SESSION['name']); ?>!
-                </h1>
-                <p class="text-[#E0F7FF] text-base sm:text-lg opacity-90 mb-4 sm:mb-6 mobile-hero-subtitle">Temukan talenta-talenta terbaik untuk kebutuhan perusahaan Anda.</p>
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4 sm:mb-6">
+                    <div class="flex-1">
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 flex items-center gap-2 sm:gap-3 justify-center lg:justify-start mobile-hero-title">
+                            <span class="iconify" data-icon="mdi:account-search" data-width="32" data-height="32"></span>
+                            Halo, <?php echo htmlspecialchars($_SESSION['name']); ?>!
+                        </h1>
+                        <p class="text-[#E0F7FF] text-base sm:text-lg opacity-90 mobile-hero-subtitle">
+                            Temukan talenta-talenta terbaik untuk kebutuhan perusahaan Anda.
+                        </p>
+                    </div>
+                    
+                    <div class="flex justify-center lg:justify-end mt-4">
+                        <a href="my-interests.php" 
+                        class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 border border-white/30 hover:border-white/50 flex items-center gap-3 group whitespace-nowrap">
+                            <span class="iconify" data-icon="mdi:history" data-width="20"></span>
+                            Lihat History Kandidat
+                            <span class="iconify group-hover:translate-x-1 transition-transform duration-300" data-icon="mdi:arrow-right" data-width="16"></span>
+                        </a>
+                    </div>
+                </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8 mobile-grid-cols-1 md:mobile-grid-cols-3">
                     <div class="bg-white/10 rounded-xl p-4 sm:p-6 border border-white/20 text-center">
@@ -592,7 +607,7 @@ $is_show_all_mode = $show_all || (empty($query_filter) && empty($specialization_
                     <span class="iconify" data-icon="mdi:magnify" data-width="18" data-height="18"></span>
                     Cari Talenta
                 </button>
-                <a href="index.php?show_all=1" class="bg-gray-200 text-gray-700 px-6 sm:px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center justify-center gap-2 mobile-button">
+                <a href="index.php" class="bg-gray-200 text-gray-700 px-6 sm:px-8 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors duration-300 flex items-center justify-center gap-2 mobile-button">
                     <span class="iconify" data-icon="mdi:refresh" data-width="18" data-height="18"></span>
                     Reset
                 </a>
