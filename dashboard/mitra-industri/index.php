@@ -57,7 +57,6 @@ try {
     error_log("Exception fetching skills for filter: " . $e->getMessage());
 }
 
-// Work Preferences untuk filter
 $all_work_preferences = [];
 try {
     $work_pref_query = "
@@ -114,7 +113,8 @@ $students = [];
 $total_pages = 0;
 
 $query = "
-    SELECT DISTINCT u.id, u.name, u.profile_picture, u.university, u.major, u.semester, u.specializations, u.bio 
+    SELECT DISTINCT u.id, u.name, u.profile_picture, u.university, u.major, u.semester, u.specializations, u.bio,
+           COUNT(DISTINCT p.id) as project_count
     FROM users u
     LEFT JOIN projects p ON u.id = p.student_id
     LEFT JOIN project_skills ps ON p.id = ps.project_id
@@ -177,7 +177,7 @@ if (!empty($work_preference_filter)) {
     $types .= "i";
 }
 
-$query .= " GROUP BY u.id ORDER BY u.name ASC";
+$query .= " GROUP BY u.id ORDER BY project_count DESC, u.name ASC";
 
 $is_filter_active = !empty($query_filter) || !empty($specialization_filter) || !empty($skill_filter) || !empty($work_preference_filter) || $show_all;
 if (!$is_filter_active) {
